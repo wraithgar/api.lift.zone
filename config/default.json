@@ -1,0 +1,12 @@
+{
+  "meta": {
+    "status": {
+      "hash": "development"
+    }
+  },
+  "jwt": {
+    "privateKey": "completelyunsecure"
+  },
+  "passwordSalt": "sodium",
+  "invites": true
+}

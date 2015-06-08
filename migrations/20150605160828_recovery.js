@@ -1,0 +1,15 @@
+
+exports.up = function (knex) {
+
+    return knex.schema.createTable('recovery', function (t) {
+
+        t.integer('user_id').index().notNullable().references('users.id');
+        t.text('code').notNullable();
+        t.timestamps();
+    });
+};
+
+exports.down = function (knex) {
+
+    return knex.schema.dropTableIfExists('recovery');
+};

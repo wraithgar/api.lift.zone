@@ -1,0 +1,39 @@
+{
+  "name": "api.lift.zone",
+  "version": "1.0.0",
+  "description": "API for lift.zone",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "knex": "knex",
+    "test": "lab -L"
+  },
+  "keywords": [],
+  "author": "Gar <gar+npm@danger.computer",
+  "license": "MIT",
+  "dependencies": {
+    "@gar/hapi-json-api": "^1.0.1",
+    "bookshelf": "^0.8.1",
+    "boom": "^2.7.2",
+    "getconfig": "^2.1.0",
+    "good": "^6.1.4",
+    "good-console": "^5.0.1",
+    "hapi": "^8.6.1",
+    "hapi-auth-jwt": "^2.1.2",
+    "hoek": "^2.14.0",
+    "joi": "^6.4.3",
+    "jsonwebtoken": "^5.0.1",
+    "knex": "^0.8.6",
+    "lodash": "^3.9.3",
+    "sqlite3": "^3.0.8",
+    "uuid": "^2.0.1"
+  },
+  "devDependencies": {
+    "code": "^1.4.0",
+    "eslint": "^0.22.1",
+    "eslint-plugin-hapi": "^1.1.1",
+    "lab": "^5.9.0",
+    "nodemon": "^1.3.7",
+    "precommit-hook": "^2.0.1"
+  }
+}
