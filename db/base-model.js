@@ -14,6 +14,12 @@ module.exports = function (bookshelf) {
 
             var key;
             var attributes = _(this.attributes).omit('id').clone();
+            if (this.booleans) {
+                this.booleans.forEach(function (attr) {
+
+                    attributes[attr] = Boolean(attributes[attr]);
+                });
+            }
             if (this.visible) {
                 attributes = _.pick.apply(_, [attributes].concat(this.visible));
             }

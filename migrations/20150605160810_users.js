@@ -4,7 +4,7 @@ exports.up = function (knex) {
     return knex.schema.createTable('users', function (t) {
 
         t.increments('id').primary();
-        t.boolean('active').notNullable().defaultTo(false);
+        t.boolean('active').notNullable().defaultTo(true);
         t.text('login').notNullable().unique().index();
         t.text('password_hash').notNullable();
         t.text('supertoken').notNullable();

@@ -1,6 +1,5 @@
 var baseModel = require('./base-model');
 var baseCollection = require('./base-collection');
-var utils = require('../utils');
 
 module.exports = function (bookshelf, BPromise) {
 
@@ -13,11 +12,7 @@ module.exports = function (bookshelf, BPromise) {
          */
         type: 'invite',
         idAttribute: 'code',
-        tableName: 'invites',
-        user: function () {
-
-            return this.belongsTo('User');
-        }
+        tableName: 'invites'
     });
 
     var Invites = BaseCollection.extend({

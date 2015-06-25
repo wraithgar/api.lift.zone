@@ -53,6 +53,7 @@ exports.getServer = function () {
 
     return {
         server: server,
+        utils: utils,
         db: db
     };
 };

@@ -7,6 +7,10 @@
   "jwt": {
     "privateKey": "completelyunsecure"
   },
+  "serverMail": "Lift Zone <lift.zone@danger.computer>",
   "passwordSalt": "sodium",
-  "invites": true
+  "invites": {
+    "enabled": true,
+    "count": 5
+  }
 }

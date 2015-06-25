@@ -3,7 +3,7 @@ exports.up = function (knex) {
 
     return knex.schema.createTable('validations', function (t) {
 
-        t.integer('user_id').index().notNullable().references('users.id');
+        t.integer('user_id').primary().notNullable().references('users.id');
         t.text('code').notNullable().index();
         t.timestamps();
     });

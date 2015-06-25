@@ -1,17 +1,8 @@
-var Joi = require('joi');
 var Hoek = require('hoek');
 var Boom = require('boom');
 var utils = require('../utils');
 var baseModel = require('./base-model');
 var baseCollection = require('./base-collection');
-
-var scheme = {
-    id: Joi.number().required(),
-    login: Joi.string().required(),
-    passwordHash: Joi.string().required(),
-    name: Joi.string().required(),
-    email: Joi.string().email().required()
-};
 
 module.exports = function (bookshelf, BPromise) {
 
@@ -36,46 +27,123 @@ module.exports = function (bookshelf, BPromise) {
         type: 'user',
         tableName: 'users',
         hidden: ['passwordHash', 'supertoken'],
-        initialize: function () {
+        booleans: ['active', 'validated', 'smartmode', 'public'],
+        invites: function () {
 
-            this.on('saving', this.validateSave);
+            return this.hasMany('Invite');
         },
-        validateSave: function () {
+        validation: function () {
 
-            return Joi.validate(this.attributes, scheme);
+            return this.hasOne('Validation');
+        },
+        recovery: function () {
+
+            return this.hasOne('Recovery');
         },
         logout: function () {
 
             return this.save({supertoken: utils.generateSupertoken()}, {patch: true});
         },
-        invites: function () {
-
-            return this.hasMany('Invite');
-        },
-        addInvite: function () {
+        addInvite: function (options) {
 
             var code = utils.generateInviteCode();
+            options = Hoek.applyToDefaults({method: 'insert'}, options);
 
-            return this.related('invites').create({code: code}, {method: 'insert'});
-        }
-    }, {
-        //class properties
-        createWithPassword: function (attrs) {
+            return this.related('invites').create({code: code}, options);
+        },
+        createValidation: function () {
 
-            attrs = Hoek.shallow(attrs);
+            //Ughhhhhhh thanks for nothing knex
+            return bookshelf.knex.raw('replace into validations (user_id, code, created_at, updated_at) values (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)', [this.get('id'), utils.generateValidationCode()]);
+        },
+        getInvites: BPromise.method(function () {
 
-            return BPromise.resolve().then(function () {
+            if (!this.get('validated')) {
+                throw Boom.notFound('Please validate first');
+            }
+            return this.related('invites');
+        }),
+        sendValidation: function () {
 
-                //TODO this should be validated in the controller?
-                Joi.assert(attrs.password, Joi.string().min(8).required().example('hunter2!'));
+            var email = this.get('email');
+            return this.related('validation').fetch().then(function (validation) {
+
+                return utils.mailValidation(email, validation, BPromise);
+            });
+        },
+        validate: BPromise.method(function () {
+
+            var self = this;
+
+            if (self.get('validated')) {
+                return null;
+            }
+
+            return self.related('validation').recent().then(function (validation) {
+
+                if (validation) {
+                    return null;
+                }
+
+                //Create new validation and send email
+                return self.createValidation().then(function () {
+
+                    return self.sendValidation();
+                }).then(function () {
+
+                    return null;
+                });
+
+            });
+        }),
+        confirm: BPromise.method(function (confirmation) {
+
+            var self = this;
+
+            if (self.get('validated')) {
+                return null;
+            }
+
+            return self.related('validation').current().then(function (validation) {
+
+                if (!validation || (validation.get('code') !== confirmation.id)) {
+                    throw Boom.notFound();
+                }
+
+                return bookshelf.transaction(function (t) {
+
+                    return BPromise.all([
+                        self.save({validated: true}, {patch: true, transacting: t}),
+                        validation.destroy({transacting: t})
+                    ]);
+                });
             }).then(function () {
 
-                var password = attrs.password;
-                delete attrs.password;
+                return null;
+            });
+        })
+    }, {
+        //class properties
+        createWithPassword: function (attrs, invites, options) {
 
-                attrs.passwordHash = utils.passwordHash(password);
-                attrs.supertoken = utils.generateSupertoken();
-                return User.forge(attrs).save();
+            attrs = Hoek.shallow(attrs);
+            options = options || {};
+
+            var password = attrs.password;
+            delete attrs.password;
+
+            attrs.passwordHash = utils.passwordHash(password);
+            attrs.supertoken = utils.generateSupertoken();
+
+            return User.forge().save(attrs, options).tap(function (user) {
+
+                var count = invites.count;
+                var userInvites = new Array(count);
+                var i = 0;
+                for (;i < count; i++) {
+                    userInvites.push(user.addInvite(options));
+                }
+                return BPromise.all(userInvites);
             });
         },
         loginWithPassword: function (attrs) {
@@ -92,12 +160,10 @@ module.exports = function (bookshelf, BPromise) {
             return new this(attrs).fetch({require: true}).then(function (user) {
 
                 return {
-                    data: {
-                        id: user.get('id'),
-                        type: 'authToken',
-                        attributes: {
-                            token: utils.userToken(user)
-                        }
+                    id: user.get('id'),
+                    type: 'authToken',
+                    attributes: {
+                        token: utils.userToken(user)
                     }
                 };
             }).catch(function (err) {
@@ -105,38 +171,44 @@ module.exports = function (bookshelf, BPromise) {
                 throw Boom.notFound();
             });
         },
-        signup: function (enabled, invite, attrs) {
+        signup: BPromise.method(function (invites, invite, attrs) {
 
-            if (!enabled) {
+            if (!invites.enabled) {
                 throw Boom.forbidden('No signups');
             }
 
             var self = this;
-            var password = attrs.password;
-            var loginAttrs = {
-                email: attrs.email,
-                password: password
-            };
+            return bookshelf.model('Invite').get({code: invite}).then(function (invite) {
 
-            attrs = Hoek.shallow(attrs);
-            attrs.passwordHash = utils.passwordHash(password);
-            attrs.supertoken = utils.generateSupertoken();
-            delete attrs.password;
-            attrs.active = true;
+                return bookshelf.transaction(function (t) {
 
-            return bookshelf.model('Invite').forge({code: invite}).fetch().then(function (invite) {
+                    return BPromise.all([
+                        self.createWithPassword(attrs, invites, {transacting: t}),
+                        invite.destroy({transacting: t})
+                    ]);
+                }).then(function () {
 
-                if (!invite) {
-                    throw Boom.notFound('Invalid invite');
+                    return self.loginWithPassword({email: attrs.email, password: attrs.password});
+                });
+            });
+        }),
+        recover: function (attrs) {
+
+            this.forge(attrs).fetch({withRelated: 'recovery'}).then(function (user) {
+
+                if (!user) {
+                    return;
                 }
 
-                return self.forge(attrs).save().then(function () {
+                user.related('recovery').query('where', 'created', '>', bookshelf.knex.raw('datetime("now", "-1 days")')).fetch().then(function (existingRecovery) {
 
-                    return invite.destroy();
+                    if (!existingRecovery) {
+                        user.related('recovery').save({code: utils.generateRecoveryCode()}).then(function (recovery) {
+
+                            utils.mailRecovery(user.get('email'), recovery);
+                        });
+                    }
                 });
-            }).then(function () {
-
-                return self.loginWithPassword(loginAttrs);
             });
         }
     });

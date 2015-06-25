@@ -12,12 +12,15 @@ controllers.login = {
 
         request.server.log(['users', 'auth'], 'Login: ' + data.attributes.email);
 
-        return reply(db.User.loginWithPassword(data.attributes)).code(201);
+        return reply(db.User.loginWithPassword(data.attributes).then(function (user) {
+
+            return {data: user};
+        })).code(201);
     },
     validate: {
         payload: {
             data: Joi.object().keys({
-                type: Joi.string().valid('login'),
+                type: Joi.string().valid('login').required(),
                 attributes: Joi.object().keys({
                     email: Joi.string().email().required().example('user@lift.zone'),
                     password: Joi.string().min(8).required().example('hunter2!')
@@ -34,10 +37,11 @@ controllers.logout = {
     handler: function (request, reply) {
 
         var db = this.db;
+        var user = request.auth.credentials.user;
 
-        request.server.log(['users', 'auth'], 'Logout: ' + request.auth.credentials.user.get('email'));
+        request.server.log(['users', 'auth'], 'Logout: ' + user.get('email'));
 
-        return reply(request.auth.credentials.user.logout().then(function () {
+        return reply(user.logout().then(function () {
 
             return request.generateResponse().code(204);
         }));
@@ -49,7 +53,9 @@ controllers.me = {
     tags: ['user'],
     handler: function (request, reply) {
 
-        return reply({data: request.auth.credentials.user});
+        var user = request.auth.credentials.user;
+
+        return reply({data: user});
     }
 };
 
@@ -59,8 +65,12 @@ controllers.invites = {
     handler: function (request, reply) {
 
         var db = this.db;
+        var user = request.auth.credentials.user;
 
-        return reply({data: request.auth.credentials.user.related('invites')});
+        return reply(user.getInvites().then(function (invites) {
+
+            return {data: invites};
+        }));
     }
 };
 
@@ -79,12 +89,15 @@ controllers.signup = {
             password: data.attributes.password
         };
 
-        return reply(db.User.signup(this.config.invites, data.attributes.invite, attrs)).code(201);
+        return reply(db.User.signup(this.config.invites, data.attributes.invite, attrs).then(function (user) {
+
+            return {data: user};
+        })).code(201);
     },
     validate: {
         payload: {
             data: Joi.object().keys({
-                type: Joi.string().valid('invite'),
+                type: Joi.string().valid('signup').required(),
                 attributes: Joi.object().keys({
                     invite: Joi.string().guid().required(),
                     login: Joi.string().required(),
@@ -93,6 +106,98 @@ controllers.signup = {
                     passwordConfirm: Joi.ref('password'),
                     email: Joi.string().email().required()
                 })
+            })
+        }
+    },
+    auth: false
+};
+
+controllers.validate = {
+    description: 'Request email validation',
+    tags: ['user'],
+    handler: function (request, reply) {
+
+        var db = this.db;
+        var user = request.auth.credentials.user;
+
+        return reply(user.validate().then(function (response) {
+
+            return {data: response};
+        })).code(202);
+    }
+};
+
+controllers.confirm = {
+    description: 'Confirm email',
+    tags: ['user'],
+    handler: function (request, reply) {
+
+        var db = this.db;
+        var user = request.auth.credentials.user;
+
+        return reply(user.confirm(request.payload.data).then(function (response) {
+
+            return {data: response};
+        }));
+    },
+    validate: {
+        payload: {
+            data: Joi.object().keys({
+                type: Joi.string().valid('validation').required(),
+                id: Joi.string().guid().required()
+            })
+        }
+    }
+};
+
+controllers.recover = {
+    description: 'Request password recovery',
+    tags: ['user'],
+    handler: function (request, reply) {
+
+        var db = this.db;
+
+        /* there is no condition under which we will do anything but this reply
+         * so just send it now and do the rest asynchronously
+         */
+        reply({data: null}).code(202);
+        db.User.recover(request.payload.data.attributes);
+    },
+    validate: {
+        payload: {
+            data: Joi.object().keys({
+                type: Joi.string().valid('login').required(),
+                attributes: {
+                    email: Joi.string().email().required()
+                }
+            })
+        }
+    },
+    auth: false
+};
+
+controllers.reset = {
+    description: 'Reset password',
+    notes: 'Logs out any existing sessions',
+    tags: ['user'],
+    handler: function (request, reply) {
+
+        var db = this.db;
+
+        return reply(db.Recovery.reset(request.payload.data.attributes).then(function (authToken) {
+
+            return {data: authToken};
+        })).code(201);
+    },
+    validate: {
+        payload: {
+            data: Joi.object().keys({
+                type: Joi.string().valid('reset').required(),
+                attributes: {
+                    code: Joi.string().guid().required(),
+                    password: Joi.string().min(8, 'utf-8').required(),
+                    passwordConfirm: Joi.ref('password')
+                }
             })
         }
     },

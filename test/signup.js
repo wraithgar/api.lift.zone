@@ -3,37 +3,58 @@ process.env.NODE_ENV = 'test';
 var Code = require('code');
 var Hoek = require('hoek');
 var Lab = require('lab');
+var nodemailer = require('nodemailer');
+
 var fixtures = require('./fixtures');
-var lab = exports.lab = Lab.script();
-var serverItems = require('../').getServer();
 var DbHelper = require('./db-helper');
 var authInject = require('./auth-inject');
+var serverItems = require('../').getServer();
+
+var lab = exports.lab = Lab.script();
 
 var server = serverItems.server;
+var utils = serverItems.utils;
 var dbHelper = new DbHelper(serverItems.db);
 
-server.on('request-error', function (request, err) {
+var mailLog = {};
+var sendMail = function (options, callback) {
 
-    console.log('error', err.stack);
-});
+    if (!mailLog[options.to]) {
+        mailLog[options.to] = [];
+    }
 
-lab.experiment('signups and invites', function () {
+    mailLog[options.to].push(options);
+
+    if (callback) {
+        return callback();
+    }
+};
+
+//server.on('request-error', function (request, error) {
+
+    //console.log(error.stack);
+//});
+
+lab.experiment('signup and validate', function () {
 
     var authUser;
     var userAuthHeader;
     var inviteCode;
+    var validateCode;
 
     lab.before(function (done) {
+
+        nodemailer.createTransport = function () {
+
+            return {sendMail: sendMail};
+        };
 
         return dbHelper.rollbackAll().then(function () {
 
             return dbHelper.migrateLatest();
         }).then(function () {
 
-            return dbHelper.createUser(fixtures.users.main);
-        }).then(function () {
-
-            return dbHelper.createInvites(fixtures.users.main, 5);
+            return dbHelper.createUser(fixtures.users.main, {count: 5});
         }).then(function () {
 
             server.start(function () {
@@ -101,7 +122,7 @@ lab.experiment('signups and invites', function () {
                 },
                 payload: {
                     data: {
-                        type: 'invite',
+                        type: 'signup',
                         attributes: invite
                     }
                 }
@@ -144,7 +165,7 @@ lab.experiment('signups and invites', function () {
                 },
                 payload: {
                     data: {
-                        type: 'invite',
+                        type: 'signup',
                         attributes: invite
                     }
                 }
@@ -153,6 +174,189 @@ lab.experiment('signups and invites', function () {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(404);
+                done();
+            });
+        });
+
+        lab.test('signup user not validated', function (done) {
+
+            var options = {
+                method: 'GET', url: '/api/v1/me'
+            };
+            authInject(server, options, signupUserAuthHeader, function (response) {
+
+                var payload = JSON.parse(response.payload);
+                Code.expect(response.statusCode).to.equal(200);
+                Code.expect(payload.data).to.include('id', 'type', 'attributes');
+                Code.expect(payload.data.attributes.validated).to.equal(false);
+                done();
+            });
+        });
+
+        lab.test('no invites for non validated user', function (done) {
+
+            var options = {
+                method: 'GET', url: '/api/v1/me/invites'
+            };
+            authInject(server, options, signupUserAuthHeader, function (response) {
+
+                var payload = JSON.parse(response.payload);
+                Code.expect(response.statusCode).to.equal(404);
+                Code.expect(payload.data).to.equal(undefined);
+                done();
+            });
+        });
+
+        lab.test('nonexistant validation confirm validation', function (done) {
+
+            var options = {
+                'method': 'POST', url: '/api/v1/me/confirm',
+                payload: {
+                    data: {
+                        id: utils.generateValidationCode(),
+                        type: 'validation'
+                    }
+                }
+            };
+            authInject(server, options, signupUserAuthHeader, function (response) {
+
+                Code.expect(response.statusCode).to.equal(404);
+                done();
+            });
+        });
+
+        lab.test('request validation', function (done) {
+
+            var options = {
+                method: 'POST', url: '/api/v1/validate'
+            };
+            authInject(server, options, signupUserAuthHeader, function (response) {
+
+                var payload = JSON.parse(response.payload);
+                Code.expect(response.statusCode).to.equal(202);
+                Code.expect(payload.data).to.equal(null);
+                Code.expect(mailLog[fixtures.users.signup.email]).to.have.length(1);
+                validateCode = mailLog[fixtures.users.signup.email][0].text.split('code=')[1];
+                done();
+            });
+        });
+
+        lab.test('re-request validation', function (done) {
+
+            var options = {
+                method: 'POST', url: '/api/v1/validate'
+            };
+            authInject(server, options, signupUserAuthHeader, function (response) {
+
+                var payload = JSON.parse(response.payload);
+                Code.expect(response.statusCode).to.equal(202);
+                Code.expect(payload.data).to.equal(null);
+                Code.expect(mailLog[fixtures.users.signup.email]).to.have.length(1);
+                done();
+            });
+        });
+
+        lab.test('invalid confirm validation', function (done) {
+
+            var options = {
+                'method': 'POST', url: '/api/v1/me/confirm',
+                payload: {
+                    data: {
+                        id: utils.generateValidationCode(),
+                        type: 'validation'
+                    }
+                }
+            };
+            authInject(server, options, signupUserAuthHeader, function (response) {
+
+                Code.expect(response.statusCode).to.equal(404);
+                done();
+            });
+        });
+
+        lab.test('confirm validation', function (done) {
+
+            var options = {
+                'method': 'POST', url: '/api/v1/me/confirm',
+                payload: {
+                    data: {
+                        id: validateCode,
+                        type: 'validation'
+                    }
+                }
+            };
+            authInject(server, options, signupUserAuthHeader, function (response) {
+
+                var payload = JSON.parse(response.payload);
+                Code.expect(response.statusCode).to.equal(200);
+                Code.expect(payload.data).to.equal(null);
+                done();
+            });
+
+        });
+
+        lab.test('re-confirm validation', function (done) {
+
+            var options = {
+                'method': 'POST', url: '/api/v1/me/confirm',
+                payload: {
+                    data: {
+                        id: validateCode,
+                        type: 'validation'
+                    }
+                }
+            };
+            authInject(server, options, signupUserAuthHeader, function (response) {
+
+                var payload = JSON.parse(response.payload);
+                Code.expect(response.statusCode).to.equal(200);
+                Code.expect(payload.data).to.equal(null);
+                done();
+            });
+
+        });
+
+        lab.test('user is validated', function (done) {
+
+            var options = {
+                method: 'GET', url: '/api/v1/me'
+            };
+            authInject(server, options, signupUserAuthHeader, function (response) {
+
+                var payload = JSON.parse(response.payload);
+                Code.expect(response.statusCode).to.equal(200);
+                Code.expect(payload.data).to.include('id', 'type', 'attributes');
+                Code.expect(payload.data.attributes.validated).to.equal(true);
+                done();
+            });
+        });
+
+        lab.test('request superfluous validation', function (done) {
+
+            var options = {
+                method: 'POST', url: '/api/v1/validate'
+            };
+            authInject(server, options, signupUserAuthHeader, function (response) {
+
+                var payload = JSON.parse(response.payload);
+                Code.expect(response.statusCode).to.equal(202);
+                Code.expect(payload.data).to.equal(null);
+                Code.expect(mailLog[fixtures.users.signup.email]).to.have.length(1);
+                done();
+            });
+        });
+
+        lab.test('validated user has invites', function (done) {
+
+            var options = {
+                method: 'GET', url: '/api/v1/me/invites'
+            };
+            authInject(server, options, signupUserAuthHeader, function (response) {
+
+                var payload = JSON.parse(response.payload);
+                Code.expect(response.statusCode).to.equal(200);
+                Code.expect(payload.data).to.have.length(5);
+                inviteCode = payload.data[0];
                 done();
             });
         });

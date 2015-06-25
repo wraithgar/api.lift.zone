@@ -5,13 +5,22 @@
       "name": "test admin user",
       "password": "hunter2!",
       "email": "testadmin@lift.zone",
-      "active": true
+      "active": true,
+      "validated": true
     },
     "signup": {
       "login": "testSignup",
       "name": "test signup user",
       "password": "password",
       "email": "testsignup@lift.zone"
+    },
+    "nonexistant": {
+      "login": "testNonexistant",
+      "name": "test nonexistant user",
+      "email": "testnonexistant@lift.zone"
+    },
+    "reset": {
+      "password": "hunter3!"
     }
   }
 }

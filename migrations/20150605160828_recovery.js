@@ -1,7 +1,7 @@
 
 exports.up = function (knex) {
 
-    return knex.schema.createTable('recovery', function (t) {
+    return knex.schema.createTable('recoveries', function (t) {
 
         t.integer('user_id').index().notNullable().references('users.id');
         t.text('code').notNullable();
@@ -11,5 +11,5 @@ exports.up = function (knex) {
 
 exports.down = function (knex) {
 
-    return knex.schema.dropTableIfExists('recovery');
+    return knex.schema.dropTableIfExists('recoveries');
 };

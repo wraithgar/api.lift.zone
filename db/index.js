@@ -20,6 +20,8 @@ module.exports = function (config) {
 
     var user = require('./user')(db, knex.Promise);
     var invite = require('./invite')(db, knex.Promise);
+    var recovery = require('./recovery')(db, knex.Promise);
+    var validation = require('./validation')(db, knex.Promise);
 
     var results = {
         Promise: db.knex.Promise,
@@ -27,7 +29,9 @@ module.exports = function (config) {
         knex: db.knex,
 
         Invite: invite.model, Invites: invite.collection,
-        User: user.model, Users: user.collection
+        Recovery: recovery.model,
+        User: user.model, Users: user.collection,
+        Validation: validation.model
     };
 
 
