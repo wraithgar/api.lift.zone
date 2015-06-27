@@ -62,7 +62,7 @@ module.exports = function (bookshelf, BPromise) {
             if (!this.get('validated')) {
                 throw Boom.notFound('Please validate first');
             }
-            return this.related('invites');
+            return this.related('invites').fetch();
         }),
         sendValidation: function () {
 
@@ -196,17 +196,26 @@ module.exports = function (bookshelf, BPromise) {
             }
 
             var self = this;
+
             return bookshelf.model('Invite').get({code: invite}).then(function (invite) {
 
-                return bookshelf.transaction(function (t) {
+                return self.forge({login: attrs.login}).fetch().then(function (existingLogin) {
 
-                    return BPromise.all([
-                        self.createWithPassword(attrs, invites, {transacting: t}),
-                        invite.destroy({transacting: t})
-                    ]);
-                }).then(function () {
+                    if (existingLogin) {
+                        throw Boom.conflict('login already taken');
+                    }
 
-                    return self.loginWithPassword({email: attrs.email, password: attrs.password});
+
+                    return bookshelf.transaction(function (t) {
+
+                        return BPromise.all([
+                            self.createWithPassword(attrs, invites, {transacting: t}),
+                            invite.destroy({transacting: t})
+                        ]);
+                    }).then(function () {
+
+                        return self.loginWithPassword({email: attrs.email, password: attrs.password});
+                    });
                 });
             });
         }),
@@ -226,6 +235,25 @@ module.exports = function (bookshelf, BPromise) {
                             utils.mailRecovery(user.get('email'), recovery);
                         });
                     }
+                });
+            });
+        },
+        taken: function (attrs) {
+
+            var self = this;
+            return bookshelf.model('Invite').get({code: attrs.invite}).then(function (invite) {
+
+                return self.forge({login: attrs.login}).fetch().then(function (existingLogin) {
+
+                    var taken = !!existingLogin;
+
+                    return {
+                        id: 'taken',
+                        type: 'taken',
+                        attributes: {
+                            taken: !!existingLogin
+                        }
+                    };
                 });
             });
         }

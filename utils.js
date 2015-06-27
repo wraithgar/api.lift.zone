@@ -60,14 +60,12 @@ exports.jwtValidate = function (db) {
             return callback(Boom.unauthorized('Invalid token'), false, null);
         }
 
-        return db.User.forge({id: userId}).fetch({withRelated: 'invites'}).then(function (user) {
+        return db.User.forge({id: userId}).fetch().then(function (user) {
 
             if (!user) {
-
                 throw Boom.unauthorized('Invalid user');
             }
             if (user.get('supertoken') !== supertoken) {
-
                 throw Boom.unauthorized('Stale token');
             }
 

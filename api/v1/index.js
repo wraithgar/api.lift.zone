@@ -13,18 +13,20 @@ exports.register = function (plugin, options, done) {
 
     plugin.auth.default('user-token');
 
+    /* User */
     plugin.route({ method: 'POST', path: '/recover', config: User.recover });
     plugin.route({ method: 'POST', path: '/signup', config: User.signup });
     plugin.route({ method: 'POST', path: '/validate', config: User.validate });
     plugin.route({ method: 'POST', path: '/reset', config: User.reset });
     plugin.route({ method: 'POST', path: '/login', config: User.login });
     plugin.route({ method: 'POST', path: '/logout', config: User.logout });
+    plugin.route({ method: 'POST', path: '/taken', config: User.taken });
     plugin.route({ method: 'GET', path: '/me', config: User.me });
     plugin.route({ method: 'PUT', path: '/me', config: User.update });
     plugin.route({ method: 'GET', path: '/me/invites', config: User.invites });
     plugin.route({ method: 'POST', path: '/me/confirm', config: User.confirm });
 
-    //available - check available accounts (need invite code)
+    /* */
 
     return done();
 };

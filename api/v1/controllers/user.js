@@ -206,7 +206,6 @@ controllers.reset = {
 
 controllers.update = {
     description: 'Update user info',
-    notes: 'Only name and email are updateable',
     tags: ['user'],
     handler: function (request, reply) {
 
@@ -233,4 +232,31 @@ controllers.update = {
         }
     }
 };
+
+controllers.taken = {
+    description: 'Check login availability',
+    tags: ['user'],
+    handler: function (request, reply) {
+
+        var db = this.db;
+        return reply(db.User.taken(request.payload.data.attributes).then(function (taken) {
+
+            return {data: taken};
+        }));
+    },
+    validate: {
+        payload: {
+            data: {
+                type: Joi.string().valid('taken').required(),
+                id: Joi.string().valid('taken').required(),
+                attributes: {
+                    invite: Joi.string().guid().required(),
+                    login: Joi.string().required()
+                }
+            }
+        }
+    },
+    auth: false
+};
+
 module.exports = controllers;

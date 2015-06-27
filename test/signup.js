@@ -111,6 +111,121 @@ lab.experiment('signup and validate', function () {
         var signupUser;
         var signupUserAuthHeader;
 
+        lab.experiment('login availability', function () {
+
+            lab.test('invalid invite', function (done) {
+
+                var options = {
+                    method: 'POST', url: '/api/v1/taken',
+                    headers: {
+                        accept: 'application/vnd.api+json',
+                        'content-type': 'application/vnd.api+json'
+                    },
+                    payload: {
+                        data: {
+                            type: 'taken',
+                            id: 'taken',
+                            attributes: {
+                                invite: utils.generateInviteCode(),
+                                login: fixtures.users.main.login
+                            }
+                        }
+                    }
+                };
+                server.inject(options, function (response) {
+
+                    Code.expect(response.statusCode).to.equal(404);
+                    done();
+                });
+            });
+
+            lab.test('login taken', function (done) {
+
+                var options = {
+                    method: 'POST', url: '/api/v1/taken',
+                    headers: {
+                        accept: 'application/vnd.api+json',
+                        'content-type': 'application/vnd.api+json'
+                    },
+                    payload: {
+                        data: {
+                            type: 'taken',
+                            id: 'taken',
+                            attributes: {
+                                invite: inviteCode.attributes.code,
+                                login: fixtures.users.main.login
+                            }
+                        }
+                    }
+                };
+                server.inject(options, function (response) {
+
+                    var payload = JSON.parse(response.payload);
+                    Code.expect(response.statusCode).to.equal(200);
+                    Code.expect(payload.data).to.include('id', 'type', 'attributes');
+                    Code.expect(payload.data.type).to.equal('taken');
+                    Code.expect(payload.data.attributes.taken).to.equal(true);
+                    done();
+                });
+            });
+
+            lab.test('login available', function (done) {
+
+                var options = {
+                    method: 'POST', url: '/api/v1/taken',
+                    headers: {
+                        accept: 'application/vnd.api+json',
+                        'content-type': 'application/vnd.api+json'
+                    },
+                    payload: {
+                        data: {
+                            type: 'taken',
+                            id: 'taken',
+                            attributes: {
+                                invite: inviteCode.attributes.code,
+                                login: fixtures.users.nonexistant.login
+                            }
+                        }
+                    }
+                };
+                server.inject(options, function (response) {
+
+                    var payload = JSON.parse(response.payload);
+                    Code.expect(response.statusCode).to.equal(200);
+                    Code.expect(payload.data).to.include('id', 'type', 'attributes');
+                    Code.expect(payload.data.type).to.equal('taken');
+                    Code.expect(payload.data.attributes.taken).to.equal(false);
+                    done();
+                });
+            });
+        });
+
+        lab.test('sign up login taken', function (done) {
+
+            var invite = Hoek.applyToDefaults(fixtures.users.signup, {invite: inviteCode.attributes.code, passwordConfirm: fixtures.users.signup.password});
+            invite.login = fixtures.users.main.login;
+
+            var options = {
+                method: 'POST', url: '/api/v1/signup',
+                headers: {
+                    accept: 'application/vnd.api+json',
+                    'content-type': 'application/vnd.api+json'
+                },
+                payload: {
+                    data: {
+                        type: 'signup',
+                        attributes: invite
+                    }
+                }
+            };
+            server.inject(options, function (response) {
+
+                var payload = JSON.parse(response.payload);
+                Code.expect(response.statusCode).to.equal(409);
+                done();
+            });
+        });
+
         lab.test('sign up', function (done) {
 
             var invite = Hoek.applyToDefaults(fixtures.users.signup, {invite: inviteCode.attributes.code, passwordConfirm: fixtures.users.signup.password});
