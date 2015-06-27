@@ -20,7 +20,7 @@ exports.register = function (plugin, options, done) {
     plugin.route({ method: 'POST', path: '/login', config: User.login });
     plugin.route({ method: 'POST', path: '/logout', config: User.logout });
     plugin.route({ method: 'GET', path: '/me', config: User.me });
-    //plugin.route({ method: 'PUT', path: '/me', config: User.update });
+    plugin.route({ method: 'PUT', path: '/me', config: User.update });
     plugin.route({ method: 'GET', path: '/me/invites', config: User.invites });
     plugin.route({ method: 'POST', path: '/me/confirm', config: User.confirm });
 

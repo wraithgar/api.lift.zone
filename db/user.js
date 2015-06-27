@@ -1,6 +1,7 @@
 var Hoek = require('hoek');
 var Boom = require('boom');
 var utils = require('../utils');
+var _ = require('lodash');
 var baseModel = require('./base-model');
 var baseCollection = require('./base-collection');
 
@@ -121,7 +122,24 @@ module.exports = function (bookshelf, BPromise) {
 
                 return null;
             });
-        })
+        }),
+        update: function (attrs) {
+
+            attrs = _.pick(attrs, 'name', 'email', 'password', 'smartmode', 'public');
+            if (attrs.password) {
+                var password = attrs.password;
+                attrs.passwordHash = utils.passwordHash(password);
+                delete attrs.password;
+            }
+            if (attrs.email && attrs.email !== this.get('email')) {
+                attrs.validated = false;
+            }
+            return this.save(attrs, {patch: true}).then(function (user) {
+
+                //We have to do this to get a proper updatedAt formatting
+                return user.fetch();
+            });
+        }
     }, {
         //class properties
         createWithPassword: function (attrs, invites, options) {

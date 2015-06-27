@@ -21,6 +21,13 @@
     },
     "reset": {
       "password": "hunter3!"
+    },
+    "update": {
+      "name": "test update user",
+      "email": "testupdate@lift.zone",
+      "password": "hunter4!",
+      "smartmode": false,
+      "public": true
     }
   }
 }

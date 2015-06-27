@@ -19,13 +19,13 @@ controllers.login = {
     },
     validate: {
         payload: {
-            data: Joi.object().keys({
+            data: {
                 type: Joi.string().valid('login').required(),
-                attributes: Joi.object().keys({
+                attributes: {
                     email: Joi.string().email().required().example('user@lift.zone'),
                     password: Joi.string().min(8).required().example('hunter2!')
-                })
-            })
+                }
+            }
         }
     },
     auth: false
@@ -96,7 +96,7 @@ controllers.signup = {
     },
     validate: {
         payload: {
-            data: Joi.object().keys({
+            data: {
                 type: Joi.string().valid('signup').required(),
                 attributes: Joi.object().keys({
                     invite: Joi.string().guid().required(),
@@ -106,7 +106,7 @@ controllers.signup = {
                     passwordConfirm: Joi.ref('password'),
                     email: Joi.string().email().required()
                 })
-            })
+            }
         }
     },
     auth: false
@@ -142,10 +142,10 @@ controllers.confirm = {
     },
     validate: {
         payload: {
-            data: Joi.object().keys({
+            data: {
                 type: Joi.string().valid('validation').required(),
                 id: Joi.string().guid().required()
-            })
+            }
         }
     }
 };
@@ -165,12 +165,12 @@ controllers.recover = {
     },
     validate: {
         payload: {
-            data: Joi.object().keys({
+            data: {
                 type: Joi.string().valid('login').required(),
                 attributes: {
                     email: Joi.string().email().required()
                 }
-            })
+            }
         }
     },
     auth: false
@@ -204,4 +204,33 @@ controllers.reset = {
     auth: false
 };
 
+controllers.update = {
+    description: 'Update user info',
+    notes: 'Only name and email are updateable',
+    tags: ['user'],
+    handler: function (request, reply) {
+
+        var user = request.auth.credentials.user;
+        return reply(user.update(request.payload.data.attributes).then(function (updatedUser) {
+
+            return {data: updatedUser};
+        }));
+    },
+    validate: {
+        payload: {
+            data: {
+                type: Joi.string().valid('user').required(),
+                id: Joi.ref('$auth.credentials.user.id'),
+                attributes: Joi.object().keys({
+                    name: Joi.string(),
+                    password: Joi.string().min(8),
+                    passwordConfirm: Joi.ref('password'),
+                    email: Joi.string().email(),
+                    smartmode: Joi.boolean(),
+                    'public': Joi.boolean()
+                }).unknown()
+            }
+        }
+    }
+};
 module.exports = controllers;

@@ -29,10 +29,10 @@ var sendMail = function (options, callback) {
 };
 
 
-server.on('request-error', function (request, error) {
+//server.on('request-error', function (request, error) {
 
-    console.log(error.stack);
-});
+    //console.log(error.stack);
+//});
 
 lab.experiment('authentication', function () {
 
