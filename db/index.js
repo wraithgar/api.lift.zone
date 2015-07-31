@@ -18,9 +18,10 @@ module.exports = function (config) {
     db.plugin('registry');
     db.plugin('visibility');
 
-    var user = require('./user')(db, knex.Promise);
+    var activityName = require('./activity-name')(db, knex.Promise);
     var invite = require('./invite')(db, knex.Promise);
     var recovery = require('./recovery')(db, knex.Promise);
+    var user = require('./user')(db, knex.Promise);
     var validation = require('./validation')(db, knex.Promise);
 
     var results = {
@@ -28,6 +29,7 @@ module.exports = function (config) {
         bookshelf: db,
         knex: db.knex,
 
+        ActivityName: activityName.model, ActivityNames: activityName.collection,
         Invite: invite.model, Invites: invite.collection,
         Recovery: recovery.model,
         User: user.model, Users: user.collection,

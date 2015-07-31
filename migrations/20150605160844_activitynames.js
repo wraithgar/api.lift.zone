@@ -5,7 +5,7 @@ exports.up = function (knex) {
 
         t.increments('id').primary();
         t.integer('user_id').index().notNullable().references('users.id');
-        t.integer('alias_id').index().references('useractivities.id');
+        t.integer('useractivity_id').index().references('useractivities.id');
         t.text('name').notNullable().index();
         t.timestamps();
         t.unique(['user_id', 'name']);

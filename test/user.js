@@ -12,10 +12,10 @@ var authInject = require('./auth-inject');
 var server = serverItems.server;
 var dbHelper = new DbHelper(serverItems.db);
 
-server.on('request-error', function (request, error) {
+//server.on('request-error', function (request, error) {
 
-    console.log(error.stack);
-});
+    //console.log(error.stack);
+//});
 
 lab.experiment('user', function () {
 

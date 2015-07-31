@@ -28,6 +28,8 @@ var sendMail = function (options, callback) {
     }
 };
 
+//TODO active flag
+//TODO signups disabled
 
 //server.on('request-error', function (request, error) {
 

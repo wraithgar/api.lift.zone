@@ -11,7 +11,7 @@ exports.seed = function (knex, Promise) {
     }).then(function (user) {
 
         var activities = [{name: 'Squat', aliases: ['Front Squat', 'Squats'] }];
-        return knex.table('useractivities').count('id as ids').where({user_id: user.id, alias_id: null}).then(function (useractivities) {
+        return knex.table('useractivities').count('id as ids').where({user_id: user.id, useractivity_id: null}).then(function (useractivities) {
 
             var ids = useractivities[0].ids;
             return Promise.each(activities.slice(ids), function (activity) {
@@ -24,12 +24,12 @@ exports.seed = function (knex, Promise) {
 
                 return knex.table('useractivities').first('id').where({name: activity.name}).then(function (activityId) {
 
-                    return knex.table('useractivities').count('id as ids').where({alias_id: activityId.id}).then(function (aliascount) {
+                    return knex.table('useractivities').count('id as ids').where({useractivity_id: activityId.id}).then(function (aliascount) {
 
                         var aliases = aliascount[0].ids;
                         return Promise.each(activity.aliases.slice(aliases), function (alias) {
 
-                            return knex.table('useractivities').insert({name: alias, alias_id: activityId.id, user_id: user.id});
+                            return knex.table('useractivities').insert({name: alias, useractivity_id: activityId.id, user_id: user.id});
                         });
                     });
                 });

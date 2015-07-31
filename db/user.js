@@ -41,6 +41,10 @@ module.exports = function (bookshelf, BPromise) {
 
             return this.hasOne('Recovery');
         },
+        activityNames: function () {
+
+            return this.hasMany('ActivityName');
+        },
         logout: function () {
 
             return this.save({supertoken: utils.generateSupertoken()}, {patch: true});
@@ -139,6 +143,21 @@ module.exports = function (bookshelf, BPromise) {
                 //We have to do this to get a proper updatedAt formatting
                 return user.fetch();
             });
+        },
+        getActivityName: function (attrs) {
+
+            return this.related('activityNames').fetchOne(attrs, {withRelated: 'aliases'}).then(function (activity) {
+
+                if (!activity) {
+                    throw Boom.notFound();
+                }
+
+                return activity;
+            });
+        },
+        getActivityNames: function () {
+
+            return this.related('activityNames').fetch({withRelated: 'aliases'});
         }
     }, {
         //class properties

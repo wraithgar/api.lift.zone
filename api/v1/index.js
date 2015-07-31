@@ -1,6 +1,16 @@
 var User = require('./controllers/user');
+var ActivityName = require('./controllers/activity-name');
 
 exports.register = function (plugin, options, done) {
+
+    var crud = function (resource, Controller) {
+
+        if (Controller.hasOwnProperty('all')) { plugin.route({method: 'GET', path: resource, config: Controller.all}); }
+        if (Controller.hasOwnProperty('get')) { plugin.route({method: 'GET', path: resource + '/{id}', config: Controller.get}); }
+        if (Controller.hasOwnProperty('create')) { plugin.route({method: 'POST', path: resource, config: Controller.create}); }
+        if (Controller.hasOwnProperty('update')) { plugin.route({method: 'PUT', path: resource + '/{id}', config: Controller.update}); }
+        if (Controller.hasOwnProperty('delete')) { plugin.route({method: 'DELETE', path: resource + '/{id}', config: Controller.delete}); }
+    };
 
     plugin.dependency('hapi-auth-jwt');
 
@@ -26,7 +36,10 @@ exports.register = function (plugin, options, done) {
     plugin.route({ method: 'GET', path: '/me/invites', config: User.invites });
     plugin.route({ method: 'POST', path: '/me/confirm', config: User.confirm });
 
-    /* */
+    /* ActivityName */
+    crud('/activityNames', ActivityName);
+    //search
+    //suggestion
 
     return done();
 };
