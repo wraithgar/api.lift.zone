@@ -17,7 +17,6 @@ module.exports = function (bookshelf, BPromise) {
 
             return this.hasMany(ActivityName);
         }
-        //link to activitynames table as another model? Internal model?
     });
 
     var ActivityNames = BaseCollection.extend({

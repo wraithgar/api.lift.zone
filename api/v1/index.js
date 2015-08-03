@@ -1,5 +1,5 @@
 var User = require('./controllers/user');
-var ActivityName = require('./controllers/activity-name');
+var ActivityNames = require('./controllers/activity-names');
 
 exports.register = function (plugin, options, done) {
 
@@ -37,9 +37,8 @@ exports.register = function (plugin, options, done) {
     plugin.route({ method: 'POST', path: '/me/confirm', config: User.confirm });
 
     /* ActivityName */
-    crud('/activityNames', ActivityName);
-    //search
-    //suggestion
+    crud('/activityNames', ActivityNames);
+    plugin.route({ method: 'POST', path: '/search/activityNames', config: ActivityNames.search });
 
     return done();
 };

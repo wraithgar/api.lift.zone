@@ -146,7 +146,7 @@ module.exports = function (bookshelf, BPromise) {
         },
         getActivityName: function (attrs) {
 
-            return this.related('activityNames').fetchOne(attrs, {withRelated: 'aliases'}).then(function (activity) {
+            return this.related('activityNames').query({where: attrs}).fetchOne({withRelated: ['aliases']}).then(function (activity) {
 
                 if (!activity) {
                     throw Boom.notFound();
@@ -157,7 +157,40 @@ module.exports = function (bookshelf, BPromise) {
         },
         getActivityNames: function () {
 
-            return this.related('activityNames').fetch({withRelated: 'aliases'});
+            return this.related('activityNames').fetch({withRelated: ['aliases']});
+        },
+        searchActivityNames: function (attrs) {
+
+            var names = attrs.name.toLowerCase().replace(/[^a-z\s]/, '').split(/\s+/).join(' OR ');
+
+            return this.related('activityNames').query(function (qb) {
+
+                this.join('activitynames', {'activitynames.docid': 'useractivities.id'});
+                this.andWhere(bookshelf.knex.raw('activitynames MATCH ?', names));
+            }).fetch({withRelated: ['aliases']});
+        },
+        createActivity: function (attrs) {
+
+            var self = this;
+
+            return BPromise.resolve().then(function () {
+
+                if (attrs.alias_id === undefined) {
+                    return;
+                }
+                return self.related('activityNames').query({where: {id: attrs.alias_id}}).fetchOne().then(function (alias) {
+
+                    if (!alias) {
+                        throw Boom.notFound('Alias not found');
+                    }
+                });
+            }).then(function () {
+
+                return self.related('activityNames').create(attrs);
+            }).then(function (activityName) {
+
+                return activityName.fetch({withRelated: ['aliases']});
+            });
         }
     }, {
         //class properties

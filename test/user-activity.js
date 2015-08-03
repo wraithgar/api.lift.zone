@@ -12,6 +12,11 @@ var authInject = require('./auth-inject');
 var server = serverItems.server;
 var dbHelper = new DbHelper(serverItems.db);
 
+server.on('request-error', function (request, err) {
+
+    console.log(err.stack);
+});
+
 lab.experiment('user activities', function () {
 
     var authUser;
@@ -71,6 +76,125 @@ lab.experiment('user activities', function () {
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
             Code.expect(payload.data).to.have.length(0);
+            done();
+        });
+    });
+
+    lab.test('search - empty', function (done) {
+
+        var options = {
+            method: 'POST', url: '/api/v1/search/activityNames',
+            payload: {
+                name: fixtures.activities.squat.name
+            }
+        };
+        authInject(server, options, userAuthHeader, function (response) {
+
+            var payload = JSON.parse(response.payload);
+            Code.expect(response.statusCode).to.equal(200);
+            Code.expect(payload.data).to.have.length(0);
+            done();
+        });
+    });
+
+    lab.test('create', function (done) {
+
+        var options = {
+            method: 'POST', url: '/api/v1/activityNames',
+            payload: {
+                name: fixtures.activities.squat.name
+            }
+        };
+        authInject(server, options, userAuthHeader, function (response) {
+
+            var payload = JSON.parse(response.payload);
+            Code.expect(response.statusCode).to.equal(201);
+            fixtures.activities.squat.id = payload.data.id;
+            done();
+        });
+    });
+
+    lab.test('get created', function (done) {
+
+        var options = {
+            method: 'GET', url: '/api/v1/activityNames/' + fixtures.activities.squat.id
+        };
+        authInject(server, options, userAuthHeader, function (response) {
+
+            var payload = JSON.parse(response.payload);
+            Code.expect(response.statusCode).to.equal(200);
+            Code.expect(payload.data.attributes.name).to.equal(fixtures.activities.squat.name);
+            Code.expect(payload.data.relationships).to.include('aliases');
+            Code.expect(payload.data.relationships.aliases.data).to.be.empty();
+            done();
+        });
+
+    });
+
+    lab.test('create alias', function (done) {
+
+        var options = {
+            method: 'POST', url: '/api/v1/activityNames',
+            payload: {
+                name: fixtures.activities.barbellsquat.name,
+                useractivityId: fixtures.activities.squat.id
+            }
+        };
+        authInject(server, options, userAuthHeader, function (response) {
+
+            var payload = JSON.parse(response.payload);
+            Code.expect(response.statusCode).to.equal(201);
+            fixtures.activities.barbellsquat.id = payload.data.id;
+            done();
+        });
+    });
+
+    lab.test('get alias', function (done) {
+
+        var options = {
+            method: 'GET', url: '/api/v1/activityNames/' + fixtures.activities.barbellsquat.id
+        };
+        authInject(server, options, userAuthHeader, function (response) {
+
+            var payload = JSON.parse(response.payload);
+            Code.expect(response.statusCode).to.equal(200);
+            Code.expect(payload.data.attributes.name).to.equal(fixtures.activities.barbellsquat.name);
+            Code.expect(payload.data.relationships).to.include('aliases');
+            Code.expect(payload.data.relationships.aliases.data).to.be.empty();
+            done();
+        });
+
+    });
+
+    lab.test('get original now with alias', function (done) {
+
+        var options = {
+            method: 'GET', url: '/api/v1/activityNames/' + fixtures.activities.squat.id
+        };
+        authInject(server, options, userAuthHeader, function (response) {
+
+            var payload = JSON.parse(response.payload);
+            Code.expect(response.statusCode).to.equal(200);
+            Code.expect(payload.data.attributes.name).to.equal(fixtures.activities.squat.name);
+            Code.expect(payload.data.relationships).to.include('aliases');
+            Code.expect(payload.data.relationships.aliases.data).to.have.length(1);
+            done();
+        });
+    });
+
+    lab.test('search - not empty', function (done) {
+
+        var options = {
+            method: 'POST', url: '/api/v1/search/activityNames',
+            payload: {
+                name: fixtures.activities.squat.name
+            }
+        };
+        authInject(server, options, userAuthHeader, function (response) {
+
+            var payload = JSON.parse(response.payload);
+            Code.expect(response.statusCode).to.equal(200);
+            Code.expect(payload.data).to.have.length(2);
             done();
         });
     });

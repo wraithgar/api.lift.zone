@@ -7,7 +7,7 @@ exports.up = function (knex) {
          '    DELETE FROM activitynames where docid = old.rowid;\n' +
          'END;')
     .raw('CREATE TRIGGER useractivities_bd BEFORE DELETE ON useractivities BEGIN\n' +
-         '   DELETE FROM activitynames where docik = old.rowid; \n' +
+         '   DELETE FROM activitynames where docid = old.rowid; \n' +
          'END;')
     .raw('CREATE TRIGGER useractivites_au AFTER UPDATE ON useractivities BEGIN\n' +
          '   INSERT INTO activitynames (docid, name) VALUES (new.rowid, new.name);\n' +
