@@ -24,14 +24,14 @@ DbHelper.prototype.migrateLatest = function () {
 
 DbHelper.prototype.createUser = function (attrs, invites) {
 
-    invites = invites || {enabled: true, count: 0};
+    invites = invites || { enabled: true, count: 0 };
 
     return this.db.User.createWithPassword(attrs, invites);
 };
 
 DbHelper.prototype.getUser = function (attrs) {
 
-    return this.db.User.forge({login: attrs.login}).fetch();
+    return this.db.User.forge({ login: attrs.login }).fetch();
 };
 
 module.exports = DbHelper;

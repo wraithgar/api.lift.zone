@@ -3,11 +3,11 @@ process.env.NODE_ENV = 'test';
 var Code = require('code');
 var _ = require('lodash');
 var Lab = require('lab');
-var fixtures = require('./fixtures');
+var Fixtures = require('./fixtures');
 var lab = exports.lab = Lab.script();
 var serverItems = require('../').getServer();
 var DbHelper = require('./db-helper');
-var authInject = require('./auth-inject');
+var AuthInject = require('./auth-inject');
 
 var server = serverItems.server;
 var dbHelper = new DbHelper(serverItems.db);
@@ -29,7 +29,7 @@ lab.experiment('user activities', function () {
             return dbHelper.migrateLatest();
         }).then(function () {
 
-            return dbHelper.createUser(fixtures.users.main);
+            return dbHelper.createUser(Fixtures.users.main);
         }).then(function () {
 
             server.start(function () {
@@ -44,8 +44,8 @@ lab.experiment('user activities', function () {
                         data: {
                             type: 'login',
                             attributes: {
-                                email: fixtures.users.main.email,
-                                password: fixtures.users.main.password
+                                email: Fixtures.users.main.email,
+                                password: Fixtures.users.main.password
                             }
                         }
                     }
@@ -71,7 +71,7 @@ lab.experiment('user activities', function () {
         var options = {
             method: 'GET', url: '/api/v1/activityNames'
         };
-        authInject(server, options, userAuthHeader, function (response) {
+        AuthInject(server, options, userAuthHeader, function (response) {
 
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
@@ -85,10 +85,10 @@ lab.experiment('user activities', function () {
         var options = {
             method: 'POST', url: '/api/v1/search/activityNames',
             payload: {
-                name: fixtures.activities.squat.name
+                name: Fixtures.activities.squat.name
             }
         };
-        authInject(server, options, userAuthHeader, function (response) {
+        AuthInject(server, options, userAuthHeader, function (response) {
 
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
@@ -102,14 +102,14 @@ lab.experiment('user activities', function () {
         var options = {
             method: 'POST', url: '/api/v1/activityNames',
             payload: {
-                name: fixtures.activities.squat.name
+                name: Fixtures.activities.squat.name
             }
         };
-        authInject(server, options, userAuthHeader, function (response) {
+        AuthInject(server, options, userAuthHeader, function (response) {
 
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(201);
-            fixtures.activities.squat.id = payload.data.id;
+            Fixtures.activities.squat.id = payload.data.id;
             done();
         });
     });
@@ -117,13 +117,13 @@ lab.experiment('user activities', function () {
     lab.test('get created', function (done) {
 
         var options = {
-            method: 'GET', url: '/api/v1/activityNames/' + fixtures.activities.squat.id
+            method: 'GET', url: '/api/v1/activityNames/' + Fixtures.activities.squat.id
         };
-        authInject(server, options, userAuthHeader, function (response) {
+        AuthInject(server, options, userAuthHeader, function (response) {
 
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data.attributes.name).to.equal(fixtures.activities.squat.name);
+            Code.expect(payload.data.attributes.name).to.equal(Fixtures.activities.squat.name);
             Code.expect(payload.data.relationships).to.include('aliases');
             Code.expect(payload.data.relationships.aliases.data).to.be.empty();
             done();
@@ -136,15 +136,15 @@ lab.experiment('user activities', function () {
         var options = {
             method: 'POST', url: '/api/v1/activityNames',
             payload: {
-                name: fixtures.activities.barbellsquat.name,
-                useractivityId: fixtures.activities.squat.id
+                name: Fixtures.activities.barbellsquat.name,
+                useractivityId: Fixtures.activities.squat.id
             }
         };
-        authInject(server, options, userAuthHeader, function (response) {
+        AuthInject(server, options, userAuthHeader, function (response) {
 
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(201);
-            fixtures.activities.barbellsquat.id = payload.data.id;
+            Fixtures.activities.barbellsquat.id = payload.data.id;
             done();
         });
     });
@@ -152,13 +152,13 @@ lab.experiment('user activities', function () {
     lab.test('get alias', function (done) {
 
         var options = {
-            method: 'GET', url: '/api/v1/activityNames/' + fixtures.activities.barbellsquat.id
+            method: 'GET', url: '/api/v1/activityNames/' + Fixtures.activities.barbellsquat.id
         };
-        authInject(server, options, userAuthHeader, function (response) {
+        AuthInject(server, options, userAuthHeader, function (response) {
 
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data.attributes.name).to.equal(fixtures.activities.barbellsquat.name);
+            Code.expect(payload.data.attributes.name).to.equal(Fixtures.activities.barbellsquat.name);
             Code.expect(payload.data.relationships).to.include('aliases');
             Code.expect(payload.data.relationships.aliases.data).to.be.empty();
             done();
@@ -169,13 +169,13 @@ lab.experiment('user activities', function () {
     lab.test('get original now with alias', function (done) {
 
         var options = {
-            method: 'GET', url: '/api/v1/activityNames/' + fixtures.activities.squat.id
+            method: 'GET', url: '/api/v1/activityNames/' + Fixtures.activities.squat.id
         };
-        authInject(server, options, userAuthHeader, function (response) {
+        AuthInject(server, options, userAuthHeader, function (response) {
 
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data.attributes.name).to.equal(fixtures.activities.squat.name);
+            Code.expect(payload.data.attributes.name).to.equal(Fixtures.activities.squat.name);
             Code.expect(payload.data.relationships).to.include('aliases');
             Code.expect(payload.data.relationships.aliases.data).to.have.length(1);
             done();
@@ -187,10 +187,10 @@ lab.experiment('user activities', function () {
         var options = {
             method: 'POST', url: '/api/v1/search/activityNames',
             payload: {
-                name: fixtures.activities.squat.name
+                name: Fixtures.activities.squat.name
             }
         };
-        authInject(server, options, userAuthHeader, function (response) {
+        AuthInject(server, options, userAuthHeader, function (response) {
 
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);

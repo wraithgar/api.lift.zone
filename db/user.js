@@ -1,16 +1,16 @@
 var Hoek = require('hoek');
 var Boom = require('boom');
-var utils = require('../utils');
+var Utils = require('../utils');
 var _ = require('lodash');
-var baseModel = require('./base-model');
-var baseCollection = require('./base-collection');
+var BaseModel = require('./base-model');
+var BaseCollection = require('./base-collection');
 
 module.exports = function (bookshelf, BPromise) {
 
-    var BaseModel = baseModel(bookshelf);
-    var BaseCollection = baseCollection(bookshelf);
+    var baseModel = BaseModel(bookshelf);
+    var baseCollection = BaseCollection(bookshelf);
 
-    var User = BaseModel.extend({
+    var User = baseModel.extend({
         /*
          *
          * t.increments('id').primary();
@@ -47,19 +47,19 @@ module.exports = function (bookshelf, BPromise) {
         },
         logout: function () {
 
-            return this.save({supertoken: utils.generateSupertoken()}, {patch: true});
+            return this.save({ supertoken: Utils.generateSupertoken() }, { patch: true });
         },
         addInvite: function (options) {
 
-            var code = utils.generateInviteCode();
-            options = Hoek.applyToDefaults({method: 'insert'}, options);
+            var code = Utils.generateInviteCode();
+            options = Hoek.applyToDefaults({ method: 'insert' }, options);
 
-            return this.related('invites').create({code: code}, options);
+            return this.related('invites').create({ code: code }, options);
         },
         createValidation: function () {
 
             //Ughhhhhhh thanks for nothing knex
-            return bookshelf.knex.raw('replace into validations (user_id, code, created_at, updated_at) values (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)', [this.get('id'), utils.generateValidationCode()]);
+            return bookshelf.knex.raw('replace into validations (user_id, code, created_at, updated_at) values (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)', [this.get('id'), Utils.generateValidationCode()]);
         },
         getInvites: BPromise.method(function () {
 
@@ -73,7 +73,7 @@ module.exports = function (bookshelf, BPromise) {
             var email = this.get('email');
             return this.related('validation').fetch().then(function (validation) {
 
-                return utils.mailValidation(email, validation, BPromise);
+                return Utils.mailValidation(email, validation, BPromise);
             });
         },
         validate: BPromise.method(function () {
@@ -118,8 +118,8 @@ module.exports = function (bookshelf, BPromise) {
                 return bookshelf.transaction(function (t) {
 
                     return BPromise.all([
-                        self.save({validated: true}, {patch: true, transacting: t}),
-                        validation.destroy({transacting: t})
+                        self.save({ validated: true }, { patch: true, transacting: t }),
+                        validation.destroy({ transacting: t })
                     ]);
                 });
             }).then(function () {
@@ -132,13 +132,13 @@ module.exports = function (bookshelf, BPromise) {
             attrs = _.pick(attrs, 'name', 'email', 'password', 'smartmode', 'public');
             if (attrs.password) {
                 var password = attrs.password;
-                attrs.passwordHash = utils.passwordHash(password);
+                attrs.passwordHash = Utils.passwordHash(password);
                 delete attrs.password;
             }
             if (attrs.email && attrs.email !== this.get('email')) {
                 attrs.validated = false;
             }
-            return this.save(attrs, {patch: true}).then(function (user) {
+            return this.save(attrs, { patch: true }).then(function (user) {
 
                 //We have to do this to get a proper updatedAt formatting
                 return user.fetch();
@@ -146,7 +146,7 @@ module.exports = function (bookshelf, BPromise) {
         },
         getActivityName: function (attrs) {
 
-            return this.related('activityNames').query({where: attrs}).fetchOne({withRelated: ['aliases']}).then(function (activity) {
+            return this.related('activityNames').query({ where: attrs }).fetchOne({ withRelated: ['aliases'] }).then(function (activity) {
 
                 if (!activity) {
                     throw Boom.notFound();
@@ -157,7 +157,7 @@ module.exports = function (bookshelf, BPromise) {
         },
         getActivityNames: function () {
 
-            return this.related('activityNames').fetch({withRelated: ['aliases']});
+            return this.related('activityNames').fetch({ withRelated: ['aliases'] });
         },
         searchActivityNames: function (attrs) {
 
@@ -165,9 +165,9 @@ module.exports = function (bookshelf, BPromise) {
 
             return this.related('activityNames').query(function (qb) {
 
-                this.join('activitynames', {'activitynames.docid': 'useractivities.id'});
+                this.join('activitynames', { 'activitynames.docid': 'useractivities.id' });
                 this.andWhere(bookshelf.knex.raw('activitynames MATCH ?', names));
-            }).fetch({withRelated: ['aliases']});
+            }).fetch({ withRelated: ['aliases'] });
         },
         createActivity: function (attrs) {
 
@@ -178,7 +178,7 @@ module.exports = function (bookshelf, BPromise) {
                 if (attrs.alias_id === undefined) {
                     return;
                 }
-                return self.related('activityNames').query({where: {id: attrs.alias_id}}).fetchOne().then(function (alias) {
+                return self.related('activityNames').query({ where: { id: attrs.alias_id } }).fetchOne().then(function (alias) {
 
                     if (!alias) {
                         throw Boom.notFound('Alias not found');
@@ -189,7 +189,7 @@ module.exports = function (bookshelf, BPromise) {
                 return self.related('activityNames').create(attrs);
             }).then(function (activityName) {
 
-                return activityName.fetch({withRelated: ['aliases']});
+                return activityName.fetch({ withRelated: ['aliases'] });
             });
         }
     }, {
@@ -202,8 +202,8 @@ module.exports = function (bookshelf, BPromise) {
             var password = attrs.password;
             delete attrs.password;
 
-            attrs.passwordHash = utils.passwordHash(password);
-            attrs.supertoken = utils.generateSupertoken();
+            attrs.passwordHash = Utils.passwordHash(password);
+            attrs.supertoken = Utils.generateSupertoken();
 
             return User.forge().save(attrs, options).tap(function (user) {
 
@@ -223,17 +223,17 @@ module.exports = function (bookshelf, BPromise) {
             var password = attrs.password;
 
             attrs = Hoek.clone(attrs);
-            attrs.passwordHash = utils.passwordHash(attrs.password);
+            attrs.passwordHash = Utils.passwordHash(attrs.password);
             delete attrs.password;
             attrs.active = true;
 
-            return new this(attrs).fetch({require: true}).then(function (user) {
+            return new this(attrs).fetch({ require: true }).then(function (user) {
 
                 return {
                     id: user.get('id'),
                     type: 'authToken',
                     attributes: {
-                        token: utils.userToken(user)
+                        token: Utils.userToken(user)
                     }
                 };
             }).catch(function (err) {
@@ -249,9 +249,9 @@ module.exports = function (bookshelf, BPromise) {
 
             var self = this;
 
-            return bookshelf.model('Invite').get({code: invite}).then(function (invite) {
+            return bookshelf.model('Invite').get({ code: invite }).then(function (validInvite) {
 
-                return self.forge({login: attrs.login}).fetch().then(function (existingLogin) {
+                return self.forge({ login: attrs.login }).fetch().then(function (existingLogin) {
 
                     if (existingLogin) {
                         throw Boom.conflict('login already taken');
@@ -261,19 +261,19 @@ module.exports = function (bookshelf, BPromise) {
                     return bookshelf.transaction(function (t) {
 
                         return BPromise.all([
-                            self.createWithPassword(attrs, invites, {transacting: t}),
-                            invite.destroy({transacting: t})
+                            self.createWithPassword(attrs, invites, { transacting: t }),
+                            validInvite.destroy({ transacting: t })
                         ]);
                     }).then(function () {
 
-                        return self.loginWithPassword({email: attrs.email, password: attrs.password});
+                        return self.loginWithPassword({ email: attrs.email, password: attrs.password });
                     });
                 });
             });
         }),
         recover: function (attrs) {
 
-            this.forge(attrs).fetch({withRelated: 'recovery'}).then(function (user) {
+            this.forge(attrs).fetch({ withRelated: 'recovery' }).then(function (user) {
 
                 if (!user) {
                     return;
@@ -282,9 +282,9 @@ module.exports = function (bookshelf, BPromise) {
                 user.related('recovery').query('where', 'created', '>', bookshelf.knex.raw('datetime("now", "-1 days")')).fetch().then(function (existingRecovery) {
 
                     if (!existingRecovery) {
-                        user.related('recovery').save({code: utils.generateRecoveryCode()}).then(function (recovery) {
+                        user.related('recovery').save({ code: Utils.generateRecoveryCode() }).then(function (recovery) {
 
-                            utils.mailRecovery(user.get('email'), recovery);
+                            Utils.mailRecovery(user.get('email'), recovery);
                         });
                     }
                 });
@@ -293,9 +293,9 @@ module.exports = function (bookshelf, BPromise) {
         taken: function (attrs) {
 
             var self = this;
-            return bookshelf.model('Invite').get({code: attrs.invite}).then(function (invite) {
+            return bookshelf.model('Invite').get({ code: attrs.invite }).then(function (invite) {
 
-                return self.forge({login: attrs.login}).fetch().then(function (existingLogin) {
+                return self.forge({ login: attrs.login }).fetch().then(function (existingLogin) {
 
                     var taken = !!existingLogin;
 
@@ -311,7 +311,7 @@ module.exports = function (bookshelf, BPromise) {
         }
     });
 
-    var Users = BaseCollection.extend({
+    var Users = baseCollection.extend({
         model: User
     });
 

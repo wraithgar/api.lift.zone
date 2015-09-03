@@ -1,11 +1,11 @@
 var Boom = require('boom');
-var baseModel = require('./base-model');
-var utils = require('../utils');
+var BaseModel = require('./base-model');
+var Utils = require('../utils');
 
 module.exports = function (bookshelf, BPromise) {
 
-    var BaseModel = baseModel(bookshelf);
-    var Recovery = BaseModel.extend({
+    var baseModel = BaseModel(bookshelf);
+    var Recovery = baseModel.extend({
         /*
          * t.integer('user_id').index().notNullable().references('users.id');
          * t.text('code').notNullable().index();
@@ -20,19 +20,19 @@ module.exports = function (bookshelf, BPromise) {
     }, {
         reset: function (attrs) {
 
-            return this.get({code: attrs.code}).then(function (recovery) {
+            return this.get({ code: attrs.code }).then(function (recovery) {
 
                 return bookshelf.transaction(function (t) {
 
-                    return recovery.related('user').save({passwordHash: utils.passwordHash(attrs.password), supertoken: utils.generateSupertoken()}, {patch: true, transacting: t}).then(function (user) {
+                    return recovery.related('user').save({ passwordHash: Utils.passwordHash(attrs.password), supertoken: Utils.generateSupertoken() }, { patch: true, transacting: t }).then(function (user) {
 
-                        return recovery.destroy({transacting: t}).then(function () {
+                        return recovery.destroy({ transacting: t }).then(function () {
 
                             return {
                                 id: user.get('id'),
                                 type: 'authToken',
                                 attributes: {
-                                    token: utils.userToken(user)
+                                    token: Utils.userToken(user)
                                 }
                             };
                         });
@@ -42,7 +42,7 @@ module.exports = function (bookshelf, BPromise) {
         },
         get: function (attrs) {
 
-            return new this(attrs).query('where', 'created', '>', bookshelf.knex.raw('datetime("now", "-1 days")')).fetch({withRelated: 'user'}).then(function (recovery) {
+            return new this(attrs).query('where', 'created', '>', bookshelf.knex.raw('datetime("now", "-1 days")')).fetch({ withRelated: 'user' }).then(function (recovery) {
 
                 if (!recovery) {
                     throw Boom.notFound();

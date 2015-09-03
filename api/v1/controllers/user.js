@@ -14,7 +14,7 @@ controllers.login = {
 
         return reply(db.User.loginWithPassword(data.attributes).then(function (user) {
 
-            return {data: user};
+            return { data: user };
         })).code(201);
     },
     validate: {
@@ -55,7 +55,7 @@ controllers.me = {
 
         var user = request.auth.credentials.user;
 
-        return reply({data: user});
+        return reply({ data: user });
     }
 };
 
@@ -69,7 +69,7 @@ controllers.invites = {
 
         return reply(user.getInvites().then(function (invites) {
 
-            return {data: invites};
+            return { data: invites };
         }));
     }
 };
@@ -91,7 +91,7 @@ controllers.signup = {
 
         return reply(db.User.signup(this.config.invites, data.attributes.invite, attrs).then(function (user) {
 
-            return {data: user};
+            return { data: user };
         })).code(201);
     },
     validate: {
@@ -122,7 +122,7 @@ controllers.validate = {
 
         return reply(user.validate().then(function (response) {
 
-            return {data: response};
+            return { data: response };
         })).code(202);
     }
 };
@@ -137,7 +137,7 @@ controllers.confirm = {
 
         return reply(user.confirm(request.payload.data).then(function (response) {
 
-            return {data: response};
+            return { data: response };
         }));
     },
     validate: {
@@ -160,7 +160,7 @@ controllers.recover = {
         /* there is no condition under which we will do anything but this reply
          * so just send it now and do the rest asynchronously
          */
-        reply({data: null}).code(202);
+        reply({ data: null }).code(202);
         db.User.recover(request.payload.data.attributes);
     },
     validate: {
@@ -186,7 +186,7 @@ controllers.reset = {
 
         return reply(db.Recovery.reset(request.payload.data.attributes).then(function (authToken) {
 
-            return {data: authToken};
+            return { data: authToken };
         })).code(201);
     },
     validate: {
@@ -212,7 +212,7 @@ controllers.update = {
         var user = request.auth.credentials.user;
         return reply(user.update(request.payload.data.attributes).then(function (updatedUser) {
 
-            return {data: updatedUser};
+            return { data: updatedUser };
         }));
     },
     validate: {
@@ -241,7 +241,7 @@ controllers.taken = {
         var db = this.db;
         return reply(db.User.taken(request.payload.data.attributes).then(function (taken) {
 
-            return {data: taken};
+            return { data: taken };
         }));
     },
     validate: {

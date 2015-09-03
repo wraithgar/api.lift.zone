@@ -1,11 +1,11 @@
-var baseModel = require('./base-model');
-var baseCollection = require('./base-collection');
+var BaseModel = require('./base-model');
+var BaseCollection = require('./base-collection');
 
 module.exports = function (bookshelf, BPromise) {
 
-    var BaseModel = baseModel(bookshelf);
-    var BaseCollection = baseCollection(bookshelf);
-    var ActivityName = BaseModel.extend({
+    var baseModel = BaseModel(bookshelf);
+    var baseCollection = BaseCollection(bookshelf);
+    var ActivityName = baseModel.extend({
         /* t.increments('id').primary();
          * t.integer('user_id').index().notNullable().references('users.id');
          * t.integer('activityname_id').index().references('activitynames.id');
@@ -19,7 +19,7 @@ module.exports = function (bookshelf, BPromise) {
         }
     });
 
-    var ActivityNames = BaseCollection.extend({
+    var ActivityNames = baseCollection.extend({
         model: ActivityName
     });
 

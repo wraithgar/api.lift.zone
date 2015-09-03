@@ -3,11 +3,11 @@ process.env.NODE_ENV = 'test';
 var Code = require('code');
 var Hoek = require('hoek');
 var Lab = require('lab');
-var nodemailer = require('nodemailer');
+var Nodemailer = require('nodemailer');
 
-var fixtures = require('./fixtures');
+var Fixtures = require('./fixtures');
 var DbHelper = require('./db-helper');
-var authInject = require('./auth-inject');
+var AuthInject = require('./auth-inject');
 var serverItems = require('../').getServer();
 
 var lab = exports.lab = Lab.script();
@@ -44,9 +44,9 @@ lab.experiment('signup and validate', function () {
 
     lab.before(function (done) {
 
-        nodemailer.createTransport = function () {
+        Nodemailer.createTransport = function () {
 
-            return {sendMail: sendMail};
+            return { sendMail: sendMail };
         };
 
         return dbHelper.rollbackAll().then(function () {
@@ -54,7 +54,7 @@ lab.experiment('signup and validate', function () {
             return dbHelper.migrateLatest();
         }).then(function () {
 
-            return dbHelper.createUser(fixtures.users.main, {count: 5});
+            return dbHelper.createUser(Fixtures.users.main, { count: 5 });
         }).then(function () {
 
             server.start(function () {
@@ -69,8 +69,8 @@ lab.experiment('signup and validate', function () {
                         data: {
                             type: 'login',
                             attributes: {
-                                email: fixtures.users.main.email,
-                                password: fixtures.users.main.password
+                                email: Fixtures.users.main.email,
+                                password: Fixtures.users.main.password
                             }
                         }
                     }
@@ -96,7 +96,7 @@ lab.experiment('signup and validate', function () {
         var options = {
             method: 'GET', url: '/api/v1/me/invites'
         };
-        authInject(server, options, userAuthHeader, function (response) {
+        AuthInject(server, options, userAuthHeader, function (response) {
 
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
@@ -127,7 +127,7 @@ lab.experiment('signup and validate', function () {
                             id: 'taken',
                             attributes: {
                                 invite: utils.generateInviteCode(),
-                                login: fixtures.users.main.login
+                                login: Fixtures.users.main.login
                             }
                         }
                     }
@@ -153,7 +153,7 @@ lab.experiment('signup and validate', function () {
                             id: 'taken',
                             attributes: {
                                 invite: inviteCode.attributes.code,
-                                login: fixtures.users.main.login
+                                login: Fixtures.users.main.login
                             }
                         }
                     }
@@ -183,7 +183,7 @@ lab.experiment('signup and validate', function () {
                             id: 'taken',
                             attributes: {
                                 invite: inviteCode.attributes.code,
-                                login: fixtures.users.nonexistant.login
+                                login: Fixtures.users.nonexistant.login
                             }
                         }
                     }
@@ -202,8 +202,8 @@ lab.experiment('signup and validate', function () {
 
         lab.test('sign up login taken', function (done) {
 
-            var invite = Hoek.applyToDefaults(fixtures.users.signup, {invite: inviteCode.attributes.code, passwordConfirm: fixtures.users.signup.password});
-            invite.login = fixtures.users.main.login;
+            var invite = Hoek.applyToDefaults(Fixtures.users.signup, { invite: inviteCode.attributes.code, passwordConfirm: Fixtures.users.signup.password });
+            invite.login = Fixtures.users.main.login;
 
             var options = {
                 method: 'POST', url: '/api/v1/signup',
@@ -228,7 +228,7 @@ lab.experiment('signup and validate', function () {
 
         lab.test('sign up', function (done) {
 
-            var invite = Hoek.applyToDefaults(fixtures.users.signup, {invite: inviteCode.attributes.code, passwordConfirm: fixtures.users.signup.password});
+            var invite = Hoek.applyToDefaults(Fixtures.users.signup, { invite: inviteCode.attributes.code, passwordConfirm: Fixtures.users.signup.password });
             var options = {
                 method: 'POST', url: '/api/v1/signup',
                 headers: {
@@ -260,7 +260,7 @@ lab.experiment('signup and validate', function () {
             var options = {
                 method: 'GET', url: '/api/v1/me/invites'
             };
-            authInject(server, options, userAuthHeader, function (response) {
+            AuthInject(server, options, userAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
@@ -271,7 +271,7 @@ lab.experiment('signup and validate', function () {
 
         lab.test('reuse signup token', function (done) {
 
-            var invite = Hoek.applyToDefaults(fixtures.users.signup, {invite: inviteCode.attributes.code, passwordConfirm: fixtures.users.signup.password});
+            var invite = Hoek.applyToDefaults(Fixtures.users.signup, { invite: inviteCode.attributes.code, passwordConfirm: Fixtures.users.signup.password });
             var options = {
                 method: 'POST', url: '/api/v1/signup',
                 headers: {
@@ -298,7 +298,7 @@ lab.experiment('signup and validate', function () {
             var options = {
                 method: 'GET', url: '/api/v1/me'
             };
-            authInject(server, options, signupUserAuthHeader, function (response) {
+            AuthInject(server, options, signupUserAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
@@ -313,7 +313,7 @@ lab.experiment('signup and validate', function () {
             var options = {
                 method: 'GET', url: '/api/v1/me/invites'
             };
-            authInject(server, options, signupUserAuthHeader, function (response) {
+            AuthInject(server, options, signupUserAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(404);
@@ -333,7 +333,7 @@ lab.experiment('signup and validate', function () {
                     }
                 }
             };
-            authInject(server, options, signupUserAuthHeader, function (response) {
+            AuthInject(server, options, signupUserAuthHeader, function (response) {
 
                 Code.expect(response.statusCode).to.equal(404);
                 done();
@@ -345,13 +345,13 @@ lab.experiment('signup and validate', function () {
             var options = {
                 method: 'POST', url: '/api/v1/validate'
             };
-            authInject(server, options, signupUserAuthHeader, function (response) {
+            AuthInject(server, options, signupUserAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(202);
                 Code.expect(payload.data).to.equal(null);
-                Code.expect(mailLog[fixtures.users.signup.email]).to.have.length(1);
-                validateCode = mailLog[fixtures.users.signup.email][0].text.split('code=')[1];
+                Code.expect(mailLog[Fixtures.users.signup.email]).to.have.length(1);
+                validateCode = mailLog[Fixtures.users.signup.email][0].text.split('code=')[1];
                 done();
             });
         });
@@ -361,12 +361,12 @@ lab.experiment('signup and validate', function () {
             var options = {
                 method: 'POST', url: '/api/v1/validate'
             };
-            authInject(server, options, signupUserAuthHeader, function (response) {
+            AuthInject(server, options, signupUserAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(202);
                 Code.expect(payload.data).to.equal(null);
-                Code.expect(mailLog[fixtures.users.signup.email]).to.have.length(1);
+                Code.expect(mailLog[Fixtures.users.signup.email]).to.have.length(1);
                 done();
             });
         });
@@ -382,7 +382,7 @@ lab.experiment('signup and validate', function () {
                     }
                 }
             };
-            authInject(server, options, signupUserAuthHeader, function (response) {
+            AuthInject(server, options, signupUserAuthHeader, function (response) {
 
                 Code.expect(response.statusCode).to.equal(404);
                 done();
@@ -400,7 +400,7 @@ lab.experiment('signup and validate', function () {
                     }
                 }
             };
-            authInject(server, options, signupUserAuthHeader, function (response) {
+            AuthInject(server, options, signupUserAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
@@ -421,7 +421,7 @@ lab.experiment('signup and validate', function () {
                     }
                 }
             };
-            authInject(server, options, signupUserAuthHeader, function (response) {
+            AuthInject(server, options, signupUserAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
@@ -436,7 +436,7 @@ lab.experiment('signup and validate', function () {
             var options = {
                 method: 'GET', url: '/api/v1/me'
             };
-            authInject(server, options, signupUserAuthHeader, function (response) {
+            AuthInject(server, options, signupUserAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
@@ -451,12 +451,12 @@ lab.experiment('signup and validate', function () {
             var options = {
                 method: 'POST', url: '/api/v1/validate'
             };
-            authInject(server, options, signupUserAuthHeader, function (response) {
+            AuthInject(server, options, signupUserAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(202);
                 Code.expect(payload.data).to.equal(null);
-                Code.expect(mailLog[fixtures.users.signup.email]).to.have.length(1);
+                Code.expect(mailLog[Fixtures.users.signup.email]).to.have.length(1);
                 done();
             });
         });
@@ -466,7 +466,7 @@ lab.experiment('signup and validate', function () {
             var options = {
                 method: 'GET', url: '/api/v1/me/invites'
             };
-            authInject(server, options, signupUserAuthHeader, function (response) {
+            AuthInject(server, options, signupUserAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);

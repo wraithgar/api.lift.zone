@@ -1,14 +1,14 @@
 'use strict';
-var config = require('getconfig');
+var Config = require('getconfig');
 var Hapi = require('hapi');
 var server = new Hapi.Server();
 var Hoek = require('hoek');
-var db = require('./db')(config);
-var utils = require('./utils');
+var db = require('./db')(Config);
+var Utils = require('./utils');
 
 var plugins = [{
     register: require('@gar/hapi-json-api'),
-    options: {meta: config.meta}
+    options: { meta: Config.meta }
 }, {
     register: require('hapi-auth-jwt'),
     options: {}
@@ -17,16 +17,16 @@ var plugins = [{
     options: {
         reporters: [{
             reporter: require('good-console'),
-            events: config.hapi.logEvents
+            events: Config.hapi.logEvents
         }]
     }
 }];
 
-server.app.utils = utils;
+server.app.utils = Utils;
 
 server.connection({
-    host: config.hapi.host,
-    port: config.hapi.port
+    host: Config.hapi.host,
+    port: Config.hapi.port
 });
 
 server.register(plugins, function (err) {
@@ -35,7 +35,7 @@ server.register(plugins, function (err) {
 
     server.register({
         register: require('./api/v1'),
-        options: { config: config, db: db }
+        options: { config: Config, db: db }
     }, { routes: { prefix: '/api/v1' } }, function (err) {
 
         Hoek.assert(!err, 'Failed loading api: ' + err);
@@ -53,7 +53,7 @@ exports.getServer = function () {
 
     return {
         server: server,
-        utils: utils,
+        utils: Utils,
         db: db
     };
 };

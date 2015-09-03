@@ -12,7 +12,7 @@ controllers.all = {
         //TODO pagination
         return reply(user.related('activityNames').fetch().then(function (activityNames) {
 
-            return {data: activityNames};
+            return { data: activityNames };
         }));
     }
 };
@@ -27,7 +27,7 @@ controllers.search = {
 
         return reply(user.searchActivityNames(request.payload).then(function (activityNames) {
 
-            return {data: activityNames};
+            return { data: activityNames };
         }));
     },
     validate: {
@@ -46,7 +46,7 @@ controllers.get = {
 
         return reply(user.getActivityName(request.params).then(function (userActivity) {
 
-            return {data: userActivity};
+            return { data: userActivity };
         }));
     },
     validate: {
@@ -65,7 +65,7 @@ controllers.create = {
 
         return reply(user.createActivity(request.payload).then(function (userActivity) {
 
-            return {data: userActivity};
+            return { data: userActivity };
         })).code(201);
     },
     validate: {

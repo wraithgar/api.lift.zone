@@ -1,11 +1,9 @@
-'use strict';
-
 var Boom = require('boom');
-var config = require('getconfig');
-var crypto = require('crypto');
-var nodemailer = require('nodemailer');
-var jwt = require('jsonwebtoken');
-var uuid = require('uuid');
+var Config = require('getconfig');
+var Crypto = require('crypto');
+var Nodemailer = require('nodemailer');
+var Jwt = require('jsonwebtoken');
+var Uuid = require('uuid');
 
 exports.userToken = function (user) {
 
@@ -16,31 +14,31 @@ exports.userToken = function (user) {
             supertoken: user.get('supertoken')
         }
     };
-    return jwt.sign(token, config.jwt.privateKey);
+    return Jwt.sign(token, Config.jwt.privateKey);
 };
 
 exports.passwordHash = function (password) {
 
-    var salt = config.passwordSalt;
-    return crypto.createHash('sha1').update(salt + password).digest('hex');
+    var salt = Config.passwordSalt;
+    return Crypto.createHash('sha1').update(salt + password).digest('hex');
 };
 
 //For now these all do the same thing but are distinct functions in the event we want them to do different things
 exports.generateInviteCode = function () {
 
-    var token = uuid.v4();
+    var token = Uuid.v4();
     return token;
 };
 
 exports.generateValidationCode = function () {
 
-    var token = uuid.v4();
+    var token = Uuid.v4();
     return token;
 };
 
 exports.generateRecoveryCode = function () {
 
-    var token = uuid.v4();
+    var token = Uuid.v4();
     return token;
 };
 
@@ -51,7 +49,7 @@ exports.generateSupertoken = function () {
 
 exports.jwtValidate = function (db) {
 
-    var checkUser = function (decodedToken, callback) {
+    var checkUser = function (request, decodedToken, callback) {
 
         var userId = decodedToken.user.id;
         var supertoken = decodedToken.user.supertoken;
@@ -60,7 +58,7 @@ exports.jwtValidate = function (db) {
             return callback(Boom.unauthorized('Invalid token'), false, null);
         }
 
-        return db.User.forge({id: userId}).fetch().then(function (user) {
+        return db.User.forge({ id: userId }).fetch().then(function (user) {
 
             if (!user) {
                 throw Boom.unauthorized('Invalid user');
@@ -88,13 +86,13 @@ exports.jwtValidate = function (db) {
 exports.mailValidation = function (email, validation, BPromise) {
 
     var mailOptions = {
-        from: config.serverMail,
+        from: Config.serverMail,
         to: email,
         subject: 'Lift Zone email validation',
         text: 'Go here to validate your lift.zone account email: http://lift.zone/validate?action=verify&code=' + validation.get('code')
     };
 
-    var transporter = nodemailer.createTransport({ignoreTLS: true});
+    var transporter = Nodemailer.createTransport({ ignoreTLS: true });
     var sendMail = BPromise.promisify(transporter.sendMail);
 
     return sendMail(mailOptions);
@@ -103,12 +101,12 @@ exports.mailValidation = function (email, validation, BPromise) {
 exports.mailRecovery = function (email, recovery) {
 
     var mailOptions = {
-        from: config.serverMail,
+        from: Config.serverMail,
         to: email,
         subject: 'Lift zone password recovery',
         text: 'Sorry you forgot your password.  Don\`t worry, it happens to the best of us.\nClick this hyperlink and you can reset your password http://lift.zone/recover/verify&code=' + recovery.get('code') + '\n\np.s. If you didn\'t request a password recovery disregard this email, nothing on your account will change.'
     };
-    var transporter = nodemailer.createTransport({ignoreTLS: true});
+    var transporter = Nodemailer.createTransport({ ignoreTLS: true });
 
     transporter.sendMail(mailOptions);
 };

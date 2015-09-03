@@ -1,10 +1,9 @@
-var baseModel = require('./base-model');
-var utils = require('../utils');
+var BaseModel = require('./base-model');
 
 module.exports = function (bookshelf, BPromise) {
 
-    var BaseModel = baseModel(bookshelf);
-    var Validation = BaseModel.extend({
+    var baseModel = BaseModel(bookshelf);
+    var Validation = baseModel.extend({
         /*
          * t.integer('user_id').index().notNullable().references('users.id');
          * t.text('code').notNullable().index();

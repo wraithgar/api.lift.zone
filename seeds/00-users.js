@@ -1,15 +1,15 @@
 /*eslint camelcase:0*/
-var utils = require('../utils');
+var Utils = require('../utils');
 
 exports.seed = function (knex) {
 
-    return knex.table('users').first('id').where({login: 'admin'}).then(function (user) {
+    return knex.table('users').first('id').where({ login: 'admin' }).then(function (user) {
 
         if (user === undefined) {
             user = knex('users').insert({
                 login: 'admin',
-                password_hash: utils.passwordHash('changeme'),
-                supertoken: utils.generateSupertoken(),
+                password_hash: Utils.passwordHash('changeme'),
+                supertoken: Utils.generateSupertoken(),
                 name: 'Admin',
                 email: 'admin@lift.zone',
                 active: true,

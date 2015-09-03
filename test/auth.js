@@ -3,12 +3,12 @@ process.env.NODE_ENV = 'test';
 var Code = require('code');
 var Hoek = require('hoek');
 var Lab = require('lab');
-var nodemailer = require('nodemailer');
-var fixtures = require('./fixtures');
+var Nodemailer = require('nodemailer');
+var Fixtures = require('./fixtures');
 var lab = exports.lab = Lab.script();
 var serverItems = require('../').getServer();
 var DbHelper = require('./db-helper');
-var authInject = require('./auth-inject');
+var AuthInject = require('./auth-inject');
 
 var server = serverItems.server;
 var utils = serverItems.utils;
@@ -45,16 +45,16 @@ lab.experiment('authentication', function () {
 
     lab.before(function (done) {
 
-        nodemailer.createTransport = function () {
+        Nodemailer.createTransport = function () {
 
-            return {sendMail: sendMail};
+            return { sendMail: sendMail };
         };
         return dbHelper.rollbackAll().then(function () {
 
             return dbHelper.migrateLatest();
         }).then(function () {
 
-            return dbHelper.createUser(fixtures.users.main);
+            return dbHelper.createUser(Fixtures.users.main);
         }).then(function () {
 
             server.start(function () {
@@ -69,8 +69,8 @@ lab.experiment('authentication', function () {
                         data: {
                             type: 'login',
                             attributes: {
-                                email: fixtures.users.main.email,
-                                password: fixtures.users.main.password
+                                email: Fixtures.users.main.email,
+                                password: Fixtures.users.main.password
                             }
                         }
                     }
@@ -96,7 +96,7 @@ lab.experiment('authentication', function () {
         var options = {
             method: 'GET', url: '/api/v1/me'
         };
-        authInject(server, options, userAuthHeader, function (response) {
+        AuthInject(server, options, userAuthHeader, function (response) {
 
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
@@ -118,8 +118,8 @@ lab.experiment('authentication', function () {
                 data: {
                     type: 'login',
                     attributes: {
-                        email: 'bad' + fixtures.users.main.email,
-                        password: fixtures.users.main.password
+                        email: 'bad' + Fixtures.users.main.email,
+                        password: Fixtures.users.main.password
                     }
                 }
             }
@@ -143,8 +143,8 @@ lab.experiment('authentication', function () {
                 data: {
                     type: 'login',
                     attributes: {
-                        email: fixtures.users.main.email,
-                        password: fixtures.users.main.password + 'bad'
+                        email: Fixtures.users.main.email,
+                        password: Fixtures.users.main.password + 'bad'
                     }
                 }
             }
@@ -168,7 +168,7 @@ lab.experiment('authentication', function () {
                 data: {
                     type: 'login',
                     attributes: {
-                        email: fixtures.users.main.email
+                        email: Fixtures.users.main.email
                     }
                 }
             }
@@ -181,8 +181,8 @@ lab.experiment('authentication', function () {
 
                 Code.expect(response.statusCode).to.equal(202);
                 Code.expect(payload.data).to.equal(null);
-                Code.expect(mailLog[fixtures.users.main.email]).to.have.length(1);
-                recoveryCode = mailLog[fixtures.users.main.email][0].text.split('code=')[1].split('\n')[0];
+                Code.expect(mailLog[Fixtures.users.main.email]).to.have.length(1);
+                recoveryCode = mailLog[Fixtures.users.main.email][0].text.split('code=')[1].split('\n')[0];
                 done();
             }, 50);
         });
@@ -200,7 +200,7 @@ lab.experiment('authentication', function () {
                 data: {
                     type: 'login',
                     attributes: {
-                        email: fixtures.users.main.email
+                        email: Fixtures.users.main.email
                     }
                 }
             }
@@ -213,7 +213,7 @@ lab.experiment('authentication', function () {
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(202);
                 Code.expect(payload.data).to.equal(null);
-                Code.expect(mailLog[fixtures.users.main.email]).to.have.length(1);
+                Code.expect(mailLog[Fixtures.users.main.email]).to.have.length(1);
                 done();
             }, 50);
         });
@@ -231,7 +231,7 @@ lab.experiment('authentication', function () {
                 data: {
                     type: 'login',
                     attributes: {
-                        email: fixtures.users.nonexistant.email
+                        email: Fixtures.users.nonexistant.email
                     }
                 }
             }
@@ -241,7 +241,7 @@ lab.experiment('authentication', function () {
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(202);
             Code.expect(payload.data).to.equal(null);
-            Code.expect(mailLog[fixtures.users.nonexistant.email]).to.equal(undefined);
+            Code.expect(mailLog[Fixtures.users.nonexistant.email]).to.equal(undefined);
             done();
         });
     });
@@ -259,8 +259,8 @@ lab.experiment('authentication', function () {
                     type: 'reset',
                     attributes: {
                         code: recoveryCode,
-                        password: fixtures.users.reset.password,
-                        passwordConfirm: fixtures.users.reset.password
+                        password: Fixtures.users.reset.password,
+                        passwordConfirm: Fixtures.users.reset.password
                     }
                 }
             }
@@ -290,8 +290,8 @@ lab.experiment('authentication', function () {
                     type: 'reset',
                     attributes: {
                         code: recoveryCode,
-                        password: fixtures.users.main.password,
-                        passwordConfirm: fixtures.users.main.password
+                        password: Fixtures.users.main.password,
+                        passwordConfirm: Fixtures.users.main.password
                     }
                 }
             }
@@ -308,7 +308,7 @@ lab.experiment('authentication', function () {
         var options = {
             method: 'GET', url: '/api/v1/me'
         };
-        authInject(server, options, userAuthHeader, function (response) {
+        AuthInject(server, options, userAuthHeader, function (response) {
 
             Code.expect(response.statusCode).to.equal(401);
             done();
@@ -320,7 +320,7 @@ lab.experiment('authentication', function () {
         var options = {
             method: 'GET', url: '/api/v1/me'
         };
-        authInject(server, options, resetAuthHeader, function (response) {
+        AuthInject(server, options, resetAuthHeader, function (response) {
 
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
@@ -334,7 +334,7 @@ lab.experiment('authentication', function () {
         var options = {
             method: 'POST', url: '/api/v1/logout'
         };
-        authInject(server, options, resetAuthHeader, function (response) {
+        AuthInject(server, options, resetAuthHeader, function (response) {
 
             Code.expect(response.statusCode).to.equal(204);
             Code.expect(response.payload).to.be.empty();
@@ -347,7 +347,7 @@ lab.experiment('authentication', function () {
         var options = {
             method: 'GET', url: '/api/v1/me'
         };
-        authInject(server, options, resetAuthHeader, function (response) {
+        AuthInject(server, options, resetAuthHeader, function (response) {
 
             Code.expect(response.statusCode).to.equal(401);
             done();
@@ -366,8 +366,8 @@ lab.experiment('authentication', function () {
                 data: {
                     type: 'login',
                     attributes: {
-                        email: fixtures.users.main.email,
-                        password: fixtures.users.reset.password
+                        email: Fixtures.users.main.email,
+                        password: Fixtures.users.reset.password
                     }
                 }
             }
@@ -391,7 +391,7 @@ lab.experiment('authentication', function () {
         var options = {
             method: 'GET', url: '/api/v1/me'
         };
-        authInject(server, options, userAuthHeader, function (response) {
+        AuthInject(server, options, userAuthHeader, function (response) {
 
             var payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);

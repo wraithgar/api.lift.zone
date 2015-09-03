@@ -1,11 +1,11 @@
-var baseModel = require('./base-model');
-var baseCollection = require('./base-collection');
+var BaseModel = require('./base-model');
+var BaseCollection = require('./base-collection');
 
 module.exports = function (bookshelf, BPromise) {
 
-    var BaseModel = baseModel(bookshelf);
-    var BaseCollection = baseCollection(bookshelf);
-    var Invite = BaseModel.extend({
+    var baseModel = BaseModel(bookshelf);
+    var baseCollection = BaseCollection(bookshelf);
+    var Invite = baseModel.extend({
         /*
          * t.text('code').unique().index();
          * t.integer('user_id').index().notNullable().references('users.id');
@@ -15,7 +15,7 @@ module.exports = function (bookshelf, BPromise) {
         tableName: 'invites'
     });
 
-    var Invites = BaseCollection.extend({
+    var Invites = baseCollection.extend({
         model: Invite
     });
 

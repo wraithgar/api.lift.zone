@@ -9,7 +9,7 @@ module.exports = function (bookshelf) {
                 return model.toJSON(options);
             }).then(function (result) {
 
-                return {data: result};
+                return { data: result };
             });
         }
     });

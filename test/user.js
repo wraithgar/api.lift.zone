@@ -3,11 +3,11 @@ process.env.NODE_ENV = 'test';
 var Code = require('code');
 var _ = require('lodash');
 var Lab = require('lab');
-var fixtures = require('./fixtures');
+var Fixtures = require('./fixtures');
 var lab = exports.lab = Lab.script();
 var serverItems = require('../').getServer();
 var DbHelper = require('./db-helper');
-var authInject = require('./auth-inject');
+var AuthInject = require('./auth-inject');
 
 var server = serverItems.server;
 var dbHelper = new DbHelper(serverItems.db);
@@ -29,7 +29,7 @@ lab.experiment('user', function () {
             return dbHelper.migrateLatest();
         }).then(function () {
 
-            return dbHelper.createUser(fixtures.users.main);
+            return dbHelper.createUser(Fixtures.users.main);
         }).then(function () {
 
             server.start(function () {
@@ -44,8 +44,8 @@ lab.experiment('user', function () {
                         data: {
                             type: 'login',
                             attributes: {
-                                email: fixtures.users.main.email,
-                                password: fixtures.users.main.password
+                                email: Fixtures.users.main.email,
+                                password: Fixtures.users.main.password
                             }
                         }
                     }
@@ -71,15 +71,15 @@ lab.experiment('user', function () {
         var options = {
             method: 'GET', url: '/api/v1/me'
         };
-        authInject(server, options, userAuthHeader, function (response) {
+        AuthInject(server, options, userAuthHeader, function (response) {
 
             var payload = JSON.parse(response.payload);
             var user = payload.data.attributes;
             Code.expect(response.statusCode).to.equal(200);
             Code.expect(payload.data).to.include('id', 'type', 'attributes');
-            Code.expect(user.login).to.equal(fixtures.users.main.login);
-            Code.expect(user.name).to.equal(fixtures.users.main.name);
-            Code.expect(user.email).to.equal(fixtures.users.main.email);
+            Code.expect(user.login).to.equal(Fixtures.users.main.login);
+            Code.expect(user.name).to.equal(Fixtures.users.main.name);
+            Code.expect(user.email).to.equal(Fixtures.users.main.email);
             Code.expect(user.validated).to.equal(true);
             Code.expect(user.public).to.equal(false);
             Code.expect(user.smartmode).to.equal(true);
@@ -94,7 +94,7 @@ lab.experiment('user', function () {
 
         lab.test('update', function (done) {
 
-            var userAttributes = _.pick(fixtures.users.update, ['name', 'smartmode', 'public']);
+            var userAttributes = _.pick(Fixtures.users.update, ['name', 'smartmode', 'public']);
             var options = {
                 method: 'PUT', url: '/api/v1/me',
                 payload: {
@@ -105,7 +105,7 @@ lab.experiment('user', function () {
                     }
                 }
             };
-            authInject(server, options, userAuthHeader, function (response) {
+            AuthInject(server, options, userAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 user = payload.data.attributes;
@@ -126,7 +126,7 @@ lab.experiment('user', function () {
             var options = {
                 method: 'GET', url: '/api/v1/me'
             };
-            authInject(server, options, userAuthHeader, function (response) {
+            AuthInject(server, options, userAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
@@ -149,12 +149,12 @@ lab.experiment('user', function () {
                         id: authUser.id,
                         type: 'user',
                         attributes: {
-                            email: fixtures.users.main.email
+                            email: Fixtures.users.main.email
                         }
                     }
                 }
             };
-            authInject(server, options, userAuthHeader, function (response) {
+            AuthInject(server, options, userAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 user = payload.data.attributes;
@@ -171,7 +171,7 @@ lab.experiment('user', function () {
             var options = {
                 method: 'GET', url: '/api/v1/me'
             };
-            authInject(server, options, userAuthHeader, function (response) {
+            AuthInject(server, options, userAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
@@ -193,12 +193,12 @@ lab.experiment('user', function () {
                         id: authUser.id,
                         type: 'user',
                         attributes: {
-                            email: fixtures.users.update.email
+                            email: Fixtures.users.update.email
                         }
                     }
                 }
             };
-            authInject(server, options, userAuthHeader, function (response) {
+            AuthInject(server, options, userAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 user = payload.data.attributes;
@@ -206,7 +206,7 @@ lab.experiment('user', function () {
                 Code.expect(user.updatedAt).to.not.equal(authUser.attributes.updatedAt);
                 authUser.attributes.updatedAt = user.updatedAt;
                 Code.expect(user.validated).to.equal(false);
-                Code.expect(user.email).to.equal(fixtures.users.update.email);
+                Code.expect(user.email).to.equal(Fixtures.users.update.email);
                 done();
             });
         });
@@ -216,7 +216,7 @@ lab.experiment('user', function () {
             var options = {
                 method: 'GET', url: '/api/v1/me'
             };
-            authInject(server, options, userAuthHeader, function (response) {
+            AuthInject(server, options, userAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
@@ -237,13 +237,13 @@ lab.experiment('user', function () {
                         id: authUser.id,
                         type: 'user',
                         attributes: {
-                            password: fixtures.users.update.password,
-                            passwordConfirm: fixtures.users.update.password
+                            password: Fixtures.users.update.password,
+                            passwordConfirm: Fixtures.users.update.password
                         }
                     }
                 }
             };
-            authInject(server, options, userAuthHeader, function (response) {
+            AuthInject(server, options, userAuthHeader, function (response) {
 
                 var payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
@@ -263,8 +263,8 @@ lab.experiment('user', function () {
                     data: {
                         type: 'login',
                         attributes: {
-                            email: fixtures.users.update.email,
-                            password: fixtures.users.update.password
+                            email: Fixtures.users.update.email,
+                            password: Fixtures.users.update.password
                         }
                     }
                 }
