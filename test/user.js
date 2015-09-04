@@ -44,7 +44,7 @@ lab.experiment('user', function () {
                         data: {
                             type: 'login',
                             attributes: {
-                                email: Fixtures.users.main.email,
+                                login: Fixtures.users.main.login,
                                 password: Fixtures.users.main.password
                             }
                         }
@@ -263,7 +263,7 @@ lab.experiment('user', function () {
                     data: {
                         type: 'login',
                         attributes: {
-                            email: Fixtures.users.update.email,
+                            login: Fixtures.users.update.login,
                             password: Fixtures.users.update.password
                         }
                     }

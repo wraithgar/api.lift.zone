@@ -69,7 +69,7 @@ lab.experiment('signup and validate', function () {
                         data: {
                             type: 'login',
                             attributes: {
-                                email: Fixtures.users.main.email,
+                                login: Fixtures.users.main.login,
                                 password: Fixtures.users.main.password
                             }
                         }
@@ -111,6 +111,40 @@ lab.experiment('signup and validate', function () {
         var signupUser;
         var signupUserAuthHeader;
 
+        lab.experiment('invite validity', function () {
+
+            lab.test('valid invite', function (done) {
+
+                var options = {
+                    method: 'GET', url: '/api/v1/invite/' + inviteCode.attributes.code,
+                    headers: {
+                        accept: 'application/vnd.api+json',
+                        'content-type': 'application/vnd.api+json'
+                    }
+                };
+                server.inject(options, function (response) {
+
+                    Code.expect(response.statusCode).to.equal(200);
+                    done();
+                });
+            });
+
+            lab.test('invalid invite', function (done) {
+
+                var options = {
+                    method: 'GET', url: '/api/v1/invite/' + utils.generateInviteCode(),
+                    headers: {
+                        accept: 'application/vnd.api+json',
+                        'content-type': 'application/vnd.api+json'
+                    }
+                };
+                server.inject(options, function (response) {
+
+                    Code.expect(response.statusCode).to.equal(404);
+                    done();
+                });
+            });
+        });
         lab.experiment('login availability', function () {
 
             lab.test('invalid invite', function (done) {

@@ -44,7 +44,7 @@ lab.experiment('user activities', function () {
                         data: {
                             type: 'login',
                             attributes: {
-                                email: Fixtures.users.main.email,
+                                login: Fixtures.users.main.login,
                                 password: Fixtures.users.main.password
                             }
                         }

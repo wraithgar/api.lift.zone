@@ -1,4 +1,5 @@
 {
+  "clientUri": "http://localhost:8080",
   "db": "./dev.sqlite3",
   "hapi": {
     "host": "localhost",

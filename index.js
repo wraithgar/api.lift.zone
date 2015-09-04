@@ -24,10 +24,20 @@ var plugins = [{
 
 server.app.utils = Utils;
 
-server.connection({
+var connection = {
     host: Config.hapi.host,
     port: Config.hapi.port
-});
+};
+
+if (Config.clientUri) {
+    connection.routes = {
+        cors: {
+            origin: [Config.clientUri]
+        }
+    };
+}
+
+server.connection(connection);
 
 server.register(plugins, function (err) {
 

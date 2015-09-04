@@ -69,7 +69,7 @@ lab.experiment('authentication', function () {
                         data: {
                             type: 'login',
                             attributes: {
-                                email: Fixtures.users.main.email,
+                                login: Fixtures.users.main.login,
                                 password: Fixtures.users.main.password
                             }
                         }
@@ -118,7 +118,7 @@ lab.experiment('authentication', function () {
                 data: {
                     type: 'login',
                     attributes: {
-                        email: 'bad' + Fixtures.users.main.email,
+                        login: 'bad' + Fixtures.users.main.login,
                         password: Fixtures.users.main.password
                     }
                 }
@@ -143,7 +143,7 @@ lab.experiment('authentication', function () {
                 data: {
                     type: 'login',
                     attributes: {
-                        email: Fixtures.users.main.email,
+                        login: Fixtures.users.main.login,
                         password: Fixtures.users.main.password + 'bad'
                     }
                 }
@@ -366,7 +366,7 @@ lab.experiment('authentication', function () {
                 data: {
                     type: 'login',
                     attributes: {
-                        email: Fixtures.users.main.email,
+                        login: Fixtures.users.main.login,
                         password: Fixtures.users.reset.password
                     }
                 }

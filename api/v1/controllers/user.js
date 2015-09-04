@@ -22,7 +22,7 @@ controllers.login = {
             data: {
                 type: Joi.string().valid('login').required(),
                 attributes: {
-                    email: Joi.string().email().required().example('user@lift.zone'),
+                    login: Joi.string().required().example('crash_override'),
                     password: Joi.string().min(8).required().example('hunter2!')
                 }
             }
@@ -254,6 +254,25 @@ controllers.taken = {
                     login: Joi.string().required()
                 }
             }
+        }
+    },
+    auth: false
+};
+
+controllers.invite = {
+    description: 'Check invite validity',
+    tags: ['user'],
+    handler: function (request, reply) {
+
+        var db = this.db;
+        return reply(db.Invite.get(request.params).then(function (invite) {
+
+            return { data: invite };
+        }));
+    },
+    validate: {
+        params: {
+            code: Joi.string().guid().required()
         }
     },
     auth: false

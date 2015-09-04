@@ -257,7 +257,6 @@ module.exports = function (bookshelf, BPromise) {
                         throw Boom.conflict('login already taken');
                     }
 
-
                     return bookshelf.transaction(function (t) {
 
                         return BPromise.all([
@@ -266,7 +265,7 @@ module.exports = function (bookshelf, BPromise) {
                         ]);
                     }).then(function () {
 
-                        return self.loginWithPassword({ email: attrs.email, password: attrs.password });
+                        return self.loginWithPassword({ login: attrs.login, password: attrs.password });
                     });
                 });
             });

@@ -24,6 +24,7 @@
     },
     "update": {
       "name": "test update user",
+      "login": "testAdmin",
       "email": "testupdate@lift.zone",
       "password": "hunter4!",
       "smartmode": false,
