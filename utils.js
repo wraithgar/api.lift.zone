@@ -89,11 +89,11 @@ exports.mailValidation = function (email, validation, BPromise) {
         from: Config.serverMail,
         to: email,
         subject: 'Lift Zone email validation',
-        text: 'Go here to validate your lift.zone account email: http://lift.zone/validate?action=verify&code=' + validation.get('code')
+        text: 'Go here to validate your lift.zone account email: http://lift.zone/validate?code=' + validation.get('code')
     };
 
     var transporter = Nodemailer.createTransport({ ignoreTLS: true });
-    var sendMail = BPromise.promisify(transporter.sendMail);
+    var sendMail = BPromise.promisify(transporter.sendMail.bind(this));
 
     return sendMail(mailOptions);
 };
@@ -104,7 +104,7 @@ exports.mailRecovery = function (email, recovery) {
         from: Config.serverMail,
         to: email,
         subject: 'Lift zone password recovery',
-        text: 'Sorry you forgot your password.  Don\`t worry, it happens to the best of us.\nClick this hyperlink and you can reset your password http://lift.zone/recover/verify&code=' + recovery.get('code') + '\n\np.s. If you didn\'t request a password recovery disregard this email, nothing on your account will change.'
+        text: 'Sorry you forgot your password.  Don\`t worry, it happens to the best of us.\nClick this hyperlink and you can reset your password http://lift.zone/recover?code=' + recovery.get('code') + '\n\np.s. If you didn\'t request a password recovery disregard this email, nothing on your account will change.'
     };
     var transporter = Nodemailer.createTransport({ ignoreTLS: true });
 
