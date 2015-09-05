@@ -28,7 +28,7 @@
       "email": "testupdate@lift.zone",
       "password": "hunter4!",
       "smartmode": false,
-      "public": true
+      "visible": true
     }
   },
   "activities": {

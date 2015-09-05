@@ -81,20 +81,20 @@ lab.experiment('user', function () {
             Code.expect(user.name).to.equal(Fixtures.users.main.name);
             Code.expect(user.email).to.equal(Fixtures.users.main.email);
             Code.expect(user.validated).to.equal(true);
-            Code.expect(user.public).to.equal(false);
+            Code.expect(user.visible).to.equal(false);
             Code.expect(user.smartmode).to.equal(true);
             authUser = payload.data;
             done();
         });
     });
 
-    lab.experiment('name, smartmode, public', function () {
+    lab.experiment('name, smartmode, visible', function () {
 
         var user;
 
         lab.test('update', function (done) {
 
-            var userAttributes = _.pick(Fixtures.users.update, ['name', 'smartmode', 'public']);
+            var userAttributes = _.pick(Fixtures.users.update, ['name', 'smartmode', 'visible']);
             var options = {
                 method: 'PUT', url: '/api/v1/me',
                 payload: {
@@ -115,7 +115,7 @@ lab.experiment('user', function () {
                 authUser.attributes.updatedAt = user.updatedAt;
                 Code.expect(userAttributes.name).to.equal(user.name);
                 Code.expect(userAttributes.smartmode).to.equal(user.smartmode);
-                Code.expect(userAttributes.public).to.equal(user.public);
+                Code.expect(userAttributes.visible).to.equal(user.visible);
                 Code.expect(user.validated).to.equal(true);
                 done();
             });

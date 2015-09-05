@@ -12,7 +12,7 @@ exports.up = function (knex) {
         t.text('email').notNullable().index();
         t.boolean('validated').notNullable().defaultTo(false);
         t.boolean('smartmode').notNullable().defaultTo(true);
-        t.boolean('public').notNullable().defaultTo(false);
+        t.boolean('visible').notNullable().defaultTo(false);
         t.timestamps();
     });
 };

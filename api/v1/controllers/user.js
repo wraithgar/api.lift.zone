@@ -10,7 +10,7 @@ controllers.login = {
         var db = this.db;
         var data = request.payload.data;
 
-        request.server.log(['users', 'auth'], 'Login: ' + data.attributes.email);
+        request.server.log(['users', 'auth'], 'Login: ' + data.attributes.login);
 
         return reply(db.User.loginWithPassword(data.attributes).then(function (user) {
 
@@ -102,9 +102,9 @@ controllers.signup = {
                     invite: Joi.string().guid().required(),
                     login: Joi.string().required(),
                     name: Joi.string().required(),
+                    email: Joi.string().email().required(),
                     password: Joi.string().min(8, 'utf-8').required(),
-                    passwordConfirm: Joi.ref('password'),
-                    email: Joi.string().email().required()
+                    passwordConfirm: Joi.ref('password')
                 })
             }
         }
@@ -226,7 +226,7 @@ controllers.update = {
                     passwordConfirm: Joi.ref('password'),
                     email: Joi.string().email(),
                     smartmode: Joi.boolean(),
-                    'public': Joi.boolean()
+                    visible: Joi.boolean()
                 }).unknown()
             }
         }

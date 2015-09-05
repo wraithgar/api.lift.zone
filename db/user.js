@@ -22,13 +22,13 @@ module.exports = function (bookshelf, BPromise) {
          * t.text('email').notNullable().index();
          * t.boolean('validated').notNullable().defaultTo(false);
          * t.boolean('smartmode').notNullable().defaultTo(true);
-         * t.boolean('public').notNullable().defaultTo(false);
+         * t.boolean('visible').notNullable().defaultTo(false);
          */
         //instance properties
         type: 'user',
         tableName: 'users',
         hidden: ['passwordHash', 'supertoken'],
-        booleans: ['active', 'validated', 'smartmode', 'public'],
+        booleans: ['active', 'validated', 'smartmode', 'visible'],
         invites: function () {
 
             return this.hasMany('Invite');
@@ -129,7 +129,7 @@ module.exports = function (bookshelf, BPromise) {
         }),
         update: function (attrs) {
 
-            attrs = _.pick(attrs, 'name', 'email', 'password', 'smartmode', 'public');
+            attrs = _.pick(attrs, 'name', 'email', 'password', 'smartmode', 'visible');
             if (attrs.password) {
                 var password = attrs.password;
                 attrs.passwordHash = Utils.passwordHash(password);
