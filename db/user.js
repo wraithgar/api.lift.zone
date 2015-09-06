@@ -283,7 +283,7 @@ module.exports = function (bookshelf, BPromise) {
                     if (!existingRecovery) {
                         user.related('recovery').save({ code: Utils.generateRecoveryCode() }).then(function (recovery) {
 
-                            Utils.mailRecovery(user.get('email'), recovery);
+                            Utils.mailRecovery(user.get('email'), user.get('login'), recovery);
                         });
                     }
                 });

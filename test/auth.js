@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test';
 var Code = require('code');
 var Hoek = require('hoek');
 var Lab = require('lab');
-var Nodemailer = require('nodemailer');
+//var Nodemailer = require('nodemailer');
 var Fixtures = require('./fixtures');
 var lab = exports.lab = Lab.script();
 var serverItems = require('../').getServer();
@@ -11,7 +11,7 @@ var DbHelper = require('./db-helper');
 var AuthInject = require('./auth-inject');
 
 var server = serverItems.server;
-var utils = serverItems.utils;
+var Utils = serverItems.utils;
 var dbHelper = new DbHelper(serverItems.db);
 
 var mailLog = {};
@@ -27,6 +27,7 @@ var sendMail = function (options, callback) {
         return callback();
     }
 };
+
 
 //TODO active flag
 //TODO signups disabled
@@ -45,10 +46,7 @@ lab.experiment('authentication', function () {
 
     lab.before(function (done) {
 
-        Nodemailer.createTransport = function () {
-
-            return { sendMail: sendMail };
-        };
+        Utils.transporter.sendMail = sendMail;
         return dbHelper.rollbackAll().then(function () {
 
             return dbHelper.migrateLatest();

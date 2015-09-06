@@ -4,6 +4,20 @@ var Crypto = require('crypto');
 var Nodemailer = require('nodemailer');
 var Jwt = require('jsonwebtoken');
 var Uuid = require('uuid');
+var Bluebird = require('bluebird');
+var NodemailerPromised = Bluebird.promisifyAll(Nodemailer);
+
+var transporter = Nodemailer.createTransport({ ignoreTLS: true, debug: true });
+
+exports.transporter = transporter;
+
+exports.transportLog = function (logger) {
+
+    transporter.on('log', function (info) {
+
+        logger(['info', 'nodemailer'], info);
+    });
+};
 
 exports.userToken = function (user) {
 
@@ -83,7 +97,7 @@ exports.jwtValidate = function (db) {
     return checkUser;
 };
 
-exports.mailValidation = function (email, validation, BPromise) {
+exports.mailValidation = function (email, validation) {
 
     var mailOptions = {
         from: Config.serverMail,
@@ -92,21 +106,17 @@ exports.mailValidation = function (email, validation, BPromise) {
         text: 'Go here to validate your lift.zone account email: http://lift.zone/validate?code=' + validation.get('code')
     };
 
-    var transporter = Nodemailer.createTransport({ ignoreTLS: true });
-    var sendMail = BPromise.promisify(transporter.sendMail.bind(this));
-
-    return sendMail(mailOptions);
+    return transporter.sendMail(mailOptions);
 };
 
-exports.mailRecovery = function (email, recovery) {
+exports.mailRecovery = function (email, login, recovery) {
 
     var mailOptions = {
         from: Config.serverMail,
         to: email,
         subject: 'Lift zone password recovery',
-        text: 'Sorry you forgot your password.  Don\`t worry, it happens to the best of us.\nClick this hyperlink and you can reset your password http://lift.zone/recover?code=' + recovery.get('code') + '\n\np.s. If you didn\'t request a password recovery disregard this email, nothing on your account will change.'
+        text: 'Sorry you forgot your password.  Don\`t worry, it happens to the best of us.\nClick this hyperlink and you can reset your password http://lift.zone/recover?code=' + recovery.get('code') + '\nYour login, in case you forgot that too, is' + login + '.\n\np.s. If you didn\'t request a password recovery disregard this email, nothing on your account will change.'
     };
-    var transporter = Nodemailer.createTransport({ ignoreTLS: true });
 
-    transporter.sendMail(mailOptions);
+    return transporter.sendMail(mailOptions);
 };

@@ -34,6 +34,7 @@ exports.register = function (plugin, options, done) {
     plugin.route({ method: 'GET', path: '/invite/{code}', config: User.invite });
     plugin.route({ method: 'GET', path: '/me', config: User.me });
     plugin.route({ method: 'PUT', path: '/me', config: User.update });
+    plugin.route({ method: 'PATCH', path: '/me', config: User.update });
     plugin.route({ method: 'GET', path: '/me/invites', config: User.invites });
     plugin.route({ method: 'POST', path: '/me/confirm', config: User.confirm });
 

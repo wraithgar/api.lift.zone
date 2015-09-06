@@ -24,6 +24,8 @@ var plugins = [{
 
 server.app.utils = Utils;
 
+Utils.transportLog(server.log.bind(server));
+
 var connection = {
     host: Config.hapi.host,
     port: Config.hapi.port

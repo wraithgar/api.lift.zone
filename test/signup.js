@@ -3,7 +3,6 @@ process.env.NODE_ENV = 'test';
 var Code = require('code');
 var Hoek = require('hoek');
 var Lab = require('lab');
-var Nodemailer = require('nodemailer');
 
 var Fixtures = require('./fixtures');
 var DbHelper = require('./db-helper');
@@ -13,7 +12,7 @@ var serverItems = require('../').getServer();
 var lab = exports.lab = Lab.script();
 
 var server = serverItems.server;
-var utils = serverItems.utils;
+var Utils = serverItems.utils;
 var dbHelper = new DbHelper(serverItems.db);
 
 var mailLog = {};
@@ -44,11 +43,7 @@ lab.experiment('signup and validate', function () {
 
     lab.before(function (done) {
 
-        Nodemailer.createTransport = function () {
-
-            return { sendMail: sendMail };
-        };
-
+        Utils.transporter.sendMail = sendMail;
         return dbHelper.rollbackAll().then(function () {
 
             return dbHelper.migrateLatest();
@@ -132,7 +127,7 @@ lab.experiment('signup and validate', function () {
             lab.test('invalid invite', function (done) {
 
                 var options = {
-                    method: 'GET', url: '/api/v1/invite/' + utils.generateInviteCode(),
+                    method: 'GET', url: '/api/v1/invite/' + Utils.generateInviteCode(),
                     headers: {
                         accept: 'application/vnd.api+json',
                         'content-type': 'application/vnd.api+json'
@@ -160,7 +155,7 @@ lab.experiment('signup and validate', function () {
                             type: 'taken',
                             id: 'taken',
                             attributes: {
-                                invite: utils.generateInviteCode(),
+                                invite: Utils.generateInviteCode(),
                                 login: Fixtures.users.main.login
                             }
                         }
@@ -362,7 +357,7 @@ lab.experiment('signup and validate', function () {
                 'method': 'POST', url: '/api/v1/me/confirm',
                 payload: {
                     data: {
-                        id: utils.generateValidationCode(),
+                        id: Utils.generateValidationCode(),
                         type: 'validation'
                     }
                 }
@@ -411,7 +406,7 @@ lab.experiment('signup and validate', function () {
                 'method': 'POST', url: '/api/v1/me/confirm',
                 payload: {
                     data: {
-                        id: utils.generateValidationCode(),
+                        id: Utils.generateValidationCode(),
                         type: 'validation'
                     }
                 }
