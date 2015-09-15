@@ -1,4 +1,3 @@
-'use strict';
 var Config = require('getconfig');
 var Hapi = require('hapi');
 var server = new Hapi.Server();
