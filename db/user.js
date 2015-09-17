@@ -30,8 +30,11 @@ module.exports = function User (bookshelf, BPromise) {
         tableName: 'users',
         hidden: ['passwordHash', 'supertoken'],
         booleans: ['active', 'validated', 'smartmode', 'visible'],
-        invites: function () {
+        invites: function (skipValidation) {
 
+            if (!skipValidation && !this.get('validated')) {
+                throw Boom.notFound('Please validate first');
+            }
             return this.hasMany('Invite');
         },
         validation: function () {
@@ -46,60 +49,29 @@ module.exports = function User (bookshelf, BPromise) {
 
             return this.hasMany('ActivityName');
         },
+
         logout: function () {
 
             return this.save({ supertoken: Utils.generateSupertoken() }, { patch: true });
         },
-        addInvite: function (options) {
-
-            const code = Utils.generateInviteCode();
-            options = Hoek.applyToDefaults({ method: 'insert' }, options);
-
-            return this.related('invites').create({ code: code }, options);
-        },
-        createValidation: function () {
-
-            //Ughhhhhhh thanks for nothing knex
-            return bookshelf.knex.raw('replace into validations (user_id, code, created_at, updated_at) values (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)', [this.get('id'), Utils.generateValidationCode()]);
-        },
-        getInvites: BPromise.method(function () {
-
-            if (!this.get('validated')) {
-                throw Boom.notFound('Please validate first');
-            }
-            return this.related('invites').fetch();
-        }),
-        sendValidation: function () {
-
-            const email = this.get('email');
-            return this.related('validation').fetch().then(function (validation) {
-
-                return Utils.mailValidation(email, validation, BPromise);
-            });
-        },
         validate: BPromise.method(function () {
 
-            const self = this;
+            const email = this.get('email');
 
-            if (self.get('validated')) {
+            if (this.get('validated')) {
                 return null;
             }
 
-            return self.related('validation').recent().then(function (validation) {
+            return this.related('validation').make()
+            .then(function (newValidation) {
 
-                if (validation) {
-                    return null;
+                if (newValidation) {
+                    return Utils.mailValidation(email, newValidation);
                 }
+            })
+            .then(function () {
 
-                //Create new validation and send email
-                return self.createValidation().then(function () {
-
-                    return self.sendValidation();
-                }).then(function () {
-
-                    return null;
-                });
-
+                return null;
             });
         }),
         confirm: BPromise.method(function (confirmation) {
@@ -110,7 +82,8 @@ module.exports = function User (bookshelf, BPromise) {
                 return null;
             }
 
-            return self.related('validation').current().then(function (validation) {
+            return self.related('validation').current()
+            .then(function (validation) {
 
                 if (!validation || (validation.get('code') !== confirmation.id)) {
                     throw Boom.notFound();
@@ -123,7 +96,8 @@ module.exports = function User (bookshelf, BPromise) {
                         validation.destroy({ transacting: t })
                     ]);
                 });
-            }).then(function () {
+            })
+            .then(function () {
 
                 return null;
             });
@@ -139,72 +113,19 @@ module.exports = function User (bookshelf, BPromise) {
             if (attrs.email && attrs.email !== this.get('email')) {
                 attrs.validated = false;
             }
-            return this.save(attrs, { patch: true }).then(function (user) {
+            return this.save(attrs, { patch: true })
+            .then(function (user) {
 
                 //We have to do this to get a proper updatedAt formatting
                 return user.fetch();
             });
-        },
-        getActivityName: function (attrs) {
-
-            return this.related('activityNames').query({ where: attrs }).fetchOne({ withRelated: ['aliases'] }).then(function (activity) {
-
-                if (!activity) {
-                    throw Boom.notFound();
-                }
-
-                return activity;
-            });
-        },
-        getActivityNames: function () {
-
-            return this.related('activityNames').fetch({ withRelated: ['aliases'] });
-        },
-        suggestActivityNames: function (attrs) {
-
-            const names = attrs.name.toLowerCase().replace(/[^a-z\s]/, '').split(/\s+/).join(' OR ');
-
-            return this.related('activityNames').query(function (qb) {
-
-                this.join('activitynames', { 'activitynames.docid': 'useractivities.id' });
-                this.andWhere(bookshelf.knex.raw('activitynames MATCH ?', names));
-            }).fetch({ withRelated: ['aliases'] });
-        },
-        searchActivityNames: function (attrs) {
-
-            return this.related('activityNames').query({ where: attrs }).fetchOne({ withRelated: ['aliases', 'aliasFor', 'aliasFor.aliases'] }).then(function (activityName) {
-
-                if (!activityName) {
-                    throw Boom.notFound('Activity name not found');
-                }
-                return activityName;
-            });
-        },
-        createActivity: function (attrs) {
-
-            const self = this;
-
-            return BPromise.resolve().then(function () {
-
-                if (attrs.alias_id === undefined) {
-                    return;
-                }
-                return self.related('activityNames').query({ where: { id: attrs.alias_id } }).fetchOne().then(function (alias) {
-
-                    if (!alias) {
-                        throw Boom.notFound('Alias not found');
-                    }
-                });
-            }).then(function () {
-
-                return self.related('activityNames').create(attrs);
-            }).then(function (activityName) {
-
-                return activityName.fetch({ withRelated: ['aliases'] });
-            });
         }
     }, {
         //class properties
+        collection: function (models, options) {
+
+            return Collection.forge((models || []), _.extend({}, options));
+        },
         createWithPassword: function (attrs, invites, options) {
 
             attrs = Hoek.shallow(attrs);
@@ -221,7 +142,7 @@ module.exports = function User (bookshelf, BPromise) {
                 const count = invites.count;
                 const userInvites = new Array(count);
                 for (let i = 0; i < count; i++) {
-                    userInvites.push(user.addInvite(options));
+                    userInvites.push(user.invites(true).generate(options));
                 }
                 return BPromise.all(userInvites);
             });
@@ -237,7 +158,8 @@ module.exports = function User (bookshelf, BPromise) {
             delete attrs.password;
             attrs.active = true;
 
-            return new this(attrs).fetch({ require: true }).then(function (user) {
+            return new this(attrs).fetch({ require: true })
+            .then(function (user) {
 
                 return {
                     id: user.get('id'),
@@ -259,9 +181,11 @@ module.exports = function User (bookshelf, BPromise) {
 
             const self = this;
 
-            return bookshelf.model('Invite').get({ code: invite }).then(function (validInvite) {
+            return bookshelf.model('Invite').get({ code: invite })
+            .then(function (validInvite) {
 
-                return self.forge({ login: attrs.login }).fetch().then(function (existingLogin) {
+                return self.forge({ login: attrs.login }).fetch()
+                .then(function (existingLogin) {
 
                     if (existingLogin) {
                         throw Boom.conflict('login already taken');
@@ -273,7 +197,8 @@ module.exports = function User (bookshelf, BPromise) {
                             self.createWithPassword(attrs, invites, { transacting: t }),
                             validInvite.destroy({ transacting: t })
                         ]);
-                    }).then(function () {
+                    })
+                    .then(function () {
 
                         return self.loginWithPassword({ login: attrs.login, password: attrs.password });
                     });
@@ -282,16 +207,19 @@ module.exports = function User (bookshelf, BPromise) {
         }),
         recover: function (attrs) {
 
-            this.forge(attrs).fetch({ withRelated: 'recovery' }).then(function (user) {
+            this.forge(attrs).fetch({ withRelated: 'recovery' })
+            .then(function (user) {
 
                 if (!user) {
                     return;
                 }
 
-                user.related('recovery').query('where', 'created', '>', bookshelf.knex.raw('datetime("now", "-1 days")')).fetch().then(function (existingRecovery) {
+                user.related('recovery').query('where', 'created', '>', bookshelf.knex.raw('datetime("now", "-1 days")')).fetch()
+                .then(function (existingRecovery) {
 
                     if (!existingRecovery) {
-                        user.related('recovery').save({ code: Utils.generateRecoveryCode() }).then(function (recovery) {
+                        user.related('recovery').save({ code: Utils.generateRecoveryCode() })
+                        .then(function (recovery) {
 
                             Utils.mailRecovery(user.get('email'), user.get('login'), recovery);
                         });
@@ -302,9 +230,11 @@ module.exports = function User (bookshelf, BPromise) {
         taken: function (attrs) {
 
             const self = this;
-            return bookshelf.model('Invite').get({ code: attrs.invite }).then(function (invite) {
+            return bookshelf.model('Invite').get({ code: attrs.invite })
+            .then(function (invite) {
 
-                return self.forge({ login: attrs.login }).fetch().then(function (existingLogin) {
+                return self.forge({ login: attrs.login }).fetch()
+                .then(function (existingLogin) {
 
                     const taken = !!existingLogin;
 

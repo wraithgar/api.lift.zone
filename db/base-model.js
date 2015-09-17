@@ -75,11 +75,11 @@ module.exports = function (bookshelf) {
         }
     }, {
         //fetch wrapper that throws Boom.notFound if applicable
-        get: function (attrs) {
+        get: function (attrs, fetchParams) {
 
             attrs = Hoek.shallow(attrs);
 
-            return new this(attrs).fetch().then(function (model) {
+            return new this(attrs).fetch(fetchParams).then(function (model) {
 
                 if (!model) {
                     throw Boom.notFound();

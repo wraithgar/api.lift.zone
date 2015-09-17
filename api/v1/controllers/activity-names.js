@@ -28,7 +28,7 @@ controllers.suggest = {
 
         const user = request.auth.credentials.user;
 
-        return reply(user.suggestActivityNames(request.payload).then(function (activityNames) {
+        return reply(user.related('activityNames').suggest(request.payload).then(function (activityNames) {
 
             return { data: activityNames };
         }));
@@ -48,7 +48,7 @@ controllers.search = {
 
         const user = request.auth.credentials.user;
 
-        return reply(user.searchActivityNames(request.payload).then(function (activityNames) {
+        return reply(user.related('activityNames').getOne(request.params, { withRelated: ['aliases'] }).then(function (activityNames) {
 
             return { data: activityNames };
         }));
@@ -67,7 +67,7 @@ controllers.get = {
 
         const user = request.auth.credentials.user;
 
-        return reply(user.getActivityName(request.params).then(function (userActivity) {
+        return reply(user.related('activityNames').getOne(request.params, { withRelated: ['aliases'] }).then(function (userActivity) {
 
             return { data: userActivity };
         }));
@@ -86,7 +86,7 @@ controllers.create = {
 
         const user = request.auth.credentials.user;
 
-        return reply(user.createActivity(request.payload).then(function (userActivity) {
+        return reply(user.related('activityNames').make(request.payload).then(function (userActivity) {
 
             return { data: userActivity };
         })).code(201);

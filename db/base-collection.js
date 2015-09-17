@@ -1,6 +1,7 @@
 'use strict';
 const Boom = require('boom');
 const Hoek = require('hoek');
+const Promise = require('bluebird');
 
 module.exports = function (bookshelf) {
 
@@ -10,20 +11,14 @@ module.exports = function (bookshelf) {
             return this.map(function (model) {
 
                 return model.toJSON(options);
-            }).then(function (result) {
-
-                return { data: result };
             });
         },
-        getOne: function (attrs, related) {
+        getOne: function (attrs, fetchParams) {
 
-            attrs = Hoek.shallow(attrs);
-
-            return new this.query({ where: attrs }).fetchOne({ withRelated: related }).then(function (model) {
+            return this.query({ where: Hoek.shallow(attrs) }).fetchOne(fetchParams).then(function (model) {
 
                 if (!model) {
-                    //TODO can we infer Model.prototype.type here?
-                    throw Boom.notFound('Not found');
+                    throw Boom.notFound();
                 }
                 return model;
             });

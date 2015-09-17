@@ -70,7 +70,7 @@ controllers.invites = {
         const db = this.db;
         const user = request.auth.credentials.user;
 
-        return reply(user.getInvites().then(function (invites) {
+        return reply(user.related('invites').fetch().then(function (invites) {
 
             return { data: invites };
         }));

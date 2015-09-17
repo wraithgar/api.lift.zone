@@ -1,6 +1,10 @@
 'use strict';
 const BaseModel = require('./base-model');
 const BaseCollection = require('./base-collection');
+const Boom = require('boom');
+const _ = require('lodash');
+const Hoek = require('hoek');
+const Utils = require('../utils');
 
 module.exports = function Invite (bookshelf, BPromise) {
 
@@ -14,10 +18,22 @@ module.exports = function Invite (bookshelf, BPromise) {
         type: 'invite',
         idAttribute: 'code',
         tableName: 'invites'
+    }, {
+        collection: function (models, options) {
+
+            return Collection.forge((models || []), _.extend({}, options));
+        }
     });
 
     const Collection = baseCollection.extend({
-        model: Model
+        model: Model,
+        generate: function (options) {
+
+            const code = Utils.generateInviteCode();
+            options = Hoek.applyToDefaults({ method: 'insert' }, options);
+
+            return this.create({ code: code }, options);
+        }
     });
 
     bookshelf.model('Invite', Model);

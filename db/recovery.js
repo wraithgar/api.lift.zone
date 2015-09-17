@@ -2,6 +2,7 @@
 const Boom = require('boom');
 const BaseModel = require('./base-model');
 const Utils = require('../utils');
+const _ = require('lodash');
 
 module.exports = function Recovery (bookshelf, BPromise) {
 
@@ -19,6 +20,10 @@ module.exports = function Recovery (bookshelf, BPromise) {
             return this.belongsTo('User');
         }
     }, {
+        collection: function (models, options) {
+
+            return Collection.forge((models || []), _.extend({}, options));
+        },
         reset: function (attrs) {
 
             return this.get({ code: attrs.code }).then(function (recovery) {
