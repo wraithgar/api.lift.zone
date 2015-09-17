@@ -1,7 +1,10 @@
+'use strict';
+const Boom = require('boom');
+const Hoek = require('hoek');
 
 module.exports = function (bookshelf) {
 
-    var Base = bookshelf.Collection.extend({
+    const Base = bookshelf.Collection.extend({
         serialize: function (options) {
 
             return this.map(function (model) {
@@ -10,6 +13,19 @@ module.exports = function (bookshelf) {
             }).then(function (result) {
 
                 return { data: result };
+            });
+        },
+        getOne: function (attrs, related) {
+
+            attrs = Hoek.shallow(attrs);
+
+            return new this.query({ where: attrs }).fetchOne({ withRelated: related }).then(function (model) {
+
+                if (!model) {
+                    //TODO can we infer Model.prototype.type here?
+                    throw Boom.notFound('Not found');
+                }
+                return model;
             });
         }
     });

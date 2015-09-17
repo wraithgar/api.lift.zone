@@ -1,9 +1,10 @@
-var Knex = require('knex');
-var Bookshelf = require('bookshelf');
+'use strict';
+const Knex = require('knex');
+const Bookshelf = require('bookshelf');
 
 module.exports = function (config) {
 
-    var db = Bookshelf(Knex({
+    const db = Bookshelf(Knex({
         client: 'sqlite3',
         connection: {
             filename: config.db
@@ -18,13 +19,13 @@ module.exports = function (config) {
     db.plugin('registry');
     db.plugin('visibility');
 
-    var activityName = require('./activity-name')(db, Knex.Promise);
-    var invite = require('./invite')(db, Knex.Promise);
-    var recovery = require('./recovery')(db, Knex.Promise);
-    var user = require('./user')(db, Knex.Promise);
-    var validation = require('./validation')(db, Knex.Promise);
+    const activityName = require('./activity-name')(db, Knex.Promise);
+    const invite = require('./invite')(db, Knex.Promise);
+    const recovery = require('./recovery')(db, Knex.Promise);
+    const user = require('./user')(db, Knex.Promise);
+    const validation = require('./validation')(db, Knex.Promise);
 
-    var results = {
+    const results = {
         Promise: db.knex.Promise,
         bookshelf: db,
         knex: db.knex,

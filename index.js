@@ -1,11 +1,12 @@
-var Config = require('getconfig');
-var Hapi = require('hapi');
-var server = new Hapi.Server();
-var Hoek = require('hoek');
-var db = require('./db')(Config);
-var Utils = require('./utils');
+'use strict';
+const Config = require('getconfig');
+const Hapi = require('hapi');
+const server = new Hapi.Server();
+const Hoek = require('hoek');
+const db = require('./db')(Config);
+const Utils = require('./utils');
 
-var plugins = [{
+const plugins = [{
     register: require('@gar/hapi-json-api'),
     options: { meta: Config.meta }
 }, {
@@ -25,7 +26,7 @@ server.app.utils = Utils;
 
 Utils.transportLog(server.log.bind(server));
 
-var connection = {
+const connection = {
     host: Config.hapi.host,
     port: Config.hapi.port
 };

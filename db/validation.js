@@ -1,9 +1,10 @@
-var BaseModel = require('./base-model');
+'use strict';
+const BaseModel = require('./base-model');
 
-module.exports = function (bookshelf, BPromise) {
+module.exports = function Validation (bookshelf, BPromise) {
 
-    var baseModel = BaseModel(bookshelf);
-    var Validation = baseModel.extend({
+    const baseModel = BaseModel(bookshelf);
+    const Model = baseModel.extend({
         /*
          * t.integer('user_id').index().notNullable().references('users.id');
          * t.text('code').notNullable().index();
@@ -23,9 +24,9 @@ module.exports = function (bookshelf, BPromise) {
         }
     });
 
-    bookshelf.model('Validation', Validation);
+    bookshelf.model('Validation', Model);
 
     return {
-        model: Validation
+        model: Model
     };
 };

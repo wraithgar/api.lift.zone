@@ -1,13 +1,16 @@
-var Boom = require('boom');
+'use strict';
+const Boom = require('boom');
 
-var DbHelper = function (db) {
+const DbHelper = function (db) {
 
     this.db = db;
 };
 
+module.exports = DbHelper;
+
 DbHelper.prototype.rollbackAll = function () {
 
-    var self = this;
+    const self = this;
     return self.db.knex.migrate.rollback().then(function (result) {
 
         if (result[0] > 0) {
@@ -33,5 +36,3 @@ DbHelper.prototype.getUser = function (attrs) {
 
     return this.db.User.forge({ login: attrs.login }).fetch();
 };
-
-module.exports = DbHelper;

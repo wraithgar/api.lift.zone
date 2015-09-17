@@ -1,11 +1,12 @@
-var BaseModel = require('./base-model');
-var BaseCollection = require('./base-collection');
+'use strict';
+const BaseModel = require('./base-model');
+const BaseCollection = require('./base-collection');
 
-module.exports = function (bookshelf, BPromise) {
+module.exports = function Invite (bookshelf, BPromise) {
 
-    var baseModel = BaseModel(bookshelf);
-    var baseCollection = BaseCollection(bookshelf);
-    var Invite = baseModel.extend({
+    const baseModel = BaseModel(bookshelf);
+    const baseCollection = BaseCollection(bookshelf);
+    const Model = baseModel.extend({
         /*
          * t.text('code').unique().index();
          * t.integer('user_id').index().notNullable().references('users.id');
@@ -15,15 +16,15 @@ module.exports = function (bookshelf, BPromise) {
         tableName: 'invites'
     });
 
-    var Invites = baseCollection.extend({
-        model: Invite
+    const Collection = baseCollection.extend({
+        model: Model
     });
 
-    bookshelf.model('Invite', Invite);
-    bookshelf.collection('Invites', Invites);
+    bookshelf.model('Invite', Model);
+    bookshelf.collection('Invites', Collection);
 
     return {
-        model: Invite,
-        collection: Invites
+        model: Model,
+        collection: Collection
     };
 };

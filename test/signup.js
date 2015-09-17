@@ -1,22 +1,23 @@
+'use strict';
 process.env.NODE_ENV = 'test';
 
-var Code = require('code');
-var Hoek = require('hoek');
-var Lab = require('lab');
+const Code = require('code');
+const Hoek = require('hoek');
+const Lab = require('lab');
 
-var Fixtures = require('./fixtures');
-var DbHelper = require('./db-helper');
-var AuthInject = require('./auth-inject');
-var serverItems = require('../').getServer();
+const Fixtures = require('./fixtures');
+const DbHelper = require('./db-helper');
+const AuthInject = require('./auth-inject');
+const serverItems = require('../').getServer();
 
-var lab = exports.lab = Lab.script();
+const lab = exports.lab = Lab.script();
 
-var server = serverItems.server;
-var Utils = serverItems.utils;
-var dbHelper = new DbHelper(serverItems.db);
+const server = serverItems.server;
+const Utils = serverItems.utils;
+const dbHelper = new DbHelper(serverItems.db);
 
-var mailLog = {};
-var sendMail = function (options, callback) {
+const mailLog = {};
+const sendMail = function (options, callback) {
 
     if (!mailLog[options.to]) {
         mailLog[options.to] = [];
@@ -36,10 +37,10 @@ var sendMail = function (options, callback) {
 
 lab.experiment('signup and validate', function () {
 
-    var authUser;
-    var userAuthHeader;
-    var inviteCode;
-    var validateCode;
+    let authUser;
+    let userAuthHeader;
+    let inviteCode;
+    let validateCode;
 
     lab.before(function (done) {
 
@@ -54,7 +55,7 @@ lab.experiment('signup and validate', function () {
 
             server.start(function () {
 
-                var options = {
+                const options = {
                     method: 'POST', url: '/api/v1/login',
                     headers: {
                         accept: 'application/vnd.api+json',
@@ -72,7 +73,7 @@ lab.experiment('signup and validate', function () {
                 };
                 return server.inject(options, function (response) {
 
-                    var payload = JSON.parse(response.payload);
+                    const payload = JSON.parse(response.payload);
                     Code.expect(response.statusCode).to.equal(201);
                     Code.expect(payload.data).to.include('id', 'type', 'attributes');
                     Code.expect(payload.data.type).to.equal('authToken');
@@ -88,12 +89,12 @@ lab.experiment('signup and validate', function () {
 
     lab.test('get invites', function (done) {
 
-        var options = {
+        const options = {
             method: 'GET', url: '/api/v1/me/invites'
         };
         AuthInject(server, options, userAuthHeader, function (response) {
 
-            var payload = JSON.parse(response.payload);
+            const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
             Code.expect(payload.data).to.have.length(5);
             inviteCode = payload.data[0];
@@ -103,14 +104,14 @@ lab.experiment('signup and validate', function () {
 
     lab.experiment('signup using invite', function () {
 
-        var signupUser;
-        var signupUserAuthHeader;
+        let signupUser;
+        let signupUserAuthHeader;
 
         lab.experiment('invite validity', function () {
 
             lab.test('valid invite', function (done) {
 
-                var options = {
+                const options = {
                     method: 'GET', url: '/api/v1/invite/' + inviteCode.attributes.code,
                     headers: {
                         accept: 'application/vnd.api+json',
@@ -126,7 +127,7 @@ lab.experiment('signup and validate', function () {
 
             lab.test('invalid invite', function (done) {
 
-                var options = {
+                const options = {
                     method: 'GET', url: '/api/v1/invite/' + Utils.generateInviteCode(),
                     headers: {
                         accept: 'application/vnd.api+json',
@@ -144,7 +145,7 @@ lab.experiment('signup and validate', function () {
 
             lab.test('invalid invite', function (done) {
 
-                var options = {
+                const options = {
                     method: 'POST', url: '/api/v1/taken',
                     headers: {
                         accept: 'application/vnd.api+json',
@@ -170,7 +171,7 @@ lab.experiment('signup and validate', function () {
 
             lab.test('login taken', function (done) {
 
-                var options = {
+                const options = {
                     method: 'POST', url: '/api/v1/taken',
                     headers: {
                         accept: 'application/vnd.api+json',
@@ -189,7 +190,7 @@ lab.experiment('signup and validate', function () {
                 };
                 server.inject(options, function (response) {
 
-                    var payload = JSON.parse(response.payload);
+                    const payload = JSON.parse(response.payload);
                     Code.expect(response.statusCode).to.equal(200);
                     Code.expect(payload.data).to.include('id', 'type', 'attributes');
                     Code.expect(payload.data.type).to.equal('taken');
@@ -200,7 +201,7 @@ lab.experiment('signup and validate', function () {
 
             lab.test('login available', function (done) {
 
-                var options = {
+                const options = {
                     method: 'POST', url: '/api/v1/taken',
                     headers: {
                         accept: 'application/vnd.api+json',
@@ -219,7 +220,7 @@ lab.experiment('signup and validate', function () {
                 };
                 server.inject(options, function (response) {
 
-                    var payload = JSON.parse(response.payload);
+                    const payload = JSON.parse(response.payload);
                     Code.expect(response.statusCode).to.equal(200);
                     Code.expect(payload.data).to.include('id', 'type', 'attributes');
                     Code.expect(payload.data.type).to.equal('taken');
@@ -231,10 +232,10 @@ lab.experiment('signup and validate', function () {
 
         lab.test('sign up login taken', function (done) {
 
-            var invite = Hoek.applyToDefaults(Fixtures.users.signup, { invite: inviteCode.attributes.code, passwordConfirm: Fixtures.users.signup.password });
+            const invite = Hoek.applyToDefaults(Fixtures.users.signup, { invite: inviteCode.attributes.code, passwordConfirm: Fixtures.users.signup.password });
             invite.login = Fixtures.users.main.login;
 
-            var options = {
+            const options = {
                 method: 'POST', url: '/api/v1/signup',
                 headers: {
                     accept: 'application/vnd.api+json',
@@ -249,7 +250,7 @@ lab.experiment('signup and validate', function () {
             };
             server.inject(options, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(409);
                 done();
             });
@@ -257,8 +258,8 @@ lab.experiment('signup and validate', function () {
 
         lab.test('sign up', function (done) {
 
-            var invite = Hoek.applyToDefaults(Fixtures.users.signup, { invite: inviteCode.attributes.code, passwordConfirm: Fixtures.users.signup.password });
-            var options = {
+            const invite = Hoek.applyToDefaults(Fixtures.users.signup, { invite: inviteCode.attributes.code, passwordConfirm: Fixtures.users.signup.password });
+            const options = {
                 method: 'POST', url: '/api/v1/signup',
                 headers: {
                     accept: 'application/vnd.api+json',
@@ -273,7 +274,7 @@ lab.experiment('signup and validate', function () {
             };
             server.inject(options, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(201);
                 Code.expect(payload.data).to.include('id', 'type', 'attributes');
                 Code.expect(payload.data.type).to.equal('authToken');
@@ -286,12 +287,12 @@ lab.experiment('signup and validate', function () {
 
         lab.test('invite got used', function (done) {
 
-            var options = {
+            const options = {
                 method: 'GET', url: '/api/v1/me/invites'
             };
             AuthInject(server, options, userAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(payload.data).to.have.length(4);
                 done();
@@ -300,8 +301,8 @@ lab.experiment('signup and validate', function () {
 
         lab.test('reuse signup token', function (done) {
 
-            var invite = Hoek.applyToDefaults(Fixtures.users.signup, { invite: inviteCode.attributes.code, passwordConfirm: Fixtures.users.signup.password });
-            var options = {
+            const invite = Hoek.applyToDefaults(Fixtures.users.signup, { invite: inviteCode.attributes.code, passwordConfirm: Fixtures.users.signup.password });
+            const options = {
                 method: 'POST', url: '/api/v1/signup',
                 headers: {
                     accept: 'application/vnd.api+json',
@@ -316,7 +317,7 @@ lab.experiment('signup and validate', function () {
             };
             server.inject(options, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(404);
                 done();
             });
@@ -324,12 +325,12 @@ lab.experiment('signup and validate', function () {
 
         lab.test('signup user not validated', function (done) {
 
-            var options = {
+            const options = {
                 method: 'GET', url: '/api/v1/me'
             };
             AuthInject(server, options, signupUserAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(payload.data).to.include('id', 'type', 'attributes');
                 Code.expect(payload.data.attributes.validated).to.equal(false);
@@ -339,12 +340,12 @@ lab.experiment('signup and validate', function () {
 
         lab.test('no invites for non validated user', function (done) {
 
-            var options = {
+            const options = {
                 method: 'GET', url: '/api/v1/me/invites'
             };
             AuthInject(server, options, signupUserAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(404);
                 Code.expect(payload.data).to.equal(undefined);
                 done();
@@ -353,7 +354,7 @@ lab.experiment('signup and validate', function () {
 
         lab.test('nonexistant validation confirm validation', function (done) {
 
-            var options = {
+            const options = {
                 'method': 'POST', url: '/api/v1/me/confirm',
                 payload: {
                     data: {
@@ -371,12 +372,12 @@ lab.experiment('signup and validate', function () {
 
         lab.test('request validation', function (done) {
 
-            var options = {
+            const options = {
                 method: 'POST', url: '/api/v1/validate'
             };
             AuthInject(server, options, signupUserAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(202);
                 Code.expect(payload.data).to.equal(null);
                 Code.expect(mailLog[Fixtures.users.signup.email]).to.have.length(1);
@@ -387,12 +388,12 @@ lab.experiment('signup and validate', function () {
 
         lab.test('re-request validation', function (done) {
 
-            var options = {
+            const options = {
                 method: 'POST', url: '/api/v1/validate'
             };
             AuthInject(server, options, signupUserAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(202);
                 Code.expect(payload.data).to.equal(null);
                 Code.expect(mailLog[Fixtures.users.signup.email]).to.have.length(1);
@@ -402,7 +403,7 @@ lab.experiment('signup and validate', function () {
 
         lab.test('invalid confirm validation', function (done) {
 
-            var options = {
+            const options = {
                 'method': 'POST', url: '/api/v1/me/confirm',
                 payload: {
                     data: {
@@ -420,7 +421,7 @@ lab.experiment('signup and validate', function () {
 
         lab.test('confirm validation', function (done) {
 
-            var options = {
+            const options = {
                 'method': 'POST', url: '/api/v1/me/confirm',
                 payload: {
                     data: {
@@ -431,7 +432,7 @@ lab.experiment('signup and validate', function () {
             };
             AuthInject(server, options, signupUserAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(payload.data).to.equal(null);
                 done();
@@ -441,7 +442,7 @@ lab.experiment('signup and validate', function () {
 
         lab.test('re-confirm validation', function (done) {
 
-            var options = {
+            const options = {
                 'method': 'POST', url: '/api/v1/me/confirm',
                 payload: {
                     data: {
@@ -452,7 +453,7 @@ lab.experiment('signup and validate', function () {
             };
             AuthInject(server, options, signupUserAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(payload.data).to.equal(null);
                 done();
@@ -462,12 +463,12 @@ lab.experiment('signup and validate', function () {
 
         lab.test('user is validated', function (done) {
 
-            var options = {
+            const options = {
                 method: 'GET', url: '/api/v1/me'
             };
             AuthInject(server, options, signupUserAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(payload.data).to.include('id', 'type', 'attributes');
                 Code.expect(payload.data.attributes.validated).to.equal(true);
@@ -477,12 +478,12 @@ lab.experiment('signup and validate', function () {
 
         lab.test('request superfluous validation', function (done) {
 
-            var options = {
+            const options = {
                 method: 'POST', url: '/api/v1/validate'
             };
             AuthInject(server, options, signupUserAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(202);
                 Code.expect(payload.data).to.equal(null);
                 Code.expect(mailLog[Fixtures.users.signup.email]).to.have.length(1);
@@ -492,12 +493,12 @@ lab.experiment('signup and validate', function () {
 
         lab.test('validated user has invites', function (done) {
 
-            var options = {
+            const options = {
                 method: 'GET', url: '/api/v1/me/invites'
             };
             AuthInject(server, options, signupUserAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(payload.data).to.have.length(5);
                 inviteCode = payload.data[0];

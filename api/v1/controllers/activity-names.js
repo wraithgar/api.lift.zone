@@ -1,13 +1,16 @@
-var Joi = require('joi');
+'use strict';
+const Joi = require('joi');
 
-var controllers = {};
+const controllers = {};
+
+module.exports = controllers;
 
 controllers.all = {
     description: 'Get all user activity names',
     tags: ['userActivity'],
     handler: function (request, reply) {
 
-        var user = request.auth.credentials.user;
+        const user = request.auth.credentials.user;
 
         //TODO pagination
         return reply(user.related('activityNames').fetch().then(function (activityNames) {
@@ -17,13 +20,33 @@ controllers.all = {
     }
 };
 
+controllers.suggest = {
+    description: 'Suggest an activity name based on given name',
+    notes: 'Attempts to do a fulltext search',
+    tags: ['userActivity'],
+    handler: function (request, reply ) {
+
+        const user = request.auth.credentials.user;
+
+        return reply(user.suggestActivityNames(request.payload).then(function (activityNames) {
+
+            return { data: activityNames };
+        }));
+    },
+    validate: {
+        payload: {
+            name: Joi.string().required().example('Front Squat')
+        }
+    }
+
+};
 controllers.search = {
     description: 'Search for an existing activity name',
-    notes: 'Attempts to do a fulltext search',
+    notes: 'Exact name matches only, returns main activity in the event of a matched alias',
     tags: ['userActivity'],
     handler: function (request, reply) {
 
-        var user = request.auth.credentials.user;
+        const user = request.auth.credentials.user;
 
         return reply(user.searchActivityNames(request.payload).then(function (activityNames) {
 
@@ -42,7 +65,7 @@ controllers.get = {
     tags: ['userActivity'],
     handler: function (request, reply) {
 
-        var user = request.auth.credentials.user;
+        const user = request.auth.credentials.user;
 
         return reply(user.getActivityName(request.params).then(function (userActivity) {
 
@@ -61,7 +84,7 @@ controllers.create = {
     tags: ['userActivity'],
     handler: function (request, reply) {
 
-        var user = request.auth.credentials.user;
+        const user = request.auth.credentials.user;
 
         return reply(user.createActivity(request.payload).then(function (userActivity) {
 
@@ -75,5 +98,3 @@ controllers.create = {
         }
     }
 };
-
-module.exports = controllers;

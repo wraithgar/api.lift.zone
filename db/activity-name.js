@@ -1,11 +1,12 @@
-var BaseModel = require('./base-model');
-var BaseCollection = require('./base-collection');
+'use strict';
+const BaseModel = require('./base-model');
+const BaseCollection = require('./base-collection');
 
-module.exports = function (bookshelf, BPromise) {
+module.exports = function ActivityName (bookshelf, BPromise) {
 
-    var baseModel = BaseModel(bookshelf);
-    var baseCollection = BaseCollection(bookshelf);
-    var ActivityName = baseModel.extend({
+    const baseModel = BaseModel(bookshelf);
+    const baseCollection = BaseCollection(bookshelf);
+    const Model = baseModel.extend({
         /* t.increments('id').primary();
          * t.integer('user_id').index().notNullable().references('users.id');
          * t.integer('activityname_id').index().references('activitynames.id');
@@ -15,19 +16,23 @@ module.exports = function (bookshelf, BPromise) {
         tableName: 'useractivities',
         aliases: function () {
 
-            return this.hasMany(ActivityName);
+            return this.hasMany(Model);
+        },
+        aliasFor: function () {
+
+            return this.belongsTo(Model);
         }
     });
 
-    var ActivityNames = baseCollection.extend({
-        model: ActivityName
+    const Collection = baseCollection.extend({
+        model: Model
     });
 
-    bookshelf.model('ActivityName', ActivityName);
-    bookshelf.collection('ActivityNames', ActivityNames);
+    bookshelf.model('ActivityName', Model);
+    bookshelf.collection('ActivityNames', Collection);
 
     return {
-        model: ActivityName,
-        collection: ActivityNames
+        model: Model,
+        collection: Collection
     };
 };

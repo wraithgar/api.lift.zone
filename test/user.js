@@ -1,16 +1,17 @@
+'use strict';
 process.env.NODE_ENV = 'test';
 
-var Code = require('code');
-var _ = require('lodash');
-var Lab = require('lab');
-var Fixtures = require('./fixtures');
-var lab = exports.lab = Lab.script();
-var serverItems = require('../').getServer();
-var DbHelper = require('./db-helper');
-var AuthInject = require('./auth-inject');
+const Code = require('code');
+const _ = require('lodash');
+const Lab = require('lab');
+const Fixtures = require('./fixtures');
+const lab = exports.lab = Lab.script();
+const serverItems = require('../').getServer();
+const DbHelper = require('./db-helper');
+const AuthInject = require('./auth-inject');
 
-var server = serverItems.server;
-var dbHelper = new DbHelper(serverItems.db);
+const server = serverItems.server;
+const dbHelper = new DbHelper(serverItems.db);
 
 //server.on('request-error', function (request, error) {
 
@@ -19,8 +20,8 @@ var dbHelper = new DbHelper(serverItems.db);
 
 lab.experiment('user', function () {
 
-    var authUser;
-    var userAuthHeader;
+    let authUser;
+    let userAuthHeader;
 
     lab.before(function (done) {
 
@@ -34,7 +35,7 @@ lab.experiment('user', function () {
 
             server.start(function () {
 
-                var options = {
+                const options = {
                     method: 'POST', url: '/api/v1/login',
                     headers: {
                         accept: 'application/vnd.api+json',
@@ -52,7 +53,7 @@ lab.experiment('user', function () {
                 };
                 return server.inject(options, function (response) {
 
-                    var payload = JSON.parse(response.payload);
+                    const payload = JSON.parse(response.payload);
                     Code.expect(response.statusCode).to.equal(201);
                     Code.expect(payload.data).to.include('id', 'type', 'attributes');
                     Code.expect(payload.data.type).to.equal('authToken');
@@ -68,13 +69,13 @@ lab.experiment('user', function () {
 
     lab.test('me', function (done) {
 
-        var options = {
+        const options = {
             method: 'GET', url: '/api/v1/me'
         };
         AuthInject(server, options, userAuthHeader, function (response) {
 
-            var payload = JSON.parse(response.payload);
-            var user = payload.data.attributes;
+            const payload = JSON.parse(response.payload);
+            const user = payload.data.attributes;
             Code.expect(response.statusCode).to.equal(200);
             Code.expect(payload.data).to.include('id', 'type', 'attributes');
             Code.expect(user.login).to.equal(Fixtures.users.main.login);
@@ -90,12 +91,12 @@ lab.experiment('user', function () {
 
     lab.experiment('name, smartmode, visible', function () {
 
-        var user;
+        let user;
 
         lab.test('update', function (done) {
 
-            var userAttributes = _.pick(Fixtures.users.update, ['name', 'smartmode', 'visible']);
-            var options = {
+            const userAttributes = _.pick(Fixtures.users.update, ['name', 'smartmode', 'visible']);
+            const options = {
                 method: 'PUT', url: '/api/v1/me',
                 payload: {
                     data: {
@@ -107,7 +108,7 @@ lab.experiment('user', function () {
             };
             AuthInject(server, options, userAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 user = payload.data.attributes;
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(payload.data).to.include('id', 'type', 'attributes');
@@ -123,12 +124,12 @@ lab.experiment('user', function () {
 
         lab.test('persisted', function (done) {
 
-            var options = {
+            const options = {
                 method: 'GET', url: '/api/v1/me'
             };
             AuthInject(server, options, userAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(user).to.deep.equal(payload.data.attributes);
                 done();
@@ -138,11 +139,11 @@ lab.experiment('user', function () {
 
     lab.experiment('update email', function () {
 
-        var user;
+        let user;
 
         lab.test('same email', function (done) {
 
-            var options = {
+            const options = {
                 method: 'PUT', url: '/api/v1/me',
                 payload: {
                     data: {
@@ -156,7 +157,7 @@ lab.experiment('user', function () {
             };
             AuthInject(server, options, userAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 user = payload.data.attributes;
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(user.updatedAt).to.not.equal(authUser.attributes.updatedAt);
@@ -168,12 +169,12 @@ lab.experiment('user', function () {
 
         lab.test('persisted', function (done) {
 
-            var options = {
+            const options = {
                 method: 'GET', url: '/api/v1/me'
             };
             AuthInject(server, options, userAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(user).to.deep.equal(payload.data.attributes);
                 done();
@@ -183,10 +184,10 @@ lab.experiment('user', function () {
 
     lab.experiment('update email', function (done) {
 
-        var user;
+        let user;
         lab.test('different email', function (done) {
 
-            var options = {
+            const options = {
                 method: 'PUT', url: '/api/v1/me',
                 payload: {
                     data: {
@@ -200,7 +201,7 @@ lab.experiment('user', function () {
             };
             AuthInject(server, options, userAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 user = payload.data.attributes;
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(user.updatedAt).to.not.equal(authUser.attributes.updatedAt);
@@ -213,12 +214,12 @@ lab.experiment('user', function () {
 
         lab.test('persisted', function (done) {
 
-            var options = {
+            const options = {
                 method: 'GET', url: '/api/v1/me'
             };
             AuthInject(server, options, userAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(user).to.deep.equal(payload.data.attributes);
                 done();
@@ -230,7 +231,7 @@ lab.experiment('user', function () {
 
         lab.test('change', function (done) {
 
-            var options = {
+            const options = {
                 method: 'PUT', url: '/api/v1/me',
                 payload: {
                     data: {
@@ -245,7 +246,7 @@ lab.experiment('user', function () {
             };
             AuthInject(server, options, userAuthHeader, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
                 done();
             });
@@ -253,7 +254,7 @@ lab.experiment('user', function () {
 
         lab.test('login', function (done) {
 
-            var options = {
+            const options = {
                 method: 'POST', url: '/api/v1/login',
                 headers: {
                     accept: 'application/vnd.api+json',
@@ -271,7 +272,7 @@ lab.experiment('user', function () {
             };
             return server.inject(options, function (response) {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(201);
                 Code.expect(payload.data).to.include('id', 'type', 'attributes');
                 Code.expect(payload.data.type).to.equal('authToken');

@@ -1,21 +1,21 @@
+'use strict';
 process.env.NODE_ENV = 'test';
 
-var Code = require('code');
-var Hoek = require('hoek');
-var Lab = require('lab');
-//var Nodemailer = require('nodemailer');
-var Fixtures = require('./fixtures');
-var lab = exports.lab = Lab.script();
-var serverItems = require('../').getServer();
-var DbHelper = require('./db-helper');
-var AuthInject = require('./auth-inject');
+const Code = require('code');
+const Hoek = require('hoek');
+const Lab = require('lab');
+const Fixtures = require('./fixtures');
+const lab = exports.lab = Lab.script();
+const serverItems = require('../').getServer();
+const DbHelper = require('./db-helper');
+const AuthInject = require('./auth-inject');
 
-var server = serverItems.server;
-var Utils = serverItems.utils;
-var dbHelper = new DbHelper(serverItems.db);
+const server = serverItems.server;
+const Utils = serverItems.utils;
+const dbHelper = new DbHelper(serverItems.db);
 
-var mailLog = {};
-var sendMail = function (options, callback) {
+const mailLog = {};
+const sendMail = function (options, callback) {
 
     if (!mailLog[options.to]) {
         mailLog[options.to] = [];
@@ -39,10 +39,10 @@ var sendMail = function (options, callback) {
 
 lab.experiment('authentication', function () {
 
-    var authUser;
-    var userAuthHeader;
-    var resetAuthHeader;
-    var recoveryCode;
+    let authUser;
+    let userAuthHeader;
+    let resetAuthHeader;
+    let recoveryCode;
 
     lab.before(function (done) {
 
@@ -57,7 +57,7 @@ lab.experiment('authentication', function () {
 
             server.start(function () {
 
-                var options = {
+                const options = {
                     method: 'POST', url: '/api/v1/login',
                     headers: {
                         accept: 'application/vnd.api+json',
@@ -75,7 +75,7 @@ lab.experiment('authentication', function () {
                 };
                 return server.inject(options, function (response) {
 
-                    var payload = JSON.parse(response.payload);
+                    const payload = JSON.parse(response.payload);
                     Code.expect(response.statusCode).to.equal(201);
                     Code.expect(payload.data).to.include('id', 'type', 'attributes');
                     Code.expect(payload.data.type).to.equal('authToken');
@@ -91,12 +91,12 @@ lab.experiment('authentication', function () {
 
     lab.test('me', function (done) {
 
-        var options = {
+        const options = {
             method: 'GET', url: '/api/v1/me'
         };
         AuthInject(server, options, userAuthHeader, function (response) {
 
-            var payload = JSON.parse(response.payload);
+            const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
             Code.expect(payload.data).to.include('id', 'type', 'attributes');
             authUser = payload.data;
@@ -106,7 +106,7 @@ lab.experiment('authentication', function () {
 
     lab.test('login invalid username', function (done) {
 
-        var options = {
+        const options = {
             method: 'POST', url: '/api/v1/login',
             headers: {
                 accept: 'application/vnd.api+json',
@@ -131,7 +131,7 @@ lab.experiment('authentication', function () {
 
     lab.test('login invalid password', function (done) {
 
-        var options = {
+        const options = {
             method: 'POST', url: '/api/v1/login',
             headers: {
                 accept: 'application/vnd.api+json',
@@ -156,7 +156,7 @@ lab.experiment('authentication', function () {
 
     lab.test('request recovery code', function (done) {
 
-        var options = {
+        const options = {
             method: 'POST', url: '/api/v1/recover',
             headers: {
                 accept: 'application/vnd.api+json',
@@ -173,7 +173,7 @@ lab.experiment('authentication', function () {
         };
         server.inject(options, function (response) {
 
-            var payload = JSON.parse(response.payload);
+            const payload = JSON.parse(response.payload);
             //Wait for promises to fire asynchronously
             setTimeout(function () {
 
@@ -188,7 +188,7 @@ lab.experiment('authentication', function () {
 
     lab.test('re-request recovery code', function (done) {
 
-        var options = {
+        const options = {
             method: 'POST', url: '/api/v1/recover',
             headers: {
                 accept: 'application/vnd.api+json',
@@ -208,7 +208,7 @@ lab.experiment('authentication', function () {
             //Wait for promises to fire asynchronously
             setTimeout(function () {
 
-                var payload = JSON.parse(response.payload);
+                const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(202);
                 Code.expect(payload.data).to.equal(null);
                 Code.expect(mailLog[Fixtures.users.main.email]).to.have.length(1);
@@ -219,7 +219,7 @@ lab.experiment('authentication', function () {
 
     lab.test('request recovery code nonexistant user', function (done) {
 
-        var options = {
+        const options = {
             method: 'POST', url: '/api/v1/recover',
             headers: {
                 accept: 'application/vnd.api+json',
@@ -236,7 +236,7 @@ lab.experiment('authentication', function () {
         };
         server.inject(options, function (response) {
 
-            var payload = JSON.parse(response.payload);
+            const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(202);
             Code.expect(payload.data).to.equal(null);
             Code.expect(mailLog[Fixtures.users.nonexistant.email]).to.equal(undefined);
@@ -246,7 +246,7 @@ lab.experiment('authentication', function () {
 
     lab.test('reset password', function (done) {
 
-        var options = {
+        const options = {
             method: 'POST', url: '/api/v1/reset',
             headers: {
                 accept: 'application/vnd.api+json',
@@ -265,7 +265,7 @@ lab.experiment('authentication', function () {
         };
         server.inject(options, function (response) {
 
-            var payload = JSON.parse(response.payload);
+            const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(201);
             Code.expect(payload.data).to.include('id', 'type', 'attributes');
             resetAuthHeader = {
@@ -277,7 +277,7 @@ lab.experiment('authentication', function () {
 
     lab.test('reuse code', function (done) {
 
-        var options = {
+        const options = {
             method: 'POST', url: '/api/v1/reset',
             headers: {
                 accept: 'application/vnd.api+json',
@@ -303,7 +303,7 @@ lab.experiment('authentication', function () {
 
     lab.test('logged out after reset', function (done) {
 
-        var options = {
+        const options = {
             method: 'GET', url: '/api/v1/me'
         };
         AuthInject(server, options, userAuthHeader, function (response) {
@@ -315,12 +315,12 @@ lab.experiment('authentication', function () {
 
     lab.test('me with reset auth', function (done) {
 
-        var options = {
+        const options = {
             method: 'GET', url: '/api/v1/me'
         };
         AuthInject(server, options, resetAuthHeader, function (response) {
 
-            var payload = JSON.parse(response.payload);
+            const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
             Code.expect(payload.data).to.include('id', 'type', 'attributes');
             done();
@@ -329,7 +329,7 @@ lab.experiment('authentication', function () {
 
     lab.test('logout', function (done) {
 
-        var options = {
+        const options = {
             method: 'POST', url: '/api/v1/logout'
         };
         AuthInject(server, options, resetAuthHeader, function (response) {
@@ -342,7 +342,7 @@ lab.experiment('authentication', function () {
 
     lab.test('logged out', function (done) {
 
-        var options = {
+        const options = {
             method: 'GET', url: '/api/v1/me'
         };
         AuthInject(server, options, resetAuthHeader, function (response) {
@@ -354,7 +354,7 @@ lab.experiment('authentication', function () {
 
     lab.test('log in with reset password', function (done) {
 
-        var options = {
+        const options = {
             method: 'POST', url: '/api/v1/login',
             headers: {
                 accept: 'application/vnd.api+json',
@@ -372,7 +372,7 @@ lab.experiment('authentication', function () {
         };
         server.inject(options, function (response) {
 
-            var payload = JSON.parse(response.payload);
+            const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(201);
             Code.expect(payload.data).to.include('id', 'type', 'attributes');
             Code.expect(payload.data.type).to.equal('authToken');
@@ -386,12 +386,12 @@ lab.experiment('authentication', function () {
 
     lab.test('me with reset logged in auth', function (done) {
 
-        var options = {
+        const options = {
             method: 'GET', url: '/api/v1/me'
         };
         AuthInject(server, options, userAuthHeader, function (response) {
 
-            var payload = JSON.parse(response.payload);
+            const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
             Code.expect(payload.data).to.include('id', 'type', 'attributes');
             done();

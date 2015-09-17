@@ -24,8 +24,8 @@
     "good-console": "^5.0.3",
     "hapi": "^10.0.0",
     "hapi-auth-jwt": "^3.0.0",
-    "hoek": "^2.15.0",
-    "joi": "^6.7.0",
+    "hoek": "^2.16.2",
+    "joi": "^6.7.1",
     "jsonwebtoken": "^5.0.5",
     "knex": "^0.8.6",
     "lodash": "^3.10.1",
@@ -38,8 +38,8 @@
     "eslint": "^1.4.3",
     "eslint-config-hapi": "^2.0.1",
     "eslint-plugin-hapi": "^1.2.0",
-    "lab": "^5.16.1",
-    "nodemon": "^1.5.0",
+    "lab": "^5.17.0",
+    "nodemon": "^1.5.1",
     "precommit-hook": "^3.0.0"
   },
   "pre-commit": [

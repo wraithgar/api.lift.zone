@@ -1,4 +1,5 @@
 /*eslint camelcase:0*/
+'use strict';
 
 exports.seed = function (knex, Promise) {
 
@@ -10,10 +11,10 @@ exports.seed = function (knex, Promise) {
         return user;
     }).then(function (user) {
 
-        var activities = [{ name: 'Squat', aliases: ['Front Squat', 'Squats'] }];
+        const activities = [{ name: 'Squat', aliases: ['Front Squat', 'Squats'] }];
         return knex.table('useractivities').count('id as ids').where({ user_id: user.id, useractivity_id: null }).then(function (useractivities) {
 
-            var ids = useractivities[0].ids;
+            const ids = useractivities[0].ids;
             return Promise.each(activities.slice(ids), function (activity) {
 
                 return knex.table('useractivities').insert({ name: activity.name, user_id: user.id });
@@ -26,7 +27,7 @@ exports.seed = function (knex, Promise) {
 
                     return knex.table('useractivities').count('id as ids').where({ useractivity_id: activityId.id }).then(function (aliascount) {
 
-                        var aliases = aliascount[0].ids;
+                        const aliases = aliascount[0].ids;
                         return Promise.each(activity.aliases.slice(aliases), function (alias) {
 
                             return knex.table('useractivities').insert({ name: alias, useractivity_id: activityId.id, user_id: user.id });

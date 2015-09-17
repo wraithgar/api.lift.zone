@@ -1,6 +1,7 @@
-var Boom = require('boom');
-var Hoek = require('hoek');
-var _ = require('lodash');
+'use strict';
+const Boom = require('boom');
+const Hoek = require('hoek');
+const _ = require('lodash');
 
 module.exports = function (bookshelf) {
 
@@ -8,14 +9,13 @@ module.exports = function (bookshelf) {
      * knex wants snake_case in the db (created_at et al)
      * we want camelCase
      */
-    var Base = bookshelf.Model.extend({
+    const Base = bookshelf.Model.extend({
         hasTimestamps: ['createdAt', 'updatedAt'],
         serialize: function (options) {
 
-            var key;
-            var attributes = _(this.attributes).omit('id').clone();
+            let attributes = _(this.attributes).omit('id').clone();
             if (this.booleans) {
-                this.booleans.forEach(function (attr) {
+                this.booleans.forEach((attr) => {
 
                     attributes[attr] = Boolean(attributes[attr]);
                 });
@@ -26,7 +26,7 @@ module.exports = function (bookshelf) {
             if (this.hidden) {
                 attributes = _.omit.apply(_, [attributes].concat(this.hidden));
             }
-            var result = {
+            const result = {
                 id: this.attributes[this.idAttribute],
                 type: this.type,
                 attributes: attributes
@@ -34,11 +34,11 @@ module.exports = function (bookshelf) {
             if (options && options.shallow) {
                 return result;
             }
-            var relations = this.relations;
+            const relations = this.relations;
             if (Object.keys(relations).length > 0) {
                 result.relationships = {};
-                for (key in relations) {
-                    var relation = relations[key];
+                for (const key in relations) {
+                    const relation = relations[key];
                     result.relationships[key] = { data: relation.toJSON ? relation.toJSON(options) : relation };
                 }
             }
@@ -46,8 +46,8 @@ module.exports = function (bookshelf) {
                 return result;
             }
             if (this.pivot) {
-                var pivot = this.pivot.attributes;
-                for (key in pivot) {
+                const pivot = this.pivot.attributes;
+                for (const key in pivot) {
                     result.attributes['_pivot_' + key] = pivot[key];
                 }
             }
@@ -55,7 +55,7 @@ module.exports = function (bookshelf) {
         },
         format: function (attrs) {
 
-            var formatted = _.reduce(attrs, function (memo, val, key) {
+            const formatted = _.reduce(attrs, function (memo, val, key) {
 
                 memo[_.snakeCase(key)] = val;
                 return memo;
@@ -65,7 +65,7 @@ module.exports = function (bookshelf) {
         },
         parse: function (attrs) {
 
-            var parsed = _.reduce(attrs, function (memo, val, key) {
+            const parsed = _.reduce(attrs, function (memo, val, key) {
 
                 memo[_.camelCase(key)] = val;
                 return memo;

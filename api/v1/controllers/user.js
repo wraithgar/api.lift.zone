@@ -1,14 +1,17 @@
-var Joi = require('joi');
+'use strict';
+const Joi = require('joi');
 
-var controllers = {};
+const controllers = {};
+
+module.exports = controllers;
 
 controllers.login = {
     description: 'Log in',
     tags: ['user'],
     handler: function (request, reply) {
 
-        var db = this.db;
-        var data = request.payload.data;
+        const db = this.db;
+        const data = request.payload.data;
 
         request.server.log(['users', 'auth'], 'Login: ' + data.attributes.login);
 
@@ -36,8 +39,8 @@ controllers.logout = {
     tags: ['user'],
     handler: function (request, reply) {
 
-        var db = this.db;
-        var user = request.auth.credentials.user;
+        const db = this.db;
+        const user = request.auth.credentials.user;
 
         request.server.log(['users', 'auth'], 'Logout: ' + user.get('email'));
 
@@ -53,7 +56,7 @@ controllers.me = {
     tags: ['user'],
     handler: function (request, reply) {
 
-        var user = request.auth.credentials.user;
+        const user = request.auth.credentials.user;
 
         return reply({ data: user });
     }
@@ -64,8 +67,8 @@ controllers.invites = {
     tags: ['user'],
     handler: function (request, reply) {
 
-        var db = this.db;
-        var user = request.auth.credentials.user;
+        const db = this.db;
+        const user = request.auth.credentials.user;
 
         return reply(user.getInvites().then(function (invites) {
 
@@ -79,10 +82,10 @@ controllers.signup = {
     tags: ['user'],
     handler: function (request, reply) {
 
-        var db = this.db;
-        var data = request.payload.data;
+        const db = this.db;
+        const data = request.payload.data;
 
-        var attrs = {
+        const attrs = {
             login: data.attributes.login,
             name: data.attributes.name,
             email: data.attributes.email,
@@ -117,8 +120,8 @@ controllers.validate = {
     tags: ['user'],
     handler: function (request, reply) {
 
-        var db = this.db;
-        var user = request.auth.credentials.user;
+        const db = this.db;
+        const user = request.auth.credentials.user;
 
         return reply(user.validate().then(function (response) {
 
@@ -132,8 +135,8 @@ controllers.confirm = {
     tags: ['user'],
     handler: function (request, reply) {
 
-        var db = this.db;
-        var user = request.auth.credentials.user;
+        const db = this.db;
+        const user = request.auth.credentials.user;
 
         return reply(user.confirm(request.payload.data).then(function (response) {
 
@@ -155,7 +158,7 @@ controllers.recover = {
     tags: ['user'],
     handler: function (request, reply) {
 
-        var db = this.db;
+        const db = this.db;
 
         /* there is no condition under which we will do anything but this reply
          * so just send it now and do the rest asynchronously
@@ -182,7 +185,7 @@ controllers.reset = {
     tags: ['user'],
     handler: function (request, reply) {
 
-        var db = this.db;
+        const db = this.db;
 
         return reply(db.Recovery.reset(request.payload.data.attributes).then(function (authToken) {
 
@@ -209,7 +212,7 @@ controllers.update = {
     tags: ['user'],
     handler: function (request, reply) {
 
-        var user = request.auth.credentials.user;
+        const user = request.auth.credentials.user;
         return reply(user.update(request.payload.data.attributes).then(function (updatedUser) {
 
             return { data: updatedUser };
@@ -238,7 +241,7 @@ controllers.taken = {
     tags: ['user'],
     handler: function (request, reply) {
 
-        var db = this.db;
+        const db = this.db;
         return reply(db.User.taken(request.payload.data.attributes).then(function (taken) {
 
             return { data: taken };
@@ -264,7 +267,7 @@ controllers.invite = {
     tags: ['user'],
     handler: function (request, reply) {
 
-        var db = this.db;
+        const db = this.db;
         return reply(db.Invite.get(request.params).then(function (invite) {
 
             return { data: invite };
@@ -277,5 +280,3 @@ controllers.invite = {
     },
     auth: false
 };
-
-module.exports = controllers;

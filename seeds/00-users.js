@@ -1,5 +1,6 @@
 /*eslint camelcase:0*/
-var Utils = require('../utils');
+'use strict';
+const Utils = require('../utils');
 
 exports.seed = function (knex) {
 

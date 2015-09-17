@@ -1,13 +1,14 @@
-var Boom = require('boom');
-var Config = require('getconfig');
-var Crypto = require('crypto');
-var Nodemailer = require('nodemailer');
-var Jwt = require('jsonwebtoken');
-var Uuid = require('uuid');
-var Bluebird = require('bluebird');
-var NodemailerPromised = Bluebird.promisifyAll(Nodemailer);
+'use strict';
+const Boom = require('boom');
+const Config = require('getconfig');
+const Crypto = require('crypto');
+const Nodemailer = require('nodemailer');
+const Jwt = require('jsonwebtoken');
+const Uuid = require('uuid');
+const Bluebird = require('bluebird');
+const NodemailerPromised = Bluebird.promisifyAll(Nodemailer);
 
-var transporter = Nodemailer.createTransport({ ignoreTLS: true, debug: true });
+const transporter = Nodemailer.createTransport({ ignoreTLS: true, debug: true });
 
 exports.transporter = transporter;
 
@@ -21,7 +22,7 @@ exports.transportLog = function (logger) {
 
 exports.userToken = function (user) {
 
-    var token = {
+    const token = {
         entity: 'user',
         user: {
             id: user.get('id'),
@@ -33,26 +34,26 @@ exports.userToken = function (user) {
 
 exports.passwordHash = function (password) {
 
-    var salt = Config.passwordSalt;
+    const salt = Config.passwordSalt;
     return Crypto.createHash('sha1').update(salt + password).digest('hex');
 };
 
 //For now these all do the same thing but are distinct functions in the event we want them to do different things
 exports.generateInviteCode = function () {
 
-    var token = Uuid.v4();
+    const token = Uuid.v4();
     return token;
 };
 
 exports.generateValidationCode = function () {
 
-    var token = Uuid.v4();
+    const token = Uuid.v4();
     return token;
 };
 
 exports.generateRecoveryCode = function () {
 
-    var token = Uuid.v4();
+    const token = Uuid.v4();
     return token;
 };
 
@@ -63,10 +64,10 @@ exports.generateSupertoken = function () {
 
 exports.jwtValidate = function (db) {
 
-    var checkUser = function (request, decodedToken, callback) {
+    const checkUser = function (request, decodedToken, callback) {
 
-        var userId = decodedToken.user.id;
-        var supertoken = decodedToken.user.supertoken;
+        const userId = decodedToken.user.id;
+        const supertoken = decodedToken.user.supertoken;
         if (!userId || !supertoken) {
 
             return callback(Boom.unauthorized('Invalid token'), false, null);
@@ -84,7 +85,7 @@ exports.jwtValidate = function (db) {
             return user;
         }).then(function (user) {
 
-            var credentials = {
+            const credentials = {
                 user: user
             };
 
@@ -99,7 +100,7 @@ exports.jwtValidate = function (db) {
 
 exports.mailValidation = function (email, validation) {
 
-    var mailOptions = {
+    const mailOptions = {
         from: Config.serverMail,
         to: email,
         subject: 'Lift Zone email validation',
@@ -111,7 +112,7 @@ exports.mailValidation = function (email, validation) {
 
 exports.mailRecovery = function (email, login, recovery) {
 
-    var mailOptions = {
+    const mailOptions = {
         from: Config.serverMail,
         to: email,
         subject: 'Lift zone password recovery',

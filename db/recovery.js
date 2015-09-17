@@ -1,11 +1,12 @@
-var Boom = require('boom');
-var BaseModel = require('./base-model');
-var Utils = require('../utils');
+'use strict';
+const Boom = require('boom');
+const BaseModel = require('./base-model');
+const Utils = require('../utils');
 
-module.exports = function (bookshelf, BPromise) {
+module.exports = function Recovery (bookshelf, BPromise) {
 
-    var baseModel = BaseModel(bookshelf);
-    var Recovery = baseModel.extend({
+    const baseModel = BaseModel(bookshelf);
+    const Model = baseModel.extend({
         /*
          * t.integer('user_id').index().notNullable().references('users.id');
          * t.text('code').notNullable().index();
@@ -52,10 +53,10 @@ module.exports = function (bookshelf, BPromise) {
         }
     });
 
-    bookshelf.model('Recovery', Recovery);
+    bookshelf.model('Recovery', Model);
 
     return {
-        model: Recovery
+        model: Model
     };
 };
 

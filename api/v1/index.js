@@ -1,9 +1,10 @@
-var User = require('./controllers/user');
-var ActivityNames = require('./controllers/activity-names');
+'use strict';
+const User = require('./controllers/user');
+const ActivityNames = require('./controllers/activity-names');
 
 exports.register = function (plugin, options, done) {
 
-    var crud = function (resource, Controller) {
+    const crud = function (resource, Controller) {
 
         if (Controller.hasOwnProperty('all')) { plugin.route({ method: 'GET', path: resource, config: Controller.all }); }
         if (Controller.hasOwnProperty('get')) { plugin.route({ method: 'GET', path: resource + '/{id}', config: Controller.get }); }
@@ -41,6 +42,7 @@ exports.register = function (plugin, options, done) {
     /* ActivityName */
     crud('/activityNames', ActivityNames);
     plugin.route({ method: 'POST', path: '/search/activityNames', config: ActivityNames.search });
+    plugin.route({ method: 'POST', path: '/suggest/activityNames', config: ActivityNames.suggest });
 
     return done();
 };
