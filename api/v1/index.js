@@ -41,8 +41,7 @@ exports.register = function (plugin, options, done) {
 
     /* ActivityName */
     crud('/activityNames', ActivityNames);
-    plugin.route({ method: 'POST', path: '/search/activityNames', config: ActivityNames.search });
-    plugin.route({ method: 'POST', path: '/suggest/activityNames', config: ActivityNames.suggest });
+    plugin.route({ method: 'GET', path: '/suggestions/activityName/{name}', config: ActivityNames.suggest });
 
     return done();
 };

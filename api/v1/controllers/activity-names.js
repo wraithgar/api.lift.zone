@@ -11,9 +11,11 @@ controllers.all = {
     handler: function (request, reply) {
 
         const user = request.auth.credentials.user;
+        const db = this.db;
 
-        //TODO pagination
-        return reply(user.related('activityNames').fetch().then(function (activityNames) {
+        //TODO filter based on request.query.filter
+        return reply(user.related('activityNames').fetch()
+        .then(function (activityNames) {
 
             return { data: activityNames };
         }));
@@ -21,41 +23,40 @@ controllers.all = {
 };
 
 controllers.suggest = {
-    description: 'Suggest an activity name based on given name',
-    notes: 'Attempts to do a fulltext search',
-    tags: ['userActivity'],
-    handler: function (request, reply ) {
-
-        const user = request.auth.credentials.user;
-
-        return reply(user.related('activityNames').suggest(request.payload).then(function (activityNames) {
-
-            return { data: activityNames };
-        }));
-    },
-    validate: {
-        payload: {
-            name: Joi.string().required().example('Front Squat')
-        }
-    }
-
-};
-controllers.search = {
-    description: 'Search for an existing activity name',
-    notes: 'Exact name matches only, returns main activity in the event of a matched alias',
+    description: 'Suggest alternative user activity names',
+    notes: 'Returns match if exact match found',
     tags: ['userActivity'],
     handler: function (request, reply) {
 
         const user = request.auth.credentials.user;
+        const db = this.db;
 
-        return reply(user.related('activityNames').getOne(request.params, { withRelated: ['aliases'] }).then(function (activityNames) {
+        return reply(user.related('activityNames').query(function () {
 
-            return { data: activityNames };
+            this.where(request.params);
+        }).fetchOne()
+        .then(function (existing) {
+
+            if (existing) {
+                return existing;
+            }
+
+            const newActivityName = db.ActivityName.forge(request.params);
+            return user.related('activityNames').suggestions(request.params)
+            .then(function (suggestions) {
+
+                //Hack but whatever
+                newActivityName.relations.suggestions = suggestions;
+                return newActivityName;
+            });
+        }).then(function (activityName) {
+
+            return { data: activityName };
         }));
     },
     validate: {
-        payload: {
-            name: Joi.string().required().example('Front Squat')
+        params: {
+            name: Joi.string().example('Front Squat')
         }
     }
 };

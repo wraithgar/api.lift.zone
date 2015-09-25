@@ -81,34 +81,19 @@ lab.experiment('user activities', function () {
         });
     });
 
-    lab.test('suggest - empty', function (done) {
+    lab.test('suggestions - empty', function (done) {
 
         const options = {
-            method: 'POST', url: '/api/v1/suggest/activityNames',
-            payload: {
-                name: Fixtures.activities.squat.name
-            }
+            method: 'GET', url: '/api/v1/suggestions/activityName/' + Fixtures.activities.squat.name
         };
         AuthInject(server, options, userAuthHeader, function (response) {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.have.length(0);
-            done();
-        });
-    });
-
-    lab.test('search - empty', function (done) {
-
-        const options = {
-            method: 'POST', url: '/api/v1/search/activityNames',
-            payload: {
-                name: Fixtures.activities.squat.name
-            }
-        };
-        AuthInject(server, options, userAuthHeader, function (response) {
-
-            Code.expect(response.statusCode).to.equal(404);
+            Code.expect(payload.data).to.include('type', 'attributes', 'relationships.suggestions.data');
+            Code.expect(payload.data).to.not.include('id');
+            Code.expect(payload.data.type).to.equal('activityName');
+            Code.expect(payload.data.relationships.suggestions.data).to.be.empty();
             done();
         });
     });
@@ -145,6 +130,23 @@ lab.experiment('user activities', function () {
             done();
         });
 
+    });
+
+    lab.test('suggestions - non exact match', function (done) {
+
+        const options = {
+            method: 'GET', url: '/api/v1/suggestions/activityName/' + Fixtures.activities.barbellsquat.name
+        };
+        AuthInject(server, options, userAuthHeader, function (response) {
+
+            const payload = JSON.parse(response.payload);
+            Code.expect(response.statusCode).to.equal(200);
+            Code.expect(payload.data).to.include('type', 'attributes', 'relationships.suggestions.data');
+            Code.expect(payload.data).to.not.include('id');
+            Code.expect(payload.data.type).to.equal('activityName');
+            Code.expect(payload.data.relationships.suggestions.data).to.have.length(1);
+            done();
+        });
     });
 
     lab.test('create alias', function (done) {
@@ -198,19 +200,49 @@ lab.experiment('user activities', function () {
         });
     });
 
-    lab.test('suggest - not empty', function (done) {
+    lab.test('suggest - exact match', function (done) {
 
         const options = {
-            method: 'POST', url: '/api/v1/suggest/activityNames',
-            payload: {
-                name: Fixtures.activities.squat.name
-            }
+            method: 'GET', url: '/api/v1/suggestions/activityName/' + Fixtures.activities.squat.name
         };
         AuthInject(server, options, userAuthHeader, function (response) {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.have.length(2);
+            Code.expect(payload.data).to.include('id', 'type', 'attributes');
+            Code.expect(payload.data.id).to.equal(Fixtures.activities.squat.id);
+            done();
+        });
+    });
+
+    lab.test('suggestions - exact alias match', function (done) {
+
+        const options = {
+            method: 'GET', url: '/api/v1/suggestions/activityName/' + Fixtures.activities.barbellsquat.name
+        };
+        AuthInject(server, options, userAuthHeader, function (response) {
+
+            const payload = JSON.parse(response.payload);
+            Code.expect(response.statusCode).to.equal(200);
+            Code.expect(payload.data).to.include('id', 'type', 'attributes');
+            Code.expect(payload.data.id).to.equal(Fixtures.activities.barbellsquat.id);
+            done();
+        });
+    });
+
+    lab.test('suggestions - fuzzy match', function (done) {
+
+        const options = {
+            method: 'GET', url: '/api/v1/suggestions/activityName/' + Fixtures.activities.frontsquat.name
+        };
+        AuthInject(server, options, userAuthHeader, function (response) {
+
+            const payload = JSON.parse(response.payload);
+            Code.expect(response.statusCode).to.equal(200);
+            Code.expect(payload.data).to.include('type', 'attributes', 'relationships.suggestions.data');
+            Code.expect(payload.data).to.not.include('id');
+            Code.expect(payload.data.type).to.equal('activityName');
+            Code.expect(payload.data.relationships.suggestions.data).to.have.length(2);
             done();
         });
     });

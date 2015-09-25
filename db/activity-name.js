@@ -30,19 +30,24 @@ module.exports = function ActivityName (bookshelf, BPromise) {
         }
     });
 
+    const Suggestion = Model.extend({
+        type: 'activitySuggestion'
+    });
+
     const Collection = baseCollection.extend({
         model: Model,
-        suggest: function (attrs) {
+        suggestions: function (attrs) {
 
+            const self = this;
             const names = attrs.name.toLowerCase().replace(/[^a-z\s]/, '').split(/\s+/).join(' OR ');
 
-            return this.query(function (qb) {
+            return self.query(function (qb) {
 
                 this.join('activitynames', { 'activitynames.docid': 'useractivities.id' });
                 this.andWhere(bookshelf.knex.raw('activitynames MATCH ?', names));
             }).fetch({ withRelated: ['aliases'] });
         },
-        make: BPromise.method(function (attrs) {
+        make: function (attrs) {
 
             const self = this;
 
@@ -64,7 +69,11 @@ module.exports = function ActivityName (bookshelf, BPromise) {
 
                 return activityName.fetch({ withRelated: ['aliases'] });
             });
-        })
+        }
+    });
+
+    const SuggestionCollection = Collection.extend({
+        model: Suggestion
     });
 
     bookshelf.model('ActivityName', Model);

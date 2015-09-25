@@ -28,7 +28,8 @@ Utils.transportLog(server.log.bind(server));
 
 const connection = {
     host: Config.hapi.host,
-    port: Config.hapi.port
+    port: Config.hapi.port,
+    router: { stripTrailingSlash: true }
 };
 
 if (Config.clientUri) {

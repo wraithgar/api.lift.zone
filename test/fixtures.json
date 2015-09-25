@@ -37,6 +37,9 @@
     },
     "barbellsquat": {
       "name": "Barbell Squat"
+    },
+    "frontsquat": {
+      "name": "Front Squat"
     }
   }
 }
