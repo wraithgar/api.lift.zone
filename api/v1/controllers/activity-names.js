@@ -68,7 +68,7 @@ controllers.get = {
 
         const user = request.auth.credentials.user;
 
-        return reply(user.related('activityNames').getOne(request.params, { withRelated: ['aliases'] }).then(function (userActivity) {
+        return reply(user.related('activityNames').getOne(request.params, { withRelated: ['aliases', 'aliasFor'] }).then(function (userActivity) {
 
             return { data: userActivity };
         }));
@@ -87,15 +87,20 @@ controllers.create = {
 
         const user = request.auth.credentials.user;
 
-        return reply(user.related('activityNames').make(request.payload).then(function (userActivity) {
+        return reply(user.related('activityNames').make(request.payload.data.attributes).then(function (userActivity) {
 
             return { data: userActivity };
         })).code(201);
     },
     validate: {
         payload: {
-            name: Joi.string().required().example('Front Squat'),
-            useractivityId: Joi.number().description('Id of the activity name this is an alias for')
+            data: {
+                type: Joi.string().valid('activityName').required(),
+                attributes: Joi.object().keys({
+                    name: Joi.string().required().example('Front Squat'),
+                    useractivityId: Joi.number().description('Id of the activity name this is an alias for')
+                })
+            }
         }
     }
 };
