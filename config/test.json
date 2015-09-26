@@ -7,8 +7,7 @@
       "log": "no",
       "request": "no",
       "response": "no",
-      "error": "no",
-      "request-error": "*"
+      "error": "*"
     }
   }
 }

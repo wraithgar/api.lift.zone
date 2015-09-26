@@ -13,45 +13,14 @@ module.exports = function (bookshelf) {
         hasTimestamps: ['createdAt', 'updatedAt'],
         serialize: function (options) {
 
-            let attributes = _(this.attributes).omit('id').clone();
+            const attributes = bookshelf.Model.prototype.serialize.apply(this, arguments);
             if (this.booleans) {
                 this.booleans.forEach((attr) => {
 
                     attributes[attr] = Boolean(attributes[attr]);
                 });
             }
-            if (this.visible) {
-                attributes = _.pick.apply(_, [attributes].concat(this.visible));
-            }
-            if (this.hidden) {
-                attributes = _.omit.apply(_, [attributes].concat(this.hidden));
-            }
-            const result = {
-                id: this.attributes[this.idAttribute],
-                type: this.type,
-                attributes: attributes
-            };
-            if (options && options.shallow) {
-                return result;
-            }
-            const relations = this.relations;
-            if (Object.keys(relations).length > 0) {
-                result.relationships = {};
-                for (const key in relations) {
-                    const relation = relations[key];
-                    result.relationships[key] = { data: relation.toJSON ? relation.toJSON(options) : relation };
-                }
-            }
-            if (options && options.omitPivot) {
-                return result;
-            }
-            if (this.pivot) {
-                const pivot = this.pivot.attributes;
-                for (const key in pivot) {
-                    result.attributes['_pivot_' + key] = pivot[key];
-                }
-            }
-            return result;
+            return attributes;
         },
         format: function (attrs) {
 

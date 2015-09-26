@@ -1,8 +1,6 @@
 {
   "meta": {
-    "status": {
-      "hash": "development"
-    }
+    "env": "development"
   },
   "jwt": {
     "privateKey": "completelyunsecure"

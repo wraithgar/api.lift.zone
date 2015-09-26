@@ -1,7 +1,10 @@
 'use strict';
-const BaseModel = require('./base-model');
-const BaseCollection = require('./base-collection');
+const Boom = require('boom');
+const Hoek = require('hoek');
 const _ = require('lodash');
+
+const BaseCollection = require('./base-collection');
+const BaseModel = require('./base-model');
 
 module.exports = function ActivityName (bookshelf, BPromise) {
 
@@ -13,13 +16,13 @@ module.exports = function ActivityName (bookshelf, BPromise) {
          * t.integer('activityname_id').index().references('activitynames.id');
          * t.text('name').notNullable().index();
          */
-        type: 'activityName',
+        hidden: ['userId', 'useractivityId'],
         tableName: 'useractivities',
         aliases: function () {
 
-            return this.hasMany(Model);
+            return this.hasMany('ActivityName');
         },
-        aliasFor: function () {
+        aliasOf: function () {
 
             return this.belongsTo(Model);
         }
@@ -50,13 +53,17 @@ module.exports = function ActivityName (bookshelf, BPromise) {
         make: function (attrs) {
 
             const self = this;
+            const mapped = Hoek.transform(attrs, {
+                name: 'name',
+                useractivityId: 'aliasId'
+            });
 
             return BPromise.resolve().then(function () {
 
-                if (attrs.alias_id === undefined) {
+                if (mapped.useractivityId === undefined) {
                     return;
                 }
-                return self.query({ where: { id: attrs.alias_id } }).fetchOne().then(function (alias) {
+                return self.query({ where: { id: mapped.useractivityId } }).fetchOne().then(function (alias) {
 
                     if (!alias) {
                         throw Boom.notFound('Alias not found');
@@ -64,10 +71,14 @@ module.exports = function ActivityName (bookshelf, BPromise) {
                 });
             }).then(function () {
 
-                return self.create(attrs);
+                return self.create(mapped);
             }).then(function (activityName) {
 
-                return activityName.fetch({ withRelated: ['aliases'] });
+                activityName.related('aliases'); //Guaranteed to be empty
+                return activityName.related('aliasOf').fetch().then(function () {
+
+                    return activityName;
+                });
             });
         }
     });

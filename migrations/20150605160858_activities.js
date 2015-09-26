@@ -7,6 +7,7 @@ exports.up = function (knex) {
         t.integer('workout_id').index().notNullable().references('workouts.id');
         t.integer('useractivity_id').index().notNullable().references('useractivities.id');
         t.text('comment');
+        t.timestamps();
         t.unique(['workout_id', 'useractivity_id']);
     });
 };

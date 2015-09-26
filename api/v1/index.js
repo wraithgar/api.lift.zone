@@ -1,16 +1,21 @@
 'use strict';
 const User = require('./controllers/user');
 const ActivityNames = require('./controllers/activity-names');
+const Workouts = require('./controllers/workouts');
+const Hoek = require('hoek');
+
+const internals = {};
 
 exports.register = function (plugin, options, done) {
+
 
     const crud = function (resource, Controller) {
 
         if (Controller.hasOwnProperty('all')) { plugin.route({ method: 'GET', path: resource, config: Controller.all }); }
-        if (Controller.hasOwnProperty('get')) { plugin.route({ method: 'GET', path: resource + '/{id}', config: Controller.get }); }
+        if (Controller.hasOwnProperty('get')) { plugin.route({ method: 'GET', path: resource + '/{' + Controller._id + '}', config: Controller.get }); }
         if (Controller.hasOwnProperty('create')) { plugin.route({ method: 'POST', path: resource, config: Controller.create }); }
-        if (Controller.hasOwnProperty('update')) { plugin.route({ method: 'PUT', path: resource + '/{id}', config: Controller.update }); }
-        if (Controller.hasOwnProperty('delete')) { plugin.route({ method: 'DELETE', path: resource + '/{id}', config: Controller.delete }); }
+        if (Controller.hasOwnProperty('update')) { plugin.route({ method: 'PUT', path: resource + '/{' + Controller._id + '}', config: Controller.update }); }
+        if (Controller.hasOwnProperty('delete')) { plugin.route({ method: 'DELETE', path: resource + '/{' + Controller._id + '}', config: Controller.delete }); }
     };
 
     plugin.dependency('hapi-auth-jwt');
@@ -43,10 +48,43 @@ exports.register = function (plugin, options, done) {
     crud('/activityNames', ActivityNames);
     plugin.route({ method: 'GET', path: '/suggestions/activityName/{name}', config: ActivityNames.suggest });
 
+    /* Workouts */
+    crud('/workouts', Workouts);
+
+    /* api sugar */
+    internals.meta = options.config.meta || {};
+
+    plugin.ext('onPreResponse', internals.onPreResponse);
+
     return done();
 };
 
 exports.register.attributes = {
     name: 'api.lift.zone',
     version: '1.0.0'
+};
+
+internals.onPreResponse = function (request, reply) {
+
+    const response = request.response;
+
+    if (request.method === 'options') {
+        return reply.continue();
+    }
+
+    if (response.isBoom) {
+        response.output.payload = {
+            error: {
+                title: response.output.payload.error,
+                status: response.output.statusCode,
+                detail: response.output.payload.message
+            },
+            meta: Hoek.applyToDefaults({ id: request.id }, internals.meta)
+        };
+    } else {
+        if (response.source) {
+            response.source.meta = Hoek.applyToDefaults({ id: request.id }, internals.meta);
+        }
+    }
+    return reply.continue();
 };

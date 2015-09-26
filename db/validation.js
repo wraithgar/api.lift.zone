@@ -11,7 +11,6 @@ module.exports = function Validation (bookshelf, BPromise) {
          * t.integer('user_id').index().notNullable().references('users.id');
          * t.text('code').notNullable().index();
          */
-        type: 'validation',
         idAttribute: 'code',
         tableName: 'validations',
         recent: function () {

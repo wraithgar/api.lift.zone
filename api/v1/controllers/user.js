@@ -1,5 +1,7 @@
 'use strict';
 const Joi = require('joi');
+const Hoek = require('hoek');
+const _ = require('lodash');
 
 const controllers = {};
 
@@ -11,24 +13,18 @@ controllers.login = {
     handler: function (request, reply) {
 
         const db = this.db;
-        const data = request.payload.data;
 
-        request.server.log(['users', 'auth'], 'Login: ' + data.attributes.login);
+        request.server.log(['users', 'auth'], 'Login: ' + request.payload.login);
 
-        return reply(db.User.loginWithPassword(data.attributes).then(function (user) {
+        return reply(db.User.loginWithPassword(request.payload).then(function (user) {
 
             return { data: user };
         })).code(201);
     },
     validate: {
         payload: {
-            data: {
-                type: Joi.string().valid('login').required(),
-                attributes: {
-                    login: Joi.string().required().example('crash_override'),
-                    password: Joi.string().min(8).required().example('hunter2!')
-                }
-            }
+            login: Joi.string().required().example('crash_override'),
+            password: Joi.string().min(8).required().example('hunter2!')
         }
     },
     auth: false
@@ -83,33 +79,21 @@ controllers.signup = {
     handler: function (request, reply) {
 
         const db = this.db;
-        const data = request.payload.data;
+        const attrs = _.pick(request.payload, ['login', 'name', 'email', 'password']);
 
-        const attrs = {
-            login: data.attributes.login,
-            name: data.attributes.name,
-            email: data.attributes.email,
-            password: data.attributes.password
-        };
-
-        return reply(db.User.signup(this.config.invites, data.attributes.invite, attrs).then(function (user) {
+        return reply(db.User.signup(this.config.invites, request.payload.invite, attrs).then(function (user) {
 
             return { data: user };
         })).code(201);
     },
     validate: {
         payload: {
-            data: {
-                type: Joi.string().valid('signup').required(),
-                attributes: Joi.object().keys({
-                    invite: Joi.string().guid().required(),
-                    login: Joi.string().required(),
-                    name: Joi.string().required(),
-                    email: Joi.string().email().required(),
-                    password: Joi.string().min(8, 'utf-8').required(),
-                    passwordConfirm: Joi.ref('password')
-                })
-            }
+            invite: Joi.string().guid().required(),
+            login: Joi.string().required(),
+            name: Joi.string().required(),
+            email: Joi.string().email().required(),
+            password: Joi.string().min(8, 'utf-8').required(),
+            passwordConfirm: Joi.ref('password')
         }
     },
     auth: false
@@ -138,17 +122,14 @@ controllers.confirm = {
         const db = this.db;
         const user = request.auth.credentials.user;
 
-        return reply(user.confirm(request.payload.data).then(function (response) {
+        return reply(user.confirm(request.payload).then(function (response) {
 
             return { data: response };
         }));
     },
     validate: {
         payload: {
-            data: {
-                type: Joi.string().valid('validation').required(),
-                id: Joi.string().guid().required()
-            }
+            code: Joi.string().guid().required()
         }
     }
 };
@@ -164,16 +145,11 @@ controllers.recover = {
          * so just send it now and do the rest asynchronously
          */
         reply({ data: null }).code(202);
-        db.User.recover(request.payload.data.attributes);
+        db.User.recover(request.payload);
     },
     validate: {
         payload: {
-            data: {
-                type: Joi.string().valid('login').required(),
-                attributes: {
-                    email: Joi.string().email().required()
-                }
-            }
+            email: Joi.string().email().required()
         }
     },
     auth: false
@@ -186,22 +162,18 @@ controllers.reset = {
     handler: function (request, reply) {
 
         const db = this.db;
+        const attrs = _.pick(request.payload, ['code', 'password']);
 
-        return reply(db.Recovery.reset(request.payload.data.attributes).then(function (authToken) {
+        return reply(db.Recovery.reset(attrs).then(function (authToken) {
 
             return { data: authToken };
         })).code(201);
     },
     validate: {
         payload: {
-            data: Joi.object().keys({
-                type: Joi.string().valid('reset').required(),
-                attributes: {
-                    code: Joi.string().guid().required(),
-                    password: Joi.string().min(8, 'utf-8').required(),
-                    passwordConfirm: Joi.ref('password')
-                }
-            })
+            code: Joi.string().guid().required(),
+            password: Joi.string().min(8, 'utf-8').required(),
+            passwordConfirm: Joi.ref('password')
         }
     },
     auth: false
@@ -213,25 +185,21 @@ controllers.update = {
     handler: function (request, reply) {
 
         const user = request.auth.credentials.user;
-        return reply(user.update(request.payload.data.attributes).then(function (updatedUser) {
+        const attrs = _.pick(request.payload, 'name', 'email', 'password', 'smartmode', 'visible');
+
+        return reply(user.update(attrs).then(function (updatedUser) {
 
             return { data: updatedUser };
         }));
     },
     validate: {
         payload: {
-            data: {
-                type: Joi.string().valid('user').required(),
-                id: Joi.ref('$auth.credentials.user.id'),
-                attributes: Joi.object().keys({
-                    name: Joi.string(),
-                    password: Joi.string().min(8),
-                    passwordConfirm: Joi.ref('password'),
-                    email: Joi.string().email(),
-                    smartmode: Joi.boolean(),
-                    visible: Joi.boolean()
-                }).unknown()
-            }
+            name: Joi.string(),
+            password: Joi.string().min(8),
+            passwordConfirm: Joi.ref('password'),
+            email: Joi.string().email(),
+            smartmode: Joi.boolean(),
+            visible: Joi.boolean()
         }
     }
 };
@@ -242,21 +210,16 @@ controllers.taken = {
     handler: function (request, reply) {
 
         const db = this.db;
-        return reply(db.User.taken(request.payload.data.attributes).then(function (taken) {
+
+        return reply(db.User.taken(request.payload).then(function (taken) {
 
             return { data: taken };
         }));
     },
     validate: {
         payload: {
-            data: {
-                type: Joi.string().valid('taken').required(),
-                id: Joi.string().valid('taken').required(),
-                attributes: {
-                    invite: Joi.string().guid().required(),
-                    login: Joi.string().required()
-                }
-            }
+            invite: Joi.string().guid().required(),
+            login: Joi.string().required()
         }
     },
     auth: false

@@ -12,9 +12,9 @@ module.exports = function Recovery (bookshelf, BPromise) {
          * t.integer('user_id').index().notNullable().references('users.id');
          * t.text('code').notNullable().index();
          */
-        type: 'recovery',
         idAttribute: 'code',
         tableName: 'recoveries',
+        hidden: ['userId'],
         user: function () {
 
             return this.belongsTo('User');
@@ -35,11 +35,7 @@ module.exports = function Recovery (bookshelf, BPromise) {
                         return recovery.destroy({ transacting: t }).then(function () {
 
                             return {
-                                id: user.get('id'),
-                                type: 'authToken',
-                                attributes: {
-                                    token: Utils.userToken(user)
-                                }
+                                token: Utils.userToken(user)
                             };
                         });
                     });

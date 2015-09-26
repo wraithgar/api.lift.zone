@@ -1,11 +1,13 @@
 'use strict';
+const Bluebird = require('bluebird');
 const Boom = require('boom');
 const Config = require('getconfig');
 const Crypto = require('crypto');
-const Nodemailer = require('nodemailer');
+const Joi = require('joi');
 const Jwt = require('jsonwebtoken');
+const Nodemailer = require('nodemailer');
 const Uuid = require('uuid');
-const Bluebird = require('bluebird');
+
 const NodemailerPromised = Bluebird.promisifyAll(Nodemailer);
 
 const transporter = Nodemailer.createTransport({ ignoreTLS: true, debug: true });

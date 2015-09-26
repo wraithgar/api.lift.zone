@@ -11,6 +11,7 @@ exports.up = function (knex) {
         t.text('unit');
         t.integer('distance');
         t.integer('time');
+        t.timestamps();
     });
 };
 

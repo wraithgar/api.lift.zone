@@ -1,23 +1,24 @@
 'use strict';
 const BaseModel = require('./base-model');
 const BaseCollection = require('./base-collection');
-const Boom = require('boom');
-const _ = require('lodash');
-const Hoek = require('hoek');
-const Utils = require('../utils');
 
-module.exports = function Invite (bookshelf, BPromise) {
+module.exports = function Workout (bookshelf, BPromise) {
 
     const baseModel = BaseModel(bookshelf);
     const baseCollection = BaseCollection(bookshelf);
     const Model = baseModel.extend({
         /*
-         * t.text('code').unique().index();
+         * t.increments('id').primary();
          * t.integer('user_id').index().notNullable().references('users.id');
+         * t.text('name').notNullable();
+         * t.text('raw').notNullable();
+         * t.date('date').notNullable();
          */
         hidden: ['userId'],
-        idAttribute: 'code',
-        tableName: 'invites'
+        activities: function () {
+
+            return this.hasMany('Activity');
+        }
     }, {
         collection: function (models, options) {
 
@@ -26,18 +27,11 @@ module.exports = function Invite (bookshelf, BPromise) {
     });
 
     const Collection = baseCollection.extend({
-        model: Model,
-        generate: function (options) {
-
-            const code = Utils.generateInviteCode();
-            options = Hoek.applyToDefaults({ method: 'insert' }, options);
-
-            return this.create({ code: code }, options);
-        }
+        model: Model
     });
 
-    bookshelf.model('Invite', Model);
-    bookshelf.collection('Invites', Collection);
+    bookshelf.model('Workout', Model);
+    bookshelf.collection('Workouts', Collection);
 
     return {
         model: Model,

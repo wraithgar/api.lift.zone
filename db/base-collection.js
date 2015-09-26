@@ -1,6 +1,5 @@
 'use strict';
 const Boom = require('boom');
-const Hoek = require('hoek');
 const Promise = require('bluebird');
 
 module.exports = function (bookshelf) {
@@ -15,7 +14,7 @@ module.exports = function (bookshelf) {
         },
         getOne: function (attrs, fetchParams) {
 
-            return this.query({ where: Hoek.shallow(attrs) }).fetchOne(fetchParams).then(function (model) {
+            return this.query({ where: attrs }).fetchOne(fetchParams).then(function (model) {
 
                 if (!model) {
                     throw Boom.notFound();

@@ -28,15 +28,6 @@ const sendMail = function (options, callback) {
     }
 };
 
-
-//TODO active flag
-//TODO signups disabled
-
-//server.on('request-error', function (request, error) {
-
-    //console.log(error.stack);
-//});
-
 lab.experiment('authentication', function () {
 
     let authUser;
@@ -59,28 +50,18 @@ lab.experiment('authentication', function () {
 
                 const options = {
                     method: 'POST', url: '/api/v1/login',
-                    headers: {
-                        accept: 'application/vnd.api+json',
-                        'content-type': 'application/vnd.api+json'
-                    },
                     payload: {
-                        data: {
-                            type: 'login',
-                            attributes: {
-                                login: Fixtures.users.main.login,
-                                password: Fixtures.users.main.password
-                            }
-                        }
+                        login: Fixtures.users.main.login,
+                        password: Fixtures.users.main.password
                     }
                 };
                 return server.inject(options, function (response) {
 
                     const payload = JSON.parse(response.payload);
                     Code.expect(response.statusCode).to.equal(201);
-                    Code.expect(payload.data).to.include('id', 'type', 'attributes');
-                    Code.expect(payload.data.type).to.equal('authToken');
+                    Code.expect(payload.data).to.include(['token']);
                     userAuthHeader = {
-                        authorization: 'Bearer ' + payload.data.attributes.token
+                        authorization: 'Bearer ' + payload.data.token
                     };
 
                     return done();
@@ -98,7 +79,7 @@ lab.experiment('authentication', function () {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.include('id', 'type', 'attributes');
+            Code.expect(payload.data).to.part.include(Fixtures.users.main);
             authUser = payload.data;
             done();
         });
@@ -108,18 +89,9 @@ lab.experiment('authentication', function () {
 
         const options = {
             method: 'POST', url: '/api/v1/login',
-            headers: {
-                accept: 'application/vnd.api+json',
-                'content-type': 'application/vnd.api+json'
-            },
             payload: {
-                data: {
-                    type: 'login',
-                    attributes: {
-                        login: 'bad' + Fixtures.users.main.login,
-                        password: Fixtures.users.main.password
-                    }
-                }
+                login: 'bad' + Fixtures.users.main.login,
+                password: Fixtures.users.main.password
             }
         };
         server.inject(options, function (response) {
@@ -133,18 +105,9 @@ lab.experiment('authentication', function () {
 
         const options = {
             method: 'POST', url: '/api/v1/login',
-            headers: {
-                accept: 'application/vnd.api+json',
-                'content-type': 'application/vnd.api+json'
-            },
             payload: {
-                data: {
-                    type: 'login',
-                    attributes: {
-                        login: Fixtures.users.main.login,
-                        password: Fixtures.users.main.password + 'bad'
-                    }
-                }
+                login: Fixtures.users.main.login,
+                password: Fixtures.users.main.password + 'bad'
             }
         };
         server.inject(options, function (response) {
@@ -158,17 +121,8 @@ lab.experiment('authentication', function () {
 
         const options = {
             method: 'POST', url: '/api/v1/recover',
-            headers: {
-                accept: 'application/vnd.api+json',
-                'content-type': 'application/vnd.api+json'
-            },
             payload: {
-                data: {
-                    type: 'login',
-                    attributes: {
-                        email: Fixtures.users.main.email
-                    }
-                }
+                email: Fixtures.users.main.email
             }
         };
         server.inject(options, function (response) {
@@ -190,17 +144,8 @@ lab.experiment('authentication', function () {
 
         const options = {
             method: 'POST', url: '/api/v1/recover',
-            headers: {
-                accept: 'application/vnd.api+json',
-                'content-type': 'application/vnd.api+json'
-            },
             payload: {
-                data: {
-                    type: 'login',
-                    attributes: {
-                        email: Fixtures.users.main.email
-                    }
-                }
+                email: Fixtures.users.main.email
             }
         };
         server.inject(options, function (response) {
@@ -221,17 +166,8 @@ lab.experiment('authentication', function () {
 
         const options = {
             method: 'POST', url: '/api/v1/recover',
-            headers: {
-                accept: 'application/vnd.api+json',
-                'content-type': 'application/vnd.api+json'
-            },
             payload: {
-                data: {
-                    type: 'login',
-                    attributes: {
-                        email: Fixtures.users.nonexistant.email
-                    }
-                }
+                email: Fixtures.users.nonexistant.email
             }
         };
         server.inject(options, function (response) {
@@ -248,28 +184,19 @@ lab.experiment('authentication', function () {
 
         const options = {
             method: 'POST', url: '/api/v1/reset',
-            headers: {
-                accept: 'application/vnd.api+json',
-                'content-type': 'application/vnd.api+json'
-            },
             payload: {
-                data: {
-                    type: 'reset',
-                    attributes: {
-                        code: recoveryCode,
-                        password: Fixtures.users.reset.password,
-                        passwordConfirm: Fixtures.users.reset.password
-                    }
-                }
+                code: recoveryCode,
+                password: Fixtures.users.reset.password,
+                passwordConfirm: Fixtures.users.reset.password
             }
         };
         server.inject(options, function (response) {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(201);
-            Code.expect(payload.data).to.include('id', 'type', 'attributes');
+            Code.expect(payload.data).to.part.include(['token']);
             resetAuthHeader = {
-                authorization: 'Bearer ' + payload.data.attributes.token
+                authorization: 'Bearer ' + payload.data.token
             };
             done();
         });
@@ -279,19 +206,10 @@ lab.experiment('authentication', function () {
 
         const options = {
             method: 'POST', url: '/api/v1/reset',
-            headers: {
-                accept: 'application/vnd.api+json',
-                'content-type': 'application/vnd.api+json'
-            },
             payload: {
-                data: {
-                    type: 'reset',
-                    attributes: {
-                        code: recoveryCode,
-                        password: Fixtures.users.main.password,
-                        passwordConfirm: Fixtures.users.main.password
-                    }
-                }
+                code: recoveryCode,
+                password: Fixtures.users.main.password,
+                passwordConfirm: Fixtures.users.main.password
             }
         };
         server.inject(options, function (response) {
@@ -322,7 +240,7 @@ lab.experiment('authentication', function () {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.include('id', 'type', 'attributes');
+            Code.expect(payload.data).to.part.include(Fixtures.users.main);
             done();
         });
     });
@@ -356,28 +274,18 @@ lab.experiment('authentication', function () {
 
         const options = {
             method: 'POST', url: '/api/v1/login',
-            headers: {
-                accept: 'application/vnd.api+json',
-                'content-type': 'application/vnd.api+json'
-            },
             payload: {
-                data: {
-                    type: 'login',
-                    attributes: {
-                        login: Fixtures.users.main.login,
-                        password: Fixtures.users.reset.password
-                    }
-                }
+                login: Fixtures.users.main.login,
+                password: Fixtures.users.reset.password
             }
         };
         server.inject(options, function (response) {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(201);
-            Code.expect(payload.data).to.include('id', 'type', 'attributes');
-            Code.expect(payload.data.type).to.equal('authToken');
+            Code.expect(payload.data).to.include(['token']);
             userAuthHeader = {
-                authorization: 'Bearer ' + payload.data.attributes.token
+                authorization: 'Bearer ' + payload.data.token
             };
 
             return done();

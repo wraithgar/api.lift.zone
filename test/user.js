@@ -13,11 +13,6 @@ const AuthInject = require('./auth-inject');
 const server = serverItems.server;
 const dbHelper = new DbHelper(serverItems.db);
 
-//server.on('request-error', function (request, error) {
-
-    //console.log(error.stack);
-//});
-
 lab.experiment('user', function () {
 
     let authUser;
@@ -37,28 +32,18 @@ lab.experiment('user', function () {
 
                 const options = {
                     method: 'POST', url: '/api/v1/login',
-                    headers: {
-                        accept: 'application/vnd.api+json',
-                        'content-type': 'application/vnd.api+json'
-                    },
                     payload: {
-                        data: {
-                            type: 'login',
-                            attributes: {
-                                login: Fixtures.users.main.login,
-                                password: Fixtures.users.main.password
-                            }
-                        }
+                        login: Fixtures.users.main.login,
+                        password: Fixtures.users.main.password
                     }
                 };
                 return server.inject(options, function (response) {
 
                     const payload = JSON.parse(response.payload);
                     Code.expect(response.statusCode).to.equal(201);
-                    Code.expect(payload.data).to.include('id', 'type', 'attributes');
-                    Code.expect(payload.data.type).to.equal('authToken');
+                    Code.expect(payload.data).to.include(['token']);
                     userAuthHeader = {
-                        authorization: 'Bearer ' + payload.data.attributes.token
+                        authorization: 'Bearer ' + payload.data.token
                     };
 
                     return done();
@@ -77,13 +62,7 @@ lab.experiment('user', function () {
             const payload = JSON.parse(response.payload);
             const user = payload.data.attributes;
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.include('id', 'type', 'attributes');
-            Code.expect(user.login).to.equal(Fixtures.users.main.login);
-            Code.expect(user.name).to.equal(Fixtures.users.main.name);
-            Code.expect(user.email).to.equal(Fixtures.users.main.email);
-            Code.expect(user.validated).to.equal(true);
-            Code.expect(user.visible).to.equal(false);
-            Code.expect(user.smartmode).to.equal(true);
+            Code.expect(payload.data).to.part.include(Fixtures.users.main);
             authUser = payload.data;
             done();
         });
@@ -98,22 +77,16 @@ lab.experiment('user', function () {
             const userAttributes = _.pick(Fixtures.users.update, ['name', 'smartmode', 'visible']);
             const options = {
                 method: 'PUT', url: '/api/v1/me',
-                payload: {
-                    data: {
-                        id: authUser.id,
-                        type: 'user',
-                        attributes: userAttributes
-                    }
-                }
+                payload: userAttributes
             };
             AuthInject(server, options, userAuthHeader, function (response) {
 
                 const payload = JSON.parse(response.payload);
-                user = payload.data.attributes;
+                user = payload.data;
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(payload.data).to.include('id', 'type', 'attributes');
-                Code.expect(user.updatedAt).to.not.equal(authUser.attributes.updatedAt);
-                authUser.attributes.updatedAt = user.updatedAt;
+                Code.expect(user.updatedAt).to.not.equal(authUser.updatedAt);
+                authUser.updatedAt = user.updatedAt;
                 Code.expect(userAttributes.name).to.equal(user.name);
                 Code.expect(userAttributes.smartmode).to.equal(user.smartmode);
                 Code.expect(userAttributes.visible).to.equal(user.visible);
@@ -131,7 +104,7 @@ lab.experiment('user', function () {
 
                 const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
-                Code.expect(user).to.deep.equal(payload.data.attributes);
+                Code.expect(payload.data).to.deep.equal(user);
                 done();
             });
         });
@@ -146,22 +119,16 @@ lab.experiment('user', function () {
             const options = {
                 method: 'PUT', url: '/api/v1/me',
                 payload: {
-                    data: {
-                        id: authUser.id,
-                        type: 'user',
-                        attributes: {
-                            email: Fixtures.users.main.email
-                        }
-                    }
+                    email: Fixtures.users.main.email
                 }
             };
             AuthInject(server, options, userAuthHeader, function (response) {
 
                 const payload = JSON.parse(response.payload);
-                user = payload.data.attributes;
+                user = payload.data;
                 Code.expect(response.statusCode).to.equal(200);
-                Code.expect(user.updatedAt).to.not.equal(authUser.attributes.updatedAt);
-                authUser.attributes.updatedAt = user.updatedAt;
+                Code.expect(user.updatedAt).to.not.equal(authUser.updatedAt);
+                authUser.updatedAt = user.updatedAt;
                 Code.expect(user.validated).to.equal(true);
                 done();
             });
@@ -176,7 +143,7 @@ lab.experiment('user', function () {
 
                 const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
-                Code.expect(user).to.deep.equal(payload.data.attributes);
+                Code.expect(user).to.deep.equal(payload.data);
                 done();
             });
         });
@@ -190,22 +157,16 @@ lab.experiment('user', function () {
             const options = {
                 method: 'PUT', url: '/api/v1/me',
                 payload: {
-                    data: {
-                        id: authUser.id,
-                        type: 'user',
-                        attributes: {
-                            email: Fixtures.users.update.email
-                        }
-                    }
+                    email: Fixtures.users.update.email
                 }
             };
             AuthInject(server, options, userAuthHeader, function (response) {
 
                 const payload = JSON.parse(response.payload);
-                user = payload.data.attributes;
+                user = payload.data;
                 Code.expect(response.statusCode).to.equal(200);
-                Code.expect(user.updatedAt).to.not.equal(authUser.attributes.updatedAt);
-                authUser.attributes.updatedAt = user.updatedAt;
+                Code.expect(user.updatedAt).to.not.equal(authUser.updatedAt);
+                authUser.updatedAt = user.updatedAt;
                 Code.expect(user.validated).to.equal(false);
                 Code.expect(user.email).to.equal(Fixtures.users.update.email);
                 done();
@@ -221,7 +182,7 @@ lab.experiment('user', function () {
 
                 const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(200);
-                Code.expect(user).to.deep.equal(payload.data.attributes);
+                Code.expect(payload.data).to.deep.equal(user);
                 done();
             });
         });
@@ -234,14 +195,8 @@ lab.experiment('user', function () {
             const options = {
                 method: 'PUT', url: '/api/v1/me',
                 payload: {
-                    data: {
-                        id: authUser.id,
-                        type: 'user',
-                        attributes: {
-                            password: Fixtures.users.update.password,
-                            passwordConfirm: Fixtures.users.update.password
-                        }
-                    }
+                    password: Fixtures.users.update.password,
+                    passwordConfirm: Fixtures.users.update.password
                 }
             };
             AuthInject(server, options, userAuthHeader, function (response) {
@@ -256,27 +211,16 @@ lab.experiment('user', function () {
 
             const options = {
                 method: 'POST', url: '/api/v1/login',
-                headers: {
-                    accept: 'application/vnd.api+json',
-                    'content-type': 'application/vnd.api+json'
-                },
                 payload: {
-                    data: {
-                        type: 'login',
-                        attributes: {
-                            login: Fixtures.users.update.login,
-                            password: Fixtures.users.update.password
-                        }
-                    }
+                    login: Fixtures.users.update.login,
+                    password: Fixtures.users.update.password
                 }
             };
             return server.inject(options, function (response) {
 
                 const payload = JSON.parse(response.payload);
                 Code.expect(response.statusCode).to.equal(201);
-                Code.expect(payload.data).to.include('id', 'type', 'attributes');
-                Code.expect(payload.data.type).to.equal('authToken');
-                Code.expect(payload.data.id).to.equal(authUser.id);
+                Code.expect(payload.data).to.include(['token']);
 
                 return done();
             });

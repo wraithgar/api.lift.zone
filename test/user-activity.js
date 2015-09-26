@@ -13,11 +13,6 @@ const AuthInject = require('./auth-inject');
 const server = serverItems.server;
 const dbHelper = new DbHelper(serverItems.db);
 
-server.on('request-error', function (request, err) {
-
-    console.log(err.stack);
-});
-
 lab.experiment('user activities', function () {
 
     let authUser;
@@ -37,28 +32,18 @@ lab.experiment('user activities', function () {
 
                 const options = {
                     method: 'POST', url: '/api/v1/login',
-                    headers: {
-                        accept: 'application/vnd.api+json',
-                        'content-type': 'application/vnd.api+json'
-                    },
                     payload: {
-                        data: {
-                            type: 'login',
-                            attributes: {
-                                login: Fixtures.users.main.login,
-                                password: Fixtures.users.main.password
-                            }
-                        }
+                        login: Fixtures.users.main.login,
+                        password: Fixtures.users.main.password
                     }
                 };
                 return server.inject(options, function (response) {
 
                     const payload = JSON.parse(response.payload);
                     Code.expect(response.statusCode).to.equal(201);
-                    Code.expect(payload.data).to.include(['id', 'type', 'attributes']);
-                    Code.expect(payload.data.type).to.equal('authToken');
+                    Code.expect(payload.data).to.include(['token']);
                     userAuthHeader = {
-                        authorization: 'Bearer ' + payload.data.attributes.token
+                        authorization: 'Bearer ' + payload.data.token
                     };
 
                     return done();
@@ -90,10 +75,10 @@ lab.experiment('user activities', function () {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.include(['type', 'attributes', 'relationships']);
+            Code.expect(payload.data).to.part.include(Fixtures.activities.squat);
+            Code.expect(payload.data).to.include('suggestions');
             Code.expect(payload.data).to.not.include('id');
-            Code.expect(payload.data.type).to.equal('activityName');
-            Code.expect(payload.data.relationships.suggestions.data).to.be.empty();
+            Code.expect(payload.data.suggestions).to.be.empty();
             done();
         });
     });
@@ -102,17 +87,8 @@ lab.experiment('user activities', function () {
 
         const options = {
             method: 'POST', url: '/api/v1/activityNames',
-            headers: {
-                accept: 'application/vnd.api+json',
-                'content-type': 'application/vnd.api+json'
-            },
             payload: {
-                data: {
-                    type: 'activityName',
-                    attributes: {
-                        name: Fixtures.activities.squat.name
-                    }
-                }
+                name: Fixtures.activities.squat.name
             }
         };
         AuthInject(server, options, userAuthHeader, function (response) {
@@ -133,9 +109,7 @@ lab.experiment('user activities', function () {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data.attributes.name).to.equal(Fixtures.activities.squat.name);
-            Code.expect(payload.data.relationships).to.include(['aliases']);
-            Code.expect(payload.data.relationships.aliases.data).to.be.empty();
+            Code.expect(payload.data).to.part.include(Fixtures.activities.squat);
             done();
         });
 
@@ -150,10 +124,11 @@ lab.experiment('user activities', function () {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.include(['type', 'attributes', 'relationships']);
+            Code.expect(payload.data).to.part.include(Fixtures.activities.barbellsquat);
+            Code.expect(payload.data).to.include('suggestions');
             Code.expect(payload.data).to.not.include('id');
-            Code.expect(payload.data.type).to.equal('activityName');
-            Code.expect(payload.data.relationships.suggestions.data).to.have.length(1);
+            Code.expect(payload.data.suggestions).to.have.length(1);
+            Code.expect(payload.data.suggestions[0]).to.part.include(Fixtures.activities.squat);
             done();
         });
     });
@@ -162,18 +137,9 @@ lab.experiment('user activities', function () {
 
         const options = {
             method: 'POST', url: '/api/v1/activityNames',
-            headers: {
-                accept: 'application/vnd.api+json',
-                'content-type': 'application/vnd.api+json'
-            },
             payload: {
-                data: {
-                    type: 'activityName',
-                    attributes: {
-                        name: Fixtures.activities.barbellsquat.name,
-                        useractivityId: Fixtures.activities.squat.id
-                    }
-                }
+                name: Fixtures.activities.barbellsquat.name,
+                aliasId: Fixtures.activities.squat.id
             }
         };
         AuthInject(server, options, userAuthHeader, function (response) {
@@ -181,6 +147,26 @@ lab.experiment('user activities', function () {
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(201);
             Fixtures.activities.barbellsquat.id = payload.data.id;
+            Code.expect(payload.data).to.part.include(Fixtures.activities.barbellsquat);
+            Code.expect(payload.data).to.include(['aliases', 'aliasOf']);
+            Code.expect(payload.data.aliases).to.be.empty();
+            Code.expect(payload.data.aliasOf).to.include(Fixtures.activities.squat);
+            done();
+        });
+    });
+
+    lab.test('create invalid alias', function (done) {
+
+        const options = {
+            method: 'POST', url: '/api/v1/activityNames',
+            payload: {
+                name: Fixtures.activities.barbellsquat.name,
+                aliasId: 9999
+            }
+        };
+        AuthInject(server, options, userAuthHeader, function (response) {
+
+            Code.expect(response.statusCode).to.equal(404);
             done();
         });
     });
@@ -194,11 +180,10 @@ lab.experiment('user activities', function () {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.include(['type', 'attributes', 'relationships']);
-            Code.expect(payload.data.attributes.name).to.equal(Fixtures.activities.barbellsquat.name);
-            Code.expect(payload.data.relationships).to.include(['aliases', 'aliasFor']);
-            Code.expect(payload.data.relationships.aliases.data).to.be.empty();
-            Code.expect(payload.data.relationships.aliasFor.data.id).to.equal(Fixtures.activities.squat.id);
+            Code.expect(payload.data).to.part.include(Fixtures.activities.barbellsquat);
+            Code.expect(payload.data).to.include(['aliases', 'aliasOf']);
+            Code.expect(payload.data.aliases).to.be.empty();
+            Code.expect(payload.data.aliasOf).to.include(Fixtures.activities.squat);
             done();
         });
 
@@ -213,9 +198,9 @@ lab.experiment('user activities', function () {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data.attributes.name).to.equal(Fixtures.activities.squat.name);
-            Code.expect(payload.data.relationships).to.include(['aliases']);
-            Code.expect(payload.data.relationships.aliases.data).to.have.length(1);
+            Code.expect(payload.data).to.include(Fixtures.activities.squat);
+            Code.expect(payload.data.aliases).to.have.length(1);
+            Code.expect(payload.data.aliases).to.deep.include(Fixtures.activities.barbellsquat);
             done();
         });
     });
@@ -229,8 +214,8 @@ lab.experiment('user activities', function () {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.include(['id', 'type', 'attributes']);
-            Code.expect(payload.data.id).to.equal(Fixtures.activities.squat.id);
+            Code.expect(payload.data).to.include(Fixtures.activities.squat);
+            Code.expect(payload.data).to.not.include(['suggestions']);
             done();
         });
     });
@@ -244,8 +229,8 @@ lab.experiment('user activities', function () {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.include(['id', 'type', 'attributes']);
-            Code.expect(payload.data.id).to.equal(Fixtures.activities.barbellsquat.id);
+            Code.expect(payload.data).to.include(Fixtures.activities.barbellsquat);
+            Code.expect(payload.data).to.not.include(['suggestions']);
             done();
         });
     });
@@ -259,10 +244,10 @@ lab.experiment('user activities', function () {
 
             const payload = JSON.parse(response.payload);
             Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.include(['type', 'attributes', 'relationships']);
-            Code.expect(payload.data).to.not.include('id');
-            Code.expect(payload.data.type).to.equal('activityName');
-            Code.expect(payload.data.relationships.suggestions.data).to.have.length(2);
+            Code.expect(payload.data).to.include(Fixtures.activities.frontsquat);
+            Code.expect(payload.data.suggestions).to.have.length(2);
+            Code.expect(payload.data.suggestions).to.deep.include(Fixtures.activities.squat);
+            Code.expect(payload.data.suggestions).to.deep.include(Fixtures.activities.barbellsquat);
             done();
         });
     });

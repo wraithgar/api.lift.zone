@@ -5,13 +5,14 @@ const controllers = {};
 
 module.exports = controllers;
 
+controllers._id = 'id';
+
 controllers.all = {
-    description: 'Get all user activity names',
-    tags: ['userActivity'],
+    description: 'Get all activity names',
+    tags: ['activityName'],
     handler: function (request, reply) {
 
         const user = request.auth.credentials.user;
-        const db = this.db;
 
         //TODO filter based on request.query.filter
         return reply(user.related('activityNames').fetch()
@@ -23,9 +24,9 @@ controllers.all = {
 };
 
 controllers.suggest = {
-    description: 'Suggest alternative user activity names',
+    description: 'Suggest alternative activity names',
     notes: 'Returns match if exact match found',
-    tags: ['userActivity'],
+    tags: ['activityName'],
     handler: function (request, reply) {
 
         const user = request.auth.credentials.user;
@@ -62,15 +63,15 @@ controllers.suggest = {
 };
 
 controllers.get = {
-    description: 'Get one user activity name by id',
-    tags: ['userActivity'],
+    description: 'Get one activity name by id',
+    tags: ['activityName'],
     handler: function (request, reply) {
 
         const user = request.auth.credentials.user;
 
-        return reply(user.related('activityNames').getOne(request.params, { withRelated: ['aliases', 'aliasFor'] }).then(function (userActivity) {
+        return reply(user.related('activityNames').getOne(request.params, { withRelated: ['aliases', 'aliasOf'] }).then(function (activityName) {
 
-            return { data: userActivity };
+            return { data: activityName };
         }));
     },
     validate: {
@@ -81,26 +82,21 @@ controllers.get = {
 };
 
 controllers.create = {
-    description: 'Create a user activity',
-    tags: ['userActivity'],
+    description: 'Create an activity name',
+    tags: ['activityName'],
     handler: function (request, reply) {
 
         const user = request.auth.credentials.user;
 
-        return reply(user.related('activityNames').make(request.payload.data.attributes).then(function (userActivity) {
+        return reply(user.related('activityNames').make(request.payload).then(function (activityName) {
 
-            return { data: userActivity };
+            return { data: activityName };
         })).code(201);
     },
     validate: {
         payload: {
-            data: {
-                type: Joi.string().valid('activityName').required(),
-                attributes: Joi.object().keys({
-                    name: Joi.string().required().example('Front Squat'),
-                    useractivityId: Joi.number().description('Id of the activity name this is an alias for')
-                })
-            }
+            name: Joi.string().required().example('Front Squat'),
+            aliasId: Joi.number().description('Optional id of the activity name this is an alias of')
         }
     }
 };

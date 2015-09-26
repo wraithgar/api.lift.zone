@@ -26,9 +26,8 @@ module.exports = function User (bookshelf, BPromise) {
          * t.boolean('visible').notNullable().defaultTo(false);
          */
         //instance properties
-        type: 'user',
-        tableName: 'users',
         hidden: ['passwordHash', 'supertoken'],
+        tableName: 'users',
         booleans: ['active', 'validated', 'smartmode', 'visible'],
         invites: function (skipValidation) {
 
@@ -85,7 +84,7 @@ module.exports = function User (bookshelf, BPromise) {
             return self.related('validation').current()
             .then(function (validation) {
 
-                if (!validation || (validation.get('code') !== confirmation.id)) {
+                if (!validation || (validation.get('code') !== confirmation.code)) {
                     throw Boom.notFound();
                 }
 
@@ -104,7 +103,6 @@ module.exports = function User (bookshelf, BPromise) {
         }),
         update: function (attrs) {
 
-            attrs = _.pick(attrs, 'name', 'email', 'password', 'smartmode', 'visible');
             if (attrs.password) {
                 const password = attrs.password;
                 attrs.passwordHash = Utils.passwordHash(password);
@@ -162,11 +160,7 @@ module.exports = function User (bookshelf, BPromise) {
             .then(function (user) {
 
                 return {
-                    id: user.get('id'),
-                    type: 'authToken',
-                    attributes: {
-                        token: Utils.userToken(user)
-                    }
+                    token: Utils.userToken(user)
                 };
             }).catch(function (err) {
 
@@ -239,11 +233,7 @@ module.exports = function User (bookshelf, BPromise) {
                     const taken = !!existingLogin;
 
                     return {
-                        id: 'taken',
-                        type: 'taken',
-                        attributes: {
-                            taken: !!existingLogin
-                        }
+                        taken: !!existingLogin
                     };
                 });
             });
