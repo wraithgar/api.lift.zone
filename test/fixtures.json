@@ -40,6 +40,9 @@
     },
     "frontsquat": {
       "name": "Front Squat"
+    },
+    "ohp": {
+      "name": "OHP"
     }
   }
 }

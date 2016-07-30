@@ -1,14 +1,26 @@
 {
   "clientUri": "http://localhost:8080",
-  "db": "./dev.sqlite3",
   "hapi": {
-    "host": "localhost",
-    "port": 3001,
-    "logEvents": {
-      "log": "*",
-      "response": "*",
-      "error": "*",
-      "request": "*"
+    "connection": {
+      "host": "localhost",
+      "port": 3001,
+      "routes": {
+        "cors": {
+          "origin": ["http://localhost:8080"]
+        }
+      }
     }
+  },
+  "good": {
+    "requestHeaders": true,
+    "reporters": [{
+      "reporter": "good-console",
+      "events": {
+        "log": "*",
+        "response": "*",
+        "request": "*",
+        "error": "*"
+      }
+    }]
   }
 }

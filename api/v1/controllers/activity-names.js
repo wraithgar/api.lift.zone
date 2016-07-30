@@ -14,12 +14,14 @@ controllers.all = {
 
         const user = request.auth.credentials.user;
 
-        //TODO filter based on request.query.filter
-        return reply(user.related('activityNames').fetch()
-        .then(function (activityNames) {
+        reply(
+            user.related('activityNames')
+            .fetch()
+            .then(function (activityNames) {
 
-            return { data: activityNames };
-        }));
+                return { data: activityNames };
+            })
+        );
     }
 };
 
@@ -32,28 +34,28 @@ controllers.suggest = {
         const user = request.auth.credentials.user;
         const db = this.db;
 
-        return reply(user.related('activityNames').query(function () {
+        reply(
+            user.related('activityNames')
+            .query({ where: request.params })
+            .fetchOne()
+            .then(function (existing) {
 
-            this.where(request.params);
-        }).fetchOne()
-        .then(function (existing) {
+                if (existing) { return existing; }
 
-            if (existing) {
-                return existing;
-            }
+                const newActivityName = db.ActivityName.forge(request.params);
 
-            const newActivityName = db.ActivityName.forge(request.params);
-            return user.related('activityNames').suggestions(request.params)
-            .then(function (suggestions) {
+                return user.related('activityNames').suggestions(request.params)
+                .then(function (suggestions) {
 
-                //Hack but whatever
-                newActivityName.relations.suggestions = suggestions;
-                return newActivityName;
-            });
-        }).then(function (activityName) {
+                    newActivityName.relations.suggestions = suggestions;
+                    return newActivityName;
+                });
+            })
+            .then(function (activityName) {
 
-            return { data: activityName };
-        }));
+                return { data: activityName };
+            })
+        );
     },
     validate: {
         params: {
@@ -69,10 +71,14 @@ controllers.get = {
 
         const user = request.auth.credentials.user;
 
-        return reply(user.related('activityNames').getOne(request.params, { withRelated: ['aliases', 'aliasOf'] }).then(function (activityName) {
+        reply(
+            user.related('activityNames')
+            .getOne(request.params, { withRelated: ['aliases', 'aliasOf'] })
+            .then(function (activityName) {
 
-            return { data: activityName };
-        }));
+                return { data: activityName };
+            })
+        );
     },
     validate: {
         params: {
@@ -88,10 +94,14 @@ controllers.create = {
 
         const user = request.auth.credentials.user;
 
-        return reply(user.related('activityNames').make(request.payload).then(function (activityName) {
+        reply(
+            user.related('activityNames')
+            .make(request.payload)
+            .then(function (activityName) {
 
-            return { data: activityName };
-        })).code(201);
+                return { data: activityName };
+            })
+        ).code(201);
     },
     validate: {
         payload: {

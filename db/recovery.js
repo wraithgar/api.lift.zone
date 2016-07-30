@@ -14,7 +14,7 @@ module.exports = function Recovery (bookshelf, BPromise) {
          */
         idAttribute: 'code',
         tableName: 'recoveries',
-        hidden: ['userId'],
+        hidden: ['userId', 'createdAt', 'updatedAt'],
         user: function () {
 
             return this.belongsTo('User');

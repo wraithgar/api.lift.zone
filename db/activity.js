@@ -15,7 +15,7 @@ module.exports = function Activity (bookshelf, BPromise) {
          * t.text('comment');
          * t.unique(['workout_id', 'useractivity_id']);
          */
-        hidden: ['workoutId', 'useractivityId'],
+        hidden: ['workoutId', 'useractivityId', 'createdAt', 'updatedAt'],
         tableName: 'activities',
         workout: function () {
 
@@ -23,7 +23,7 @@ module.exports = function Activity (bookshelf, BPromise) {
         },
         activityName: function () {
 
-            return this.hasOne('ActivityName');
+            return this.belongsTo('ActivityName');
         },
         sets: function () {
 

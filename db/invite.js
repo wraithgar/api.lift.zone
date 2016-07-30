@@ -15,7 +15,7 @@ module.exports = function Invite (bookshelf, BPromise) {
          * t.text('code').unique().index();
          * t.integer('user_id').index().notNullable().references('users.id');
          */
-        hidden: ['userId'],
+        hidden: ['userId', 'createdAt', 'updatedAt'],
         idAttribute: 'code',
         tableName: 'invites'
     }, {

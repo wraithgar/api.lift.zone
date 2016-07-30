@@ -1,7 +1,4 @@
 {
-  "meta": {
-    "env": "development"
-  },
   "jwt": {
     "privateKey": "completelyunsecure"
   },

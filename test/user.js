@@ -85,8 +85,6 @@ lab.experiment('user', function () {
                 user = payload.data;
                 Code.expect(response.statusCode).to.equal(200);
                 Code.expect(payload.data).to.include('id', 'type', 'attributes');
-                Code.expect(user.updatedAt).to.not.equal(authUser.updatedAt);
-                authUser.updatedAt = user.updatedAt;
                 Code.expect(userAttributes.name).to.equal(user.name);
                 Code.expect(userAttributes.smartmode).to.equal(user.smartmode);
                 Code.expect(userAttributes.visible).to.equal(user.visible);
@@ -127,8 +125,6 @@ lab.experiment('user', function () {
                 const payload = JSON.parse(response.payload);
                 user = payload.data;
                 Code.expect(response.statusCode).to.equal(200);
-                Code.expect(user.updatedAt).to.not.equal(authUser.updatedAt);
-                authUser.updatedAt = user.updatedAt;
                 Code.expect(user.validated).to.equal(true);
                 done();
             });
@@ -165,8 +161,6 @@ lab.experiment('user', function () {
                 const payload = JSON.parse(response.payload);
                 user = payload.data;
                 Code.expect(response.statusCode).to.equal(200);
-                Code.expect(user.updatedAt).to.not.equal(authUser.updatedAt);
-                authUser.updatedAt = user.updatedAt;
                 Code.expect(user.validated).to.equal(false);
                 Code.expect(user.email).to.equal(Fixtures.users.update.email);
                 done();

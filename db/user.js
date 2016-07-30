@@ -25,10 +25,10 @@ module.exports = function User (bookshelf, BPromise) {
          * t.boolean('smartmode').notNullable().defaultTo(true);
          * t.boolean('visible').notNullable().defaultTo(false);
          */
-        //instance properties
-        hidden: ['passwordHash', 'supertoken'],
+        hidden: ['passwordHash', 'supertoken', 'createdAt', 'updatedAt'],
         tableName: 'users',
         booleans: ['active', 'validated', 'smartmode', 'visible'],
+
         invites: function (skipValidation) {
 
             if (!skipValidation && !this.get('validated')) {
@@ -48,6 +48,10 @@ module.exports = function User (bookshelf, BPromise) {
 
             return this.hasMany('ActivityName');
         },
+        workouts: function () {
+
+            return this.hasMany('Workout');
+        },
 
         logout: function () {
 
@@ -61,7 +65,8 @@ module.exports = function User (bookshelf, BPromise) {
                 return null;
             }
 
-            return this.related('validation').make()
+            return this.related('validation')
+            .make()
             .then(function (newValidation) {
 
                 if (newValidation) {
@@ -81,7 +86,8 @@ module.exports = function User (bookshelf, BPromise) {
                 return null;
             }
 
-            return self.related('validation').current()
+            return self.related('validation')
+            .current()
             .then(function (validation) {
 
                 if (!validation || (validation.get('code') !== confirmation.code)) {
@@ -208,11 +214,14 @@ module.exports = function User (bookshelf, BPromise) {
                     return;
                 }
 
-                user.related('recovery').query('where', 'created', '>', bookshelf.knex.raw('datetime("now", "-1 days")')).fetch()
+                user.related('recovery')
+                .query('where', 'created', '>', bookshelf.knex.raw('datetime("now", "-1 days")'))
+                .fetch()
                 .then(function (existingRecovery) {
 
                     if (!existingRecovery) {
-                        user.related('recovery').save({ code: Utils.generateRecoveryCode() })
+                        user.related('recovery')
+                        .save({ code: Utils.generateRecoveryCode() })
                         .then(function (recovery) {
 
                             Utils.mailRecovery(user.get('email'), user.get('login'), recovery);

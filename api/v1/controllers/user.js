@@ -16,10 +16,13 @@ controllers.login = {
 
         request.server.log(['users', 'auth'], 'Login: ' + request.payload.login);
 
-        return reply(db.User.loginWithPassword(request.payload).then(function (user) {
+        reply(
+            db.User.loginWithPassword(request.payload)
+            .then(function (user) {
 
-            return { data: user };
-        })).code(201);
+                return { data: user };
+            })
+        ).code(201);
     },
     validate: {
         payload: {
@@ -40,10 +43,13 @@ controllers.logout = {
 
         request.server.log(['users', 'auth'], 'Logout: ' + user.get('email'));
 
-        return reply(user.logout().then(function () {
+        reply(
+            user.logout()
+            .then(function () {
 
-            return request.generateResponse().code(204);
-        }));
+                return request.generateResponse().code(204);
+            })
+        );
     }
 };
 
@@ -54,7 +60,7 @@ controllers.me = {
 
         const user = request.auth.credentials.user;
 
-        return reply({ data: user });
+        reply({ data: user });
     }
 };
 
@@ -66,10 +72,14 @@ controllers.invites = {
         const db = this.db;
         const user = request.auth.credentials.user;
 
-        return reply(user.related('invites').fetch().then(function (invites) {
+        reply(
+            user.invites()
+            .fetch()
+            .then(function (invites) {
 
-            return { data: invites };
-        }));
+                return { data: invites };
+            })
+        );
     }
 };
 
@@ -81,10 +91,13 @@ controllers.signup = {
         const db = this.db;
         const attrs = _.pick(request.payload, ['login', 'name', 'email', 'password']);
 
-        return reply(db.User.signup(this.config.invites, request.payload.invite, attrs).then(function (user) {
+        reply(
+            db.User.signup(this.config.invites, request.payload.invite, attrs)
+            .then(function (user) {
 
-            return { data: user };
-        })).code(201);
+                return { data: user };
+            })
+        ).code(201);
     },
     validate: {
         payload: {
@@ -93,7 +106,7 @@ controllers.signup = {
             name: Joi.string().required(),
             email: Joi.string().email().required(),
             password: Joi.string().min(8, 'utf-8').required(),
-            passwordConfirm: Joi.ref('password')
+            passwordConfirm: Joi.any().valid(Joi.ref('password')).strip()
         }
     },
     auth: false
@@ -107,10 +120,13 @@ controllers.validate = {
         const db = this.db;
         const user = request.auth.credentials.user;
 
-        return reply(user.validate().then(function (response) {
+        reply(
+            user.validate()
+            .then(function (response) {
 
-            return { data: response };
-        })).code(202);
+                return { data: response };
+            })
+        ).code(202);
     }
 };
 
@@ -122,10 +138,13 @@ controllers.confirm = {
         const db = this.db;
         const user = request.auth.credentials.user;
 
-        return reply(user.confirm(request.payload).then(function (response) {
+        reply(
+            user.confirm(request.payload)
+            .then(function (response) {
 
-            return { data: response };
-        }));
+                return { data: response };
+            })
+        );
     },
     validate: {
         payload: {
@@ -162,18 +181,20 @@ controllers.reset = {
     handler: function (request, reply) {
 
         const db = this.db;
-        const attrs = _.pick(request.payload, ['code', 'password']);
 
-        return reply(db.Recovery.reset(attrs).then(function (authToken) {
+        reply(
+            db.Recovery.reset(request.payload)
+            .then(function (authToken) {
 
-            return { data: authToken };
-        })).code(201);
+                return { data: authToken };
+            })
+        ).code(201);
     },
     validate: {
         payload: {
             code: Joi.string().guid().required(),
             password: Joi.string().min(8, 'utf-8').required(),
-            passwordConfirm: Joi.ref('password')
+            passwordConfirm: Joi.any().valid(Joi.ref('password')).strip()
         }
     },
     auth: false
@@ -185,18 +206,20 @@ controllers.update = {
     handler: function (request, reply) {
 
         const user = request.auth.credentials.user;
-        const attrs = _.pick(request.payload, 'name', 'email', 'password', 'smartmode', 'visible');
 
-        return reply(user.update(attrs).then(function (updatedUser) {
+        reply(
+            user.update(request.payload)
+            .then(function (updatedUser) {
 
-            return { data: updatedUser };
-        }));
+                return { data: updatedUser };
+            })
+        );
     },
     validate: {
         payload: {
             name: Joi.string(),
             password: Joi.string().min(8),
-            passwordConfirm: Joi.ref('password'),
+            passwordConfirm: Joi.any().valid(Joi.ref('password')).strip(),
             email: Joi.string().email(),
             smartmode: Joi.boolean(),
             visible: Joi.boolean()
@@ -211,10 +234,13 @@ controllers.taken = {
 
         const db = this.db;
 
-        return reply(db.User.taken(request.payload).then(function (taken) {
+        reply(
+            db.User.taken(request.payload)
+            .then(function (taken) {
 
-            return { data: taken };
-        }));
+                return { data: taken };
+            })
+        );
     },
     validate: {
         payload: {
@@ -231,10 +257,13 @@ controllers.invite = {
     handler: function (request, reply) {
 
         const db = this.db;
-        return reply(db.Invite.get(request.params).then(function (invite) {
+        reply(
+            db.Invite.get(request.params)
+            .then(function (invite) {
 
-            return { data: invite };
-        }));
+                return { data: invite };
+            })
+        );
     },
     validate: {
         params: {

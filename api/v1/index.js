@@ -50,6 +50,7 @@ exports.register = function (plugin, options, done) {
 
     /* Workouts */
     crud('/workouts', Workouts);
+    plugin.route({ method: 'GET', path: '/search/workouts/{date}', config: Workouts.search });
 
     /* api sugar */
     internals.meta = options.config.meta || {};

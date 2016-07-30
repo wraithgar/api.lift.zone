@@ -1,6 +1,7 @@
 'use strict';
 const BaseModel = require('./base-model');
 const BaseCollection = require('./base-collection');
+const _ = require('lodash');
 
 module.exports = function Set (bookshelf, BPromise) {
 
@@ -17,7 +18,8 @@ module.exports = function Set (bookshelf, BPromise) {
          * t.integer('distance');
          * t.integer('time');
          */
-        hidden: ['activityId'],
+        hidden: ['activityId', 'createdAt', 'updatedAt'],
+        tableName: 'sets',
         activity: function () {
 
             return this.belongsTo('Activity');

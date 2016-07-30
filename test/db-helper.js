@@ -4,6 +4,7 @@ const Boom = require('boom');
 const DbHelper = function (db) {
 
     this.db = db;
+    this.promise = db.bookshelf.knex.Primse;
 };
 
 module.exports = DbHelper;

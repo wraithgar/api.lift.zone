@@ -16,7 +16,7 @@ module.exports = function ActivityName (bookshelf, BPromise) {
          * t.integer('activityname_id').index().references('activitynames.id');
          * t.text('name').notNullable().index();
          */
-        hidden: ['userId', 'useractivityId'],
+        hidden: ['userId', 'useractivityId', 'createdAt', 'updatedAt'],
         tableName: 'useractivities',
         aliases: function () {
 
@@ -75,7 +75,9 @@ module.exports = function ActivityName (bookshelf, BPromise) {
             }).then(function (activityName) {
 
                 activityName.related('aliases'); //Guaranteed to be empty
-                return activityName.related('aliasOf').fetch().then(function () {
+                return activityName.related('aliasOf')
+                .fetch()
+                .then(function () {
 
                     return activityName;
                 });
