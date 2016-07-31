@@ -1,26 +1,45 @@
 {
   "clientUri": "http://localhost:8080",
-  "hapi": {
+  "localUrl": "http://localhost:5000",
+  "auth": {
+    "secret": "changeMeInProduction!",
+    "seedPassword": "letmein!"
+  },
+  "db": {
+    "client": "postgresql",
     "connection": {
-      "host": "localhost",
-      "port": 3001,
-      "routes": {
-        "cors": {
-          "origin": ["http://localhost:8080"]
-        }
-      }
+      "database": "liftzone",
+      "user": "liftzone",
+      "password": "password",
+      "poolSize": 40
+    }
+  },
+  "hapi": {
+    "cache": {
+      "engine": "catbox-memory"
+    }
+  },
+  "connection": {
+    "public": {
+      "port": 5000,
+      "labels": "public"
     }
   },
   "good": {
-    "requestHeaders": true,
-    "reporters": [{
-      "reporter": "good-console",
-      "events": {
-        "log": "*",
-        "response": "*",
-        "request": "*",
-        "error": "*"
-      }
-    }]
+    "reporters": {
+      "console": [{
+        "module": "good-squeeze",
+        "name": "Squeeze",
+        "args": [{
+          "log": "*",
+          "response": "*",
+          "request": "*",
+          "error": "*"
+        }]
+      }, {
+        "module": "good-console"
+      }, "stdout"
+      ]
+    }
   }
 }

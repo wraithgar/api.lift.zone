@@ -1,11 +1,35 @@
 {
-  "jwt": {
-    "privateKey": "completelyunsecure"
+  "auth": {
+    "options": {
+      "algorithm": "HS256"
+    }
   },
-  "serverMail": "Lift Zone <lift.zone@danger.computer>",
-  "passwordSalt": "sodium",
+  "saltRounds": 10,
+  "tokenLength": 48,
+  "hapi": {
+    "connections": {
+      "routes": {
+        "security": true,
+        "cors": true
+      }
+    }
+  },
+  "good": {
+    "includes": {
+      "request": ["headers"]
+    }
+  },
+  "rateLimit": {
+    "userLimit": false,
+    "pathLimit": false
+  },
+  "inviteRateLimit": {
+    "pathLimit": 1,
+    "pathCache": {
+      "expiresIn": 10
+    }
+  },
   "invites": {
-    "enabled": true,
     "count": 5
   }
 }

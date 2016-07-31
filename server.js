@@ -4,6 +4,8 @@ const Config = require('getconfig');
 const Hapi = require('hapi');
 const Muckraker = require('muckraker');
 
+const Utils = require('./lib/utils');
+
 const db = new Muckraker(Config.db);
 
 Config.hapi.cache.engine = require(Config.hapi.cache.engine);
@@ -11,16 +13,21 @@ Config.hapi.cache.engine = require(Config.hapi.cache.engine);
 const server = new Hapi.Server(Config.hapi);
 server.connection(Config.connection.public);
 
-server.on('request-error', (err, m) => {
+//$lab:coverage:off$
+if (module.parent) {
+  server.on('request-error', (err, m) => {
 
-  console.log(m);
-} );
-
-
+    console.log(m.stack);
+  } );
+}
+//$lab:coverage:on$
 
 module.exports = server.register([{
   register: require('good'),
   options: Config.good
+}, {
+  register: require('hapi-rate-limit'),
+  options: Config.rateLimit
 }, {
   register: require('drboom'),
   options: {
@@ -33,23 +40,25 @@ module.exports = server.register([{
   register: require('hapi-auth-jwt2')
 }]).then(() => {
 
-  //server.bind here
+  server.bind({
+    db,
+    utils: Utils
+  });
 
-  server.auth.strategy('jwt', 'jwt', {
+  server.auth.strategy('jwt', 'jwt', true, {
     key: Config.auth.secret,
     verifyOptions: {
       algorithms: [Config.auth.options.algorithm]
     },
     validateFunc: (decoded, request, callback) => {
 
-      db.users.selfByEmail(decoded.email).then((user) => {
+      db.users.active(decoded.email).then((user) => {
 
         if (!user) {
           return callback(null, false);
         }
 
-        if (user.invalidated_at &&
-          Date.parse(decoded.timestamp) < user.invalidated_at.getTime()) {
+        if (Date.parse(decoded.timestamp) < user.logout.getTime()) {
 
           return callback(null, false);
         }
@@ -58,8 +67,10 @@ module.exports = server.register([{
       }).catch(callback);
     }
   });
-  //server.route(require('./routes');
+
+  server.route(require('./routes'));
 }).then(() => {
+
   // coverage disabled because module.parent is always defined in tests
   // $lab:coverage:off$
   if (module.parent) {
