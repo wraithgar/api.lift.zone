@@ -18,7 +18,16 @@ exports.seed = function (knex) {
         knex('invites').insert({ user_id: user[0] }),
         knex('invites').insert({ user_id: user[0] }),
         knex('invites').insert({ user_id: user[0] }),
-        knex('invites').insert({ user_id: user[0] })
+        knex('invites').insert({ user_id: user[0] }),
+        knex('activities').insert({ user_id: user[0], name: 'Squat' }).returning('id').then((activity) => {
+
+          return knex('activities').insert({ user_id: user[0], name: 'Barbell Squat', activity_id: activity[0] });
+        }),
+        knex('activities').insert({ user_id: user[0], name: 'Overhead Press' }).returning('id').then((activity) => {
+
+          return knex('activities').insert({ user_id: user[0], name: 'OHP', activity_id: activity[0] });
+        }),
+        knex('activities').insert({ user_id: user[0], name: 'Front Squat' })
       ]);
     });
   });

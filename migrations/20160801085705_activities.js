@@ -6,7 +6,7 @@ exports.up = function(knex) {
 
     activities.uuid('id').defaultTo(knex.raw('uuid_generate_v4()')).primary();
     activities.uuid('user_id').index().notNullable().references('users.id').onDelete('CASCADE');
-    activities.uuid('activity_id').index().notNullable().references('activities.id').onDelete('CASCADE');
+    activities.uuid('activity_id').index().references('activities.id').onDelete('CASCADE');
     activities.text('name').notNullable();
     activities.timestamps();
   }).then(() => {

@@ -23,7 +23,7 @@
     "userLimit": false,
     "pathLimit": false
   },
-  "inviteRateLimit": {
+  "inviteValidateRateLimit": {
     "pathLimit": 1,
     "pathCache": {
       "expiresIn": 10
