@@ -5,12 +5,21 @@ const Config = require('getconfig');
 
 exports.seed = function (knex) {
 
-  return knex('users').where('email', 'gar@danger.computer').del().then(() => {
+  return knex('users').where('email', 'gar+liftzone@danger.computer').del().then(() => {
 
     return knex('users').insert({
       name: 'Gar',
-      email: 'gar@danger.computer',
+      email: 'gar+liftzone@danger.computer',
       hash: Bcrypt.hashSync(Config.auth.seedPassword, Bcrypt.genSaltSync(10))
+    }).returning('id').then((user) => {
+
+      return Promise.all([
+        knex('invites').insert({ user_id: user[0] }),
+        knex('invites').insert({ user_id: user[0] }),
+        knex('invites').insert({ user_id: user[0] }),
+        knex('invites').insert({ user_id: user[0] }),
+        knex('invites').insert({ user_id: user[0] })
+      ]);
     });
   });
 };
