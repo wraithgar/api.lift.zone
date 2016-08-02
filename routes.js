@@ -5,7 +5,7 @@ const Controllers = require('./controllers');
 module.exports = [
   /* /user */
   { method: 'GET', path: '/user', config: Controllers.users.self },
-  { method: 'PUT', path: '/user', config: Controllers.users.update },
+  { method: 'PATCH', path: '/user', config: Controllers.users.update },
   { method: 'POST', path: '/user/login', config: Controllers.users.login },
   { method: 'POST', path: '/user/logout', config: Controllers.users.logout },
   { method: 'POST', path: '/user/recover', config: Controllers.users.recover },

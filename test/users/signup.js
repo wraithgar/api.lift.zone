@@ -17,7 +17,8 @@ describe('POST /user/signup', () => {
 
   let server;
   const user = Fixtures.user();
-  const invite = Fixtures.invite({ user_id: user.id });
+  const invite1 = Fixtures.invite({ user_id: user.id });
+  const invite2 = Fixtures.invite({ user_id: user.id, claimed_by: user.id });
   const signupUser1 = Fixtures.user();
   const signupUser2 = Fixtures.user();
   before(() => {
@@ -28,7 +29,10 @@ describe('POST /user/signup', () => {
     ]).then((items) => {
 
       server = items[0];
-      return db.invites.insert(invite);
+      return Promise.all([
+        db.invites.insert(invite1),
+        db.invites.insert(invite2)
+      ]);
     });
   });
 
@@ -44,7 +48,7 @@ describe('POST /user/signup', () => {
   it('creates a user', () => {
 
     const signup = {
-      invite: invite.token,
+      invite: invite1.token,
       name: signupUser1.name,
       email: signupUser1.email,
       password: signupUser1.password,
@@ -73,10 +77,10 @@ describe('POST /user/signup', () => {
     });
   });
 
-  it('rejects invalid invite', () => {
+  it('rejects claimed invite', () => {
 
     const signup = {
-      invite: invite.token,
+      invite: invite2.token,
       name: signupUser2.name,
       email: signupUser2.email,
       password: signupUser2.password,

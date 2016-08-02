@@ -56,7 +56,7 @@ describe('GET /user', () => {
   });
 });
 
-describe('PUT /user', () => {
+describe('PATCH /user', () => {
 
   let server;
   const user = Fixtures.user();
@@ -79,7 +79,7 @@ describe('PUT /user', () => {
   it('can update user', () => {
 
     const name = Faker.name.findName();
-    return server.inject({ method: 'put', url: '/user', payload: { name }, credentials: user }).then((res) => {
+    return server.inject({ method: 'patch', url: '/user', payload: { name }, credentials: user }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -100,7 +100,7 @@ describe('PUT /user', () => {
   it('invalidates on email change', () => {
 
     const email = Faker.internet.email();
-    return server.inject({ method: 'put', url: '/user', payload: { email }, credentials: user }).then((res) => {
+    return server.inject({ method: 'patch', url: '/user', payload: { email }, credentials: user }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;

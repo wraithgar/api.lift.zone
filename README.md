@@ -1,5 +1,7 @@
 # API server for lift.zone
 
+Colors: http://clrs.cc
+
 Schema
 ```
                      ┌───────────────┐     ┌────────────────────┐

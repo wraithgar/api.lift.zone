@@ -9,16 +9,17 @@ module.exports = {
   tags: ['user'],
   handler: function (request, reply) {
 
-    const result = this.db.invites.findOne(request.params).then((invite) => {
+    const params = Object.assign({}, request.params, { claimed_by: null });
+    const result = this.db.invites.findOne(params, ['token']).then((invite) => {
 
       if (!invite) {
         throw Boom.notFound();
       }
 
-      return null;
+      return invite;
     });
 
-    return reply(result).code(204);
+    return reply(result);
   },
   validate: {
     params: {

@@ -11,7 +11,8 @@ exports.up = function(knex) {
     users.timestamp('logout').notNullable().defaultTo(knex.raw('now()'));
     users.boolean('active').notNullable().defaultTo(true);
     users.boolean('validated').notNullable().defaultTo(false);
-    users.jsonb('preferences').notNullable().defaultTo(JSON.stringify({ smartmode: true, visible: false }));
+    users.jsonb('preferences').notNullable().defaultTo(JSON.stringify({ smartmode: true, visible: false, dateFormat: 'dddd, MMM Do YYYY' }));
+    users.jsonb('scope').notNullable().defaultTo(JSON.stringify(['public']));
     users.timestamps();
   });
 };

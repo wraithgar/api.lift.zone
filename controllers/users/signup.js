@@ -11,7 +11,7 @@ module.exports = {
   tags: ['user'],
   handler: function (request, reply) {
 
-    const result = this.db.invites.findOne({ token: request.payload.invite }).then((invite) => {
+    const result = this.db.invites.findOne({ token: request.payload.invite, claimed_by: null }).then((invite) => {
 
       if (!invite) {
 
@@ -19,26 +19,26 @@ module.exports = {
       }
     }).then(() => {
 
-      return this.db.tx((tx) => {
+      return this.utils.bcryptHash(request.payload.password).then((hash) => {
 
-        return tx.invites.destroy({ token: request.payload.invite }).then(() => {
-
-          return this.utils.bcryptHash(request.payload.password);
-        }).then((hash) => {
+        return this.db.tx((tx) => {
 
           return tx.users.insert({
             name: request.payload.name,
             email: request.payload.email,
             hash
-          });
-        }).then((user) => {
+          }).then((user) => {
 
-          return Promise.all(_.times(Config.invites.count, () => {
+            return Promise.all(_.times(Config.invites.count, () => {
 
-            return tx.invites.insert({ user_id: user.id });
-          })).then(() => {
+              return tx.invites.insert({ user_id: user.id });
+            })).then(() => {
 
-            return { token: JWT.sign(user, Config.auth.secret, Config.auth.options) };
+              return tx.invites.update({ token: request.payload.invite }, { claimed_by: user.id });
+            }).then(() => {
+
+              return { token: JWT.sign(user, Config.auth.secret, Config.auth.options) };
+            });
           });
         });
       });

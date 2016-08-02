@@ -40,8 +40,7 @@ module.exports.user = (attrs) => {
 module.exports.recovery = (attrs) => {
 
   const defaults = {
-    token: Faker.random.uuid(),
-    email: Faker.internet.email()
+    token: Faker.random.uuid()
   };
 
   return build(defaults, attrs);
@@ -50,8 +49,7 @@ module.exports.recovery = (attrs) => {
 module.exports.validation = (attrs) => {
 
   const defaults = {
-    token: Faker.random.uuid(),
-    user_id: Faker.random.uuid()
+    token: Faker.random.uuid()
   };
 
   return build(defaults, attrs);
@@ -60,8 +58,7 @@ module.exports.validation = (attrs) => {
 module.exports.invite = (attrs) => {
 
   const defaults = {
-    token: Faker.random.uuid(),
-    user_id: Faker.random.uuid()
+    token: Faker.random.uuid()
   };
 
   return build(defaults, attrs);

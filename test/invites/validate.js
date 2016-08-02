@@ -19,7 +19,8 @@ describe('GET /invites/{token}', () => {
 
   let server;
   const user = Fixtures.user();
-  const invite = Fixtures.invite({ user_id: user.id });
+  const invite1 = Fixtures.invite({ user_id: user.id });
+  const invite2 = Fixtures.invite({ user_id: user.id, claimed_by: user.id });
   before(() => {
 
     return Promise.all([
@@ -28,7 +29,10 @@ describe('GET /invites/{token}', () => {
     ]).then((items) => {
 
       server = items[0];
-      return db.invites.insert(invite);
+      return Promise.all([
+        db.invites.insert(invite1),
+        db.invites.insert(invite2)
+      ]);
     });
   });
 
@@ -37,15 +41,23 @@ describe('GET /invites/{token}', () => {
     return db.users.destroy({ id: user.id });
   });
 
-  it('valid invite', () => {
+  it('unclaimed invite', () => {
 
-    return server.inject({ method: 'get', url: `/invites/${invite.token}` }).then((res) => {
+    return server.inject({ method: 'get', url: `/invites/${invite1.token}` }).then((res) => {
 
-      expect(res.statusCode).to.equal(204);
+      expect(res.statusCode).to.equal(200);
       return res.result;
     }).then((payload) => {
 
-      expect(payload).to.not.exist();
+      expect(invite1).to.include(payload);
+    });
+  });
+
+  it('claimed invite', () => {
+
+    return server.inject({ method: 'get', url: `/invites/${invite2.token}` }).then((res) => {
+
+      expect(res.statusCode).to.equal(404);
     });
   });
 

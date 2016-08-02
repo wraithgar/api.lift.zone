@@ -20,6 +20,7 @@ describe('GET /user/invites', () => {
   const user2 = Fixtures.user({ validated: false });
   const invite1 = Fixtures.invite({ user_id: user1.id });
   const invite2 = Fixtures.invite({ user_id: user2.id });
+  const invite3 = Fixtures.invite({ user_id: user1.id, claimed_by: user1.id });
   before(() => {
 
     return Promise.all([
@@ -31,7 +32,8 @@ describe('GET /user/invites', () => {
       server = items[0];
       return Promise.all([
         db.invites.insert(invite1),
-        db.invites.insert(invite2)
+        db.invites.insert(invite2),
+        db.invites.insert(invite3)
       ]);
     });
   });

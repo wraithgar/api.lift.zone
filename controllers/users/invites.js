@@ -9,7 +9,7 @@ module.exports = {
       return reply([]);
     }
 
-    const result = this.db.invites.find({ user_id: request.auth.credentials.id });
+    const result = this.db.invites.find({ user_id: request.auth.credentials.id, claimed_by: null });
 
     return reply(result);
   }
