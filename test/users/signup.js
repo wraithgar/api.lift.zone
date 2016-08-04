@@ -59,19 +59,19 @@ describe('POST /user/signup', () => {
 
       expect(res.statusCode).to.equal(201);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.include(['token']);
+      expect(result).to.include(['token']);
       return db.users.findOne({ email: signupUser1.email }).then((newUser) => {
 
         expect(newUser).to.exist();
-        return server.inject({ method: 'get', url: '/user', headers: { authorization: payload.token } }).then((newRes) => {
+        return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } }).then((newRes) => {
 
           expect(newRes.statusCode).to.equal(200);
           return newRes.result;
-        }).then((newPayload) => {
+        }).then((newResult) => {
 
-          expect(newPayload.email).to.equal(signupUser1.email);
+          expect(newResult.email).to.equal(signupUser1.email);
         });
       });
     });

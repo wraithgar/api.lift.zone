@@ -39,19 +39,19 @@ describe('auth', () => {
 
       expect(res.statusCode).to.equal(201);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.be.an.object();
-      expect(payload.token).to.be.a.string();
-      return server.inject({ method: 'get', url: '/user', headers: { authorization: payload.token } });
+      expect(result).to.be.an.object();
+      expect(result.token).to.be.a.string();
+      return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
     }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.be.an.object();
-      expect(payload.email).to.equal(user.email);
+      expect(result).to.be.an.object();
+      expect(result.email).to.equal(user.email);
     });
   });
 
@@ -61,11 +61,11 @@ describe('auth', () => {
 
       expect(res.statusCode).to.equal(201);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.be.an.object();
-      expect(payload.token).to.be.a.string();
-      return server.inject({ method: 'get', url: '/user', headers: { authorization: payload.token } }).then((res) => {
+      expect(result).to.be.an.object();
+      expect(result.token).to.be.a.string();
+      return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } }).then((res) => {
 
         expect(res.statusCode).to.equal(200);
         return res.result;
@@ -77,7 +77,7 @@ describe('auth', () => {
         return db.users.updateOne({ id: usr.id }, { logout: later });
       }).then(() => {
 
-        return server.inject({ method: 'get', url: '/user', headers: { authorization: payload.token } });
+        return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
       }).then((res) => {
 
         expect(res.statusCode).to.equal(401);
@@ -91,13 +91,13 @@ describe('auth', () => {
 
       expect(res.statusCode).to.equal(201);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.be.an.object();
-      expect(payload.token).to.be.a.string();
+      expect(result).to.be.an.object();
+      expect(result.token).to.be.a.string();
       return db.users.update({ id: user.id }, { active: false }).then(() => {
 
-        return server.inject({ method: 'get', url: '/user', headers: { authorization: payload.token } });
+        return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
       }).then((res) => {
 
         expect(res.statusCode).to.equal(401);

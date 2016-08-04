@@ -4,6 +4,7 @@ const Config = require('getconfig');
 const Muckraker = require('muckraker');
 const Faker = require('faker');
 const Bcrypt = require('bcrypt');
+const Moment = require('moment');
 
 const build = (defaults, attrs, id) => {
 
@@ -68,6 +69,28 @@ module.exports.activity = (attrs, id) => {
   const defaults = {
     name: Faker.random.words()
   };
+
+  return build(defaults, attrs, id);
+};
+
+module.exports.workout = (attrs, id, dates) => {
+
+  const defaults = {
+    name: Faker.random.words(),
+    raw: Faker.lorem.paragraphs(),
+    date: Moment(Faker.date.past()).format('YYYY-MM-DD'),
+    activities: []
+  };
+
+  if (dates) {
+    while (dates.some((date) => {
+
+      return defaults.date === date;
+    })) {
+
+      defaults.date =  Moment(Faker.date.past()).format('YYYY-MM-DD');
+    }
+  }
 
   return build(defaults, attrs, id);
 };

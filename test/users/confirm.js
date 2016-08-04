@@ -20,7 +20,7 @@ describe('POST /user/confirm', () => {
   const user1 = Fixtures.user({ validated: false });
   const user2 = Fixtures.user({ validated: false });
   const validation1 = Fixtures.validation({ user_id: user1.id });
-  const validation2 = Fixtures.validation({ user_id: user2.id, created_at: Faker.date.past(1, new Date(Date.now() + 86400000)) });
+  const validation2 = Fixtures.validation({ user_id: user2.id, created_at: Faker.date.past(1, new Date(Date.now() + 86401000)) });
   before(() => {
 
     return Promise.all([
@@ -51,9 +51,9 @@ describe('POST /user/confirm', () => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload.validated).to.equal(true);
+      expect(result.validated).to.equal(true);
       return db.users.findOne({ id: user1.id });
     }).then((updatedUser) => {
 

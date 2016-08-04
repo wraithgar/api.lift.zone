@@ -53,9 +53,9 @@ describe('GET /activities/{id}', () => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.include({ id: activity1.id, name: activity1.name });
+      expect(result).to.include({ id: activity1.id, name: activity1.name });
     });
   });
 

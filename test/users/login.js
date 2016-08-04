@@ -39,10 +39,10 @@ describe('POST /user/login', () => {
 
       expect(res.statusCode).to.equal(201);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.be.an.object();
-      expect(payload.token).to.be.a.string();
+      expect(result).to.be.an.object();
+      expect(result.token).to.be.a.string();
     });
   });
 

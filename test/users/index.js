@@ -48,10 +48,10 @@ describe('GET /user', () => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.be.an.object();
-      expect(payload).to.equal(user);
+      expect(result).to.be.an.object();
+      expect(result).to.equal(user);
     });
   });
 });
@@ -83,12 +83,12 @@ describe('PATCH /user', () => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.contain(['id', 'name', 'email', 'validated']);
-      expect(payload).to.not.contain(['hash']);
-      expect(payload.id).to.equal(user.id);
-      expect(payload.name).to.equal(name);
+      expect(result).to.contain(['id', 'name', 'email', 'validated']);
+      expect(result).to.not.contain(['hash']);
+      expect(result.id).to.equal(user.id);
+      expect(result.name).to.equal(name);
       return db.users.findOne({ id: user.id }).then((updatedUser) => {
 
         expect(updatedUser.name).to.equal(name);
@@ -104,12 +104,12 @@ describe('PATCH /user', () => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.contain(['id', 'name', 'email', 'validated']);
-      expect(payload).to.not.contain(['hash']);
-      expect(payload.id).to.equal(user.id);
-      expect(payload.email).to.equal(email);
+      expect(result).to.contain(['id', 'name', 'email', 'validated']);
+      expect(result).to.not.contain(['hash']);
+      expect(result.id).to.equal(user.id);
+      expect(result.email).to.equal(email);
       return db.users.findOne({ id: user.id }).then((updatedUser) => {
 
         expect(updatedUser.email).to.equal(email);

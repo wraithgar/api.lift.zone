@@ -52,9 +52,9 @@ describe('GET /user/invites', () => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.include({ token: invite1.token });
+      expect(result).to.include({ token: invite1.token });
     });
   });
 
@@ -64,9 +64,9 @@ describe('GET /user/invites', () => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.be.empty();
+      expect(result).to.be.empty();
     });
   });
 });

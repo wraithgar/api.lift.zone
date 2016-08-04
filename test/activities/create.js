@@ -54,9 +54,9 @@ describe('POST /activities/{id}', () => {
 
       expect(res.statusCode).to.equal(201);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.include(activity1);
+      expect(result).to.include(activity1);
     });
   });
 
@@ -82,9 +82,9 @@ describe('POST /activities/{id}', () => {
 
       expect(res.statusCode).to.equal(201);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.include(activity4);
+      expect(result).to.include(activity4);
     });
   });
 });

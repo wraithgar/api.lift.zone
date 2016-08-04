@@ -13,7 +13,7 @@ module.exports = {
     const result = Promise.resolve().then(() => {
 
       if (request.payload.activity_id) {
-        return this.db.activities.findOne({ user_id, id: request.payload.activity_id }).then((alias) => {
+        return this.db.activities.findOne({ user_id, id: request.payload.activity_id, activity_id: null }).then((alias) => {
 
           if (!alias) {
             throw Boom.notFound(`Alias activity ${request.payload.activity_id} does not exist}`);
@@ -23,24 +23,14 @@ module.exports = {
     }).then(() => {
 
       const attrs = Object.assign({}, { user_id }, request.payload);
-      return this.db.tx((tx) => {
-
-        return tx.activities.insert(attrs).then((activity) => {
-
-          if (!activity.activity_id) {
-
-            return tx.activities.updateOne({ id: activity.id }, { activity_id: activity.id });
-          }
-          return activity;
-        });
-      });
+      return this.db.activities.insert(attrs);
     });
 
     return reply(result).code(201);
   },
   validate: {
     payload: {
-      name: Joi.string(),
+      name: Joi.string().required(),
       activity_id: Joi.string().guid(),
       sets: Joi.any().strip(),
       suggestions: Joi.any().strip()

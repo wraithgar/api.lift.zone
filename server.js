@@ -14,7 +14,7 @@ const server = new Hapi.Server(Config.hapi);
 server.connection(Config.connection.public);
 
 //$lab:coverage:off$
-if (module.parent) {
+if (process.env.NODE_ENV !== 'production') {
   server.on('request-error', (err, m) => {
 
     console.log(m.stack);

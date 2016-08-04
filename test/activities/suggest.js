@@ -53,9 +53,9 @@ describe('GET /suggest/activities/{name}', () => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.include({ suggestions: [{ activity_id: activity1.id, name: 'Squat' }, { activity_id: activity2.id, name: 'Front Squat' }, { activity_id: activity1.id, name: 'Barbell Squat' }] });
+      expect(result).to.include({ suggestions: [{ activity_id: activity1.id, name: 'Squat' }, { activity_id: activity2.id, name: 'Front Squat' }, { activity_id: activity1.id, name: 'Barbell Squat' }] });
     });
   });
 
@@ -65,9 +65,9 @@ describe('GET /suggest/activities/{name}', () => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.include({ id: activity1.id, name: activity1.name });
+      expect(result).to.include({ id: activity1.id, name: activity1.name });
     });
   });
 });

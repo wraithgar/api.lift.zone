@@ -47,9 +47,9 @@ describe('GET /invites/{token}', () => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(invite1).to.include(payload);
+      expect(invite1).to.include(result);
     });
   });
 

@@ -33,8 +33,8 @@ module.exports = {
   },
   validate: {
     payload: {
-      email: Joi.string().required().example('crash_override'),
-      password: Joi.string().min(8).required().example('hunter2!')
+      email: Joi.string().required(),
+      password: Joi.string().min(8).required()
     }
   },
   auth: false

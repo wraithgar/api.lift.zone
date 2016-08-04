@@ -8,6 +8,7 @@ exports.up = function (knex) {
     workouts.uuid('user_id').index().notNullable().references('users.id').onDelete('CASCADE');
     workouts.text('name').notNullable();
     workouts.text('raw').notNullable();
+    workouts.jsonb('activities').notNullable().default('[]');
     workouts.date('date').index().notNullable();
     workouts.timestamps();
   });

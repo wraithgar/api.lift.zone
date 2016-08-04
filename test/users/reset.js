@@ -43,20 +43,20 @@ describe('POST /user/reset', () => {
 
       expect(res.statusCode).to.equal(201);
       return res.result;
-    }).then((payload) => {
+    }).then((result) => {
 
-      expect(payload).to.include(['token']);
+      expect(result).to.include(['token']);
       return db.users.findOne({ id: user.id }).then((resetUser) => {
 
         expect(resetUser.hash).to.not.equal(user.hash);
         expect(resetUser.logout).to.be.above(user.logout);
-        return server.inject({ method: 'get', url: '/user', headers: { authorization: payload.token } }).then((userRes) => {
+        return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } }).then((userRes) => {
 
           expect(userRes.statusCode).to.equal(200);
           return userRes.result;
-        }).then((userPayload) => {
+        }).then((userResult) => {
 
-          expect(userPayload.id).to.equal(user.id);
+          expect(userResult.id).to.equal(user.id);
           return db.recoveries.findOne({ token: recovery.token }).then((deletedRecovery) => {
 
             expect(deletedRecovery).to.not.exist();

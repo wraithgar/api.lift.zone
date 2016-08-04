@@ -23,7 +23,7 @@ module.exports = {
   },
   validate: {
     params: {
-      token: Joi.string().guid().required()
+      token: Joi.string().guid()
     }
   },
   auth: false,
