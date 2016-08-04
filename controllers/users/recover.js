@@ -18,19 +18,25 @@ module.exports = {
         return;
       }
 
-      this.db.tx((tx) => {
+      return this.db.users.findOne({ email: request.payload.email, validated: true }).then((user) => {
 
-        return tx.recoveries.destroy({ email: request.payload.email }).then(() => {
+        if (!user) {
+          return;
+        }
+        this.db.tx((tx) => {
 
-          return tx.recoveries.insert(request.payload);
+          return tx.recoveries.destroy({ email: request.payload.email }).then(() => {
+
+            return tx.recoveries.insert(request.payload);
+          });
+        }).then(() => {
+          //TODO .then send email
+        }).catch((err) => {
+
+          //$lab:coverage:off$
+          request.log(['error', 'user', 'recovery'], err);
+          //$lab:coverage:on$
         });
-      }).then(() => {
-        //TODO .then send email
-      }).catch((err) => {
-
-        //$lab:coverage:off$
-        request.log(['error', 'user', 'recovery'], err);
-        //$lab:coverage:on$
       });
     });
   },

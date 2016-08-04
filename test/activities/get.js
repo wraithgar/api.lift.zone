@@ -20,8 +20,8 @@ describe('GET /activities/{id}', () => {
   let server;
   const user1 = Fixtures.user();
   const user2 = Fixtures.user();
-  const activity1 = Fixtures.activity({ user_id: user1.id });
-  const activity2 = Fixtures.activity({ user_id: user2.id });
+  const activity1 = Fixtures.activity({ user_id: user1.id }, true);
+  const activity2 = Fixtures.activity({ user_id: user2.id }, true);
 
   before(() => {
 
@@ -43,7 +43,7 @@ describe('GET /activities/{id}', () => {
 
     return Promise.all([
       db.users.destroy({ id: user1.id }),
-      db.users.destroy({ id: user1.id })
+      db.users.destroy({ id: user2.id })
     ]);
   });
 
@@ -55,10 +55,8 @@ describe('GET /activities/{id}', () => {
       return res.result;
     }).then((payload) => {
 
-      expect(payload).to.include(activity1);
+      expect(payload).to.include({ id: activity1.id, name: activity1.name });
     });
-
-    expect(payload).to.include(activity1);
   });
 
   it('does not find other user\'s activity', () => {

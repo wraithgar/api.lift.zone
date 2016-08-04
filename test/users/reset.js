@@ -57,6 +57,10 @@ describe('POST /user/reset', () => {
         }).then((userPayload) => {
 
           expect(userPayload.id).to.equal(user.id);
+          return db.recoveries.findOne({ token: recovery.token }).then((deletedRecovery) => {
+
+            expect(deletedRecovery).to.not.exist();
+          });
         });
       });
     });

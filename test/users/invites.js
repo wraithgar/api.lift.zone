@@ -54,7 +54,7 @@ describe('GET /user/invites', () => {
       return res.result;
     }).then((payload) => {
 
-      expect(payload).to.include(invite1);
+      expect(payload).to.include({ token: invite1.token });
     });
   });
 

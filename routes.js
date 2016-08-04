@@ -20,5 +20,6 @@ module.exports = [
 
   /* /activities */
   { method: 'GET', path: '/suggest/activities/{name}', config: Controllers.activities.suggest },
-  { method: 'GET', path: '/activities/{id}', config: Controllers.activities.get }
+  { method: 'GET', path: '/activities/{id}', config: Controllers.activities.get },
+  { method: 'POST', path: '/activities', config: Controllers.activities.create }
 ];

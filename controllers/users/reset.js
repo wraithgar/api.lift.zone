@@ -19,7 +19,13 @@ module.exports = {
 
       return this.utils.bcryptHash(request.payload.password).then((hash) => {
 
-        return this.db.users.updateOne({ email: recovery.email }, { hash, logout: new Date() });
+        return this.db.tx((tx) => {
+
+          return tx.recoveries.destroy({ token: recovery.token }).then(() => {
+
+            return tx.users.updateOne({ email: recovery.email }, { hash, logout: new Date() });
+          });
+        });
       });
     }).then((user) => {
 

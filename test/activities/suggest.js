@@ -17,9 +17,12 @@ describe('GET /suggest/activities/{name}', () => {
 
   let server;
   const user = Fixtures.user();
-  const activity1 = Fixtures.activity({ name: 'Barbell Squat', user_id: user.id });
-  const activity2 = Fixtures.activity({ name: 'Front Squat', user_id: user.id });
-  const activity3 = Fixtures.activity({ name: 'Squat', user_id: user.id, activity_id: activity1.id });
+  const activity1 = Fixtures.activity({ name: 'Barbell Squat', user_id: user.id }, true);
+  const activity2 = Fixtures.activity({ name: 'Front Squat', user_id: user.id }, true);
+  const activity3 = Fixtures.activity({ name: 'Squat', user_id: user.id, activity_id: activity1.id }, true);
+
+  activity2.activity_id = activity2.id;
+  activity2.activity_id = activity2.id;
 
   before(() => {
 
@@ -44,7 +47,19 @@ describe('GET /suggest/activities/{name}', () => {
     return db.users.destroy({ id: user.id });
   });
 
-  it('finds matches', () => {
+  it('finds suggestions', () => {
+
+    return server.inject({ method: 'get', url: '/suggest/activities/Hack%20Squat', credentials: user }).then((res) => {
+
+      expect(res.statusCode).to.equal(200);
+      return res.result;
+    }).then((payload) => {
+
+      expect(payload).to.include({ suggestions: [{ activity_id: activity1.id, name: 'Squat' }, { activity_id: activity2.id, name: 'Front Squat' }, { activity_id: activity1.id, name: 'Barbell Squat' }] });
+    });
+  });
+
+  it('finds a match', () => {
 
     return server.inject({ method: 'get', url: '/suggest/activities/Barbell%20Squat', credentials: user }).then((res) => {
 
@@ -52,8 +67,7 @@ describe('GET /suggest/activities/{name}', () => {
       return res.result;
     }).then((payload) => {
 
-      expect(payload).to.have.length(3);
-      expect(payload).to.include([{ id: activity1.id, name: 'Squat' }, { id: activity2.id, name: 'Front Squat' }, { id: activity1.id, name: 'Barbell Squat' }]);
+      expect(payload).to.include({ id: activity1.id, name: activity1.name });
     });
   });
 });

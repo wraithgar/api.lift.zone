@@ -18,12 +18,14 @@ const it = lab.it;
 describe('POST /user/recover', () => {
 
   let server;
-  const user = Fixtures.user({ logout: Faker.date.past() });
+  const user1 = Fixtures.user({ logout: Faker.date.past() });
+  const user2 = Fixtures.user({ logout: Faker.date.past(), validated: false });
   before(() => {
 
     return Promise.all([
       Server,
-      db.users.insert(user)
+      db.users.insert(user1),
+      db.users.insert(user2)
     ]).then((items) => {
 
       server = items[0];
@@ -32,24 +34,27 @@ describe('POST /user/recover', () => {
 
   afterEach(() => {
 
-    return db.recoveries.destroy({ email: user.email });
+    return db.recoveries.destroy({ email: user1.email });
   });
 
   after(() => {
 
-    return db.users.destroy({ id: user.id });
+    return Promise.all([
+      db.users.destroy({ id: user1.id }),
+      db.users.destroy({ id: user2.id })
+    ]);
   });
 
   it('creates a recovery', (done) => {
 
-    server.inject({ method: 'post', url: '/user/recover', payload: { email: user.email } }).then((res) => {
+    server.inject({ method: 'post', url: '/user/recover', payload: { email: user1.email } }).then((res) => {
 
       //Wait for promises to fire asynchronously
       setTimeout(() => {
 
         expect(res.statusCode).to.equal(202);
         expect(res.result).to.equal(null);
-        db.recoveries.findOne({ email: user.email }).then((recovery) => {
+        db.recoveries.findOne({ email: user1.email }).then((recovery) => {
 
           expect(recovery).to.exist();
           done();
@@ -77,9 +82,27 @@ describe('POST /user/recover', () => {
     });
   });
 
+  it('ignores non validated user', (done) => {
+
+    server.inject({ method: 'post', url: '/user/recover', payload: { email: user2.email } }).then((res) => {
+
+      //Wait for promises to fire asynchronously
+      setTimeout(() => {
+
+        expect(res.statusCode).to.equal(202);
+        expect(res.result).to.equal(null);
+        db.recoveries.findOne({ email: user2.email }).then((recovery) => {
+
+          expect(recovery).to.not.exist();
+          done();
+        });
+      }, 50);
+    });
+  });
+
   describe('with existing recovery', () => {
 
-    const recovery = Fixtures.recovery({ email: user.email });
+    const recovery = Fixtures.recovery({ email: user1.email });
     before(() => {
 
       return db.recoveries.insert(recovery);
@@ -87,14 +110,14 @@ describe('POST /user/recover', () => {
 
     it('does nothing', (done) => {
 
-      server.inject({ method: 'post', url: '/user/recover', payload: { email: user.email } }).then((res) => {
+      server.inject({ method: 'post', url: '/user/recover', payload: { email: user1.email } }).then((res) => {
 
         //Wait for promises to fire asynchronously
         setTimeout(() => {
 
           expect(res.statusCode).to.equal(202);
           expect(res.result).to.equal(null);
-          db.recoveries.findOne({ email: user.email }).then((existingRecovery) => {
+          db.recoveries.findOne({ email: user1.email }).then((existingRecovery) => {
 
             expect(existingRecovery).to.include(recovery);
             done();

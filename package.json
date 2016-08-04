@@ -27,6 +27,7 @@
   "author": "Gar <gar+npm@danger.computer",
   "license": "MIT",
   "dependencies": {
+    "aws-sdk": "^2.4.12",
     "bcrypt": "^0.8.7",
     "boom": "^3.2.2",
     "drboom": "^0.5.0",

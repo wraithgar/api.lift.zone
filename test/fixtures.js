@@ -5,11 +5,7 @@ const Muckraker = require('muckraker');
 const Faker = require('faker');
 const Bcrypt = require('bcrypt');
 
-const sample = require('lodash').sample;
-
-const Activities = require('./data/activities.json');
-
-const build = (defaults, attrs) => {
+const build = (defaults, attrs, id) => {
 
   const record = Object.assign(defaults, attrs);
   if (record.created_at && !record.updated_at) {
@@ -17,7 +13,10 @@ const build = (defaults, attrs) => {
   }
   if (record.password) {
     const salt = Bcrypt.genSaltSync(Config.saltRounds);
-    defaults.hash = Bcrypt.hashSync(record.password, salt);
+    record.hash = Bcrypt.hashSync(record.password, salt);
+  }
+  if (id) {
+    record.id = Faker.random.uuid();
   }
   return record;
 };
@@ -64,13 +63,11 @@ module.exports.invite = (attrs) => {
   return build(defaults, attrs);
 };
 
-module.exports.activity = (attrs) => {
+module.exports.activity = (attrs, id) => {
 
   const defaults = {
-    id: Faker.random.uuid(),
-    name: sample(Activities),
-    user_id: Faker.random.uuid()
+    name: Faker.random.words()
   };
 
-  return build(defaults, attrs);
+  return build(defaults, attrs, id);
 };

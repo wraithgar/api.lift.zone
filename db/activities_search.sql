@@ -1,7 +1,6 @@
 SELECT
-  CASE WHEN activity_id IS NULL THEN id
-      ELSE activity_id
-  END as id,
+  id,
+  activity_id,
   name,
   ts_rank(to_tsvector('english', name), ${name}) as rank
 FROM activities
