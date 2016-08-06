@@ -1,27 +1,6 @@
 // knex cli looks to this file
+'use strict';
 
-
-module.exports = {
-
-    test: {
-        client: 'sqlite3',
-        connection: {
-            filename: ':memory:'
-        }
-    },
-
-    development: {
-        client: 'sqlite3',
-        connection: {
-            filename: './dev.sqlite3'
-        }
-    },
-
-    production: {
-        client: 'sqlite3',
-        connection: {
-            filename: './production.sqlite3'
-        }
-    }
-
-};
+const Config = require('getconfig');
+module.exports = Config.db;
+module.exports[Config.getconfig.env] = Config.db;

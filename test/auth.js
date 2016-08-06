@@ -1,308 +1,107 @@
+
 'use strict';
-process.env.NODE_ENV = 'test';
 
-const Code = require('code');
-const Hoek = require('hoek');
-const Lab = require('lab');
+const Server = require('../server');
 const Fixtures = require('./fixtures');
-const lab = exports.lab = Lab.script();
-const serverItems = require('../').getServer();
-const DbHelper = require('./db-helper');
-const AuthInject = require('./auth-inject');
 
-const server = serverItems.server;
-const Utils = serverItems.utils;
-const dbHelper = new DbHelper(serverItems.db);
+const db = Fixtures.db;
 
-const mailLog = {};
-const sendMail = function (options, callback) {
+const lab = exports.lab = require('lab').script();
+const expect = require('code').expect;
+const describe = lab.describe;
+const it = lab.it;
+const after = lab.afterEach;
+const before = lab.beforeEach;
 
-    if (!mailLog[options.to]) {
-        mailLog[options.to] = [];
-    }
+describe('auth', () => {
 
-    mailLog[options.to].push(options);
+  let server;
+  const user = Fixtures.user();
+  before(() => {
 
-    if (callback) {
-        return callback();
-    }
-};
+    return Promise.all([
+      Server,
+      Fixtures.db.users.insert(user)
+    ]).then((items) => {
 
-lab.experiment('authentication', function () {
-
-    let authUser;
-    let userAuthHeader;
-    let resetAuthHeader;
-    let recoveryCode;
-
-    lab.before(function (done) {
-
-        Utils.transporter.sendMail = sendMail;
-        return dbHelper.rollbackAll().then(function () {
-
-            return dbHelper.migrateLatest();
-        }).then(function () {
-
-            return dbHelper.createUser(Fixtures.users.main);
-        }).then(function () {
-
-            server.start(function () {
-
-                const options = {
-                    method: 'POST', url: '/api/v1/login',
-                    payload: {
-                        login: Fixtures.users.main.login,
-                        password: Fixtures.users.main.password
-                    }
-                };
-                return server.inject(options, function (response) {
-
-                    const payload = JSON.parse(response.payload);
-                    Code.expect(response.statusCode).to.equal(201);
-                    Code.expect(payload.data).to.include(['token']);
-                    userAuthHeader = {
-                        authorization: 'Bearer ' + payload.data.token
-                    };
-
-                    return done();
-                });
-            });
-        });
+      server = items[0];
     });
+  });
 
-    lab.test('me', function (done) {
+  after(() => {
 
-        const options = {
-            method: 'GET', url: '/api/v1/me'
-        };
-        AuthInject(server, options, userAuthHeader, function (response) {
+    return db.users.destroy({ id: user.id });
+  });
 
-            const payload = JSON.parse(response.payload);
-            Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.part.include(Fixtures.users.main);
-            authUser = payload.data;
-            done();
-        });
+  it('can make a request with a jwt', () => {
+
+    return server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } }).then((res) => {
+
+      expect(res.statusCode).to.equal(201);
+      return res.result;
+    }).then((result) => {
+
+      expect(result).to.be.an.object();
+      expect(result.token).to.be.a.string();
+      return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
+    }).then((res) => {
+
+      expect(res.statusCode).to.equal(200);
+      return res.result;
+    }).then((result) => {
+
+      expect(result).to.be.an.object();
+      expect(result.email).to.equal(user.email);
     });
+  });
 
-    lab.test('login invalid username', function (done) {
+  it('does not allow a user to auth with a stale jwt after logging out', { timeout: 3000 }, () => {
 
-        const options = {
-            method: 'POST', url: '/api/v1/login',
-            payload: {
-                login: 'bad' + Fixtures.users.main.login,
-                password: Fixtures.users.main.password
-            }
-        };
-        server.inject(options, function (response) {
+    return server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } }).then((res) => {
 
-            Code.expect(response.statusCode).to.equal(404);
-            done();
-        });
+      expect(res.statusCode).to.equal(201);
+      return res.result;
+    }).then((result) => {
+
+      expect(result).to.be.an.object();
+      expect(result.token).to.be.a.string();
+      return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } }).then((res) => {
+
+        expect(res.statusCode).to.equal(200);
+        return res.result;
+      }).then((usr) => {
+
+        expect(usr).to.be.an.object();
+        expect(usr.email).to.equal(user.email);
+        const later = new Date(Date.now() + 2500);
+        return db.users.updateOne({ id: usr.id }, { logout: later });
+      }).then(() => {
+
+        return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
+      }).then((res) => {
+
+        expect(res.statusCode).to.equal(401);
+      });
     });
+  });
 
-    lab.test('login invalid password', function (done) {
+  it('fails auth when a user is set to inactive after logging in', () => {
 
-        const options = {
-            method: 'POST', url: '/api/v1/login',
-            payload: {
-                login: Fixtures.users.main.login,
-                password: Fixtures.users.main.password + 'bad'
-            }
-        };
-        server.inject(options, function (response) {
+    return server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } }).then((res) => {
 
-            Code.expect(response.statusCode).to.equal(404);
-            done();
-        });
+      expect(res.statusCode).to.equal(201);
+      return res.result;
+    }).then((result) => {
+
+      expect(result).to.be.an.object();
+      expect(result.token).to.be.a.string();
+      return db.users.update({ id: user.id }, { active: false }).then(() => {
+
+        return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
+      }).then((res) => {
+
+        expect(res.statusCode).to.equal(401);
+      });
     });
-
-    lab.test('request recovery code', function (done) {
-
-        const options = {
-            method: 'POST', url: '/api/v1/recover',
-            payload: {
-                email: Fixtures.users.main.email
-            }
-        };
-        server.inject(options, function (response) {
-
-            const payload = JSON.parse(response.payload);
-            //Wait for promises to fire asynchronously
-            setTimeout(function () {
-
-                Code.expect(response.statusCode).to.equal(202);
-                Code.expect(payload.data).to.equal(null);
-                Code.expect(mailLog[Fixtures.users.main.email]).to.have.length(1);
-                recoveryCode = mailLog[Fixtures.users.main.email][0].text.split('code=')[1].split('\n')[0];
-                done();
-            }, 50);
-        });
-    });
-
-    lab.test('re-request recovery code', function (done) {
-
-        const options = {
-            method: 'POST', url: '/api/v1/recover',
-            payload: {
-                email: Fixtures.users.main.email
-            }
-        };
-        server.inject(options, function (response) {
-
-            //Wait for promises to fire asynchronously
-            setTimeout(function () {
-
-                const payload = JSON.parse(response.payload);
-                Code.expect(response.statusCode).to.equal(202);
-                Code.expect(payload.data).to.equal(null);
-                Code.expect(mailLog[Fixtures.users.main.email]).to.have.length(1);
-                done();
-            }, 50);
-        });
-    });
-
-    lab.test('request recovery code nonexistant user', function (done) {
-
-        const options = {
-            method: 'POST', url: '/api/v1/recover',
-            payload: {
-                email: Fixtures.users.nonexistant.email
-            }
-        };
-        server.inject(options, function (response) {
-
-            const payload = JSON.parse(response.payload);
-            Code.expect(response.statusCode).to.equal(202);
-            Code.expect(payload.data).to.equal(null);
-            Code.expect(mailLog[Fixtures.users.nonexistant.email]).to.equal(undefined);
-            done();
-        });
-    });
-
-    lab.test('reset password', function (done) {
-
-        const options = {
-            method: 'POST', url: '/api/v1/reset',
-            payload: {
-                code: recoveryCode,
-                password: Fixtures.users.reset.password,
-                passwordConfirm: Fixtures.users.reset.password
-            }
-        };
-        server.inject(options, function (response) {
-
-            const payload = JSON.parse(response.payload);
-            Code.expect(response.statusCode).to.equal(201);
-            Code.expect(payload.data).to.part.include(['token']);
-            resetAuthHeader = {
-                authorization: 'Bearer ' + payload.data.token
-            };
-            done();
-        });
-    });
-
-    lab.test('reuse code', function (done) {
-
-        const options = {
-            method: 'POST', url: '/api/v1/reset',
-            payload: {
-                code: recoveryCode,
-                password: Fixtures.users.main.password,
-                passwordConfirm: Fixtures.users.main.password
-            }
-        };
-        server.inject(options, function (response) {
-
-            Code.expect(response.statusCode).to.equal(404);
-            done();
-        });
-    });
-
-    lab.test('logged out after reset', function (done) {
-
-        const options = {
-            method: 'GET', url: '/api/v1/me'
-        };
-        AuthInject(server, options, userAuthHeader, function (response) {
-
-            Code.expect(response.statusCode).to.equal(401);
-            done();
-        });
-    });
-
-    lab.test('me with reset auth', function (done) {
-
-        const options = {
-            method: 'GET', url: '/api/v1/me'
-        };
-        AuthInject(server, options, resetAuthHeader, function (response) {
-
-            const payload = JSON.parse(response.payload);
-            Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.part.include(Fixtures.users.main);
-            done();
-        });
-    });
-
-    lab.test('logout', function (done) {
-
-        const options = {
-            method: 'POST', url: '/api/v1/logout'
-        };
-        AuthInject(server, options, resetAuthHeader, function (response) {
-
-            Code.expect(response.statusCode).to.equal(204);
-            Code.expect(response.payload).to.be.empty();
-            done();
-        });
-    });
-
-    lab.test('logged out', function (done) {
-
-        const options = {
-            method: 'GET', url: '/api/v1/me'
-        };
-        AuthInject(server, options, resetAuthHeader, function (response) {
-
-            Code.expect(response.statusCode).to.equal(401);
-            done();
-        });
-    });
-
-    lab.test('log in with reset password', function (done) {
-
-        const options = {
-            method: 'POST', url: '/api/v1/login',
-            payload: {
-                login: Fixtures.users.main.login,
-                password: Fixtures.users.reset.password
-            }
-        };
-        server.inject(options, function (response) {
-
-            const payload = JSON.parse(response.payload);
-            Code.expect(response.statusCode).to.equal(201);
-            Code.expect(payload.data).to.include(['token']);
-            userAuthHeader = {
-                authorization: 'Bearer ' + payload.data.token
-            };
-
-            return done();
-        });
-    });
-
-    lab.test('me with reset logged in auth', function (done) {
-
-        const options = {
-            method: 'GET', url: '/api/v1/me'
-        };
-        AuthInject(server, options, userAuthHeader, function (response) {
-
-            const payload = JSON.parse(response.payload);
-            Code.expect(response.statusCode).to.equal(200);
-            Code.expect(payload.data).to.include('id', 'type', 'attributes');
-            done();
-        });
-    });
+  });
 });

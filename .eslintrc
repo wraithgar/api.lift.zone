@@ -1,11 +1,3 @@
 {
-    "extends": "eslint-config-hapi",
-    "ecmaFeatures": {
-        "blockBindings": true
-    },
-    "rules": {
-        "no-const-assign": 2,
-        "no-var": 2,
-        "prefer-const": 1
-    }
+    "extends": "nodesecurity"
 }

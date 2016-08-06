@@ -1,13 +1,35 @@
 {
-  "db": ":memory:",
+  "auth": {
+    "secret": "changeMeInProduction!",
+    "seedPassword": "letmein!"
+  },
+  "db": {
+    "client": "postgresql",
+    "connection": {
+      "database": "liftzonetest",
+      "user": "liftzonetest",
+      "password": "password",
+      "poolSize": 40
+    }
+  },
   "hapi": {
-    "host": null,
-    "port": null,
-    "logEvents": {
-      "log": "no",
-      "request": "no",
-      "response": "no",
-      "error": "*"
+    "cache": {
+      "engine": "catbox-memory"
+    }
+  },
+  "good": {
+    "reporters": {
+    }
+  },
+  "connection": {
+    "public": {
+      "labels": "public"
+    }
+  },
+  "inviteValidateRateLimit": {
+    "pathLimit": 10,
+    "pathCache": {
+      "expiresIn": 10
     }
   }
 }
