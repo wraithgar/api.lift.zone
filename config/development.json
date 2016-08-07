@@ -1,6 +1,5 @@
 {
   "clientUri": "http://localhost:8080",
-  "localUrl": "http://localhost:3001",
   "auth": {
     "secret": "changeMeInProduction!",
     "seedPassword": "letmein!"

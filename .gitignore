@@ -1,5 +1,4 @@
 node_modules
-*.sqlite3
 *.log
-config/production.json
-scratch.js
+.env
+cert

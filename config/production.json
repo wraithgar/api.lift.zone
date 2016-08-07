@@ -1,0 +1,32 @@
+{
+  "clientUri": "https://lift.zone",
+  "db": "$DATABASE_URL",
+  "auth": {
+    "secret": "$AUTH_SECRET",
+    "seedPassword": "$SEED_PASSWORD"
+  },
+  "connections": {
+    "routes": {
+      "cors": {
+        "origin": ["https://lift.zone"]
+      }
+    }
+  },
+  "good": {
+    "reporters": {
+      "console": [{
+        "module": "good-squeeze",
+        "name": "Squeeze",
+        "args": [{
+          "log": "*",
+          "response": "*",
+          "request": "*",
+          "error": "*"
+        }]
+      }, {
+        "module": "good-console"
+      }, "stdout"
+      ]
+    }
+  }
+}

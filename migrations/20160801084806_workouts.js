@@ -10,6 +10,7 @@ exports.up = function (knex) {
     workouts.text('raw').notNullable();
     workouts.jsonb('activities').notNullable().default('[]');
     workouts.date('date').index().notNullable();
+    workouts.boolean('visible');
     workouts.timestamps();
   });
 };
