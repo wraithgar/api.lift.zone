@@ -23,8 +23,7 @@
     "unmakedb": "npm run dropdb --silent && npm run droprole --silent",
     "migratedb": "knex migrate:latest",
     "seeddb": "knex seed:run",
-    "validate": "npm ls",
-    "postinstall": "knex migrate:latest"
+    "validate": "npm ls"
   },
   "keywords": [],
   "private": true,
