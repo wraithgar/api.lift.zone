@@ -3,4 +3,6 @@
 
 const Config = require('getconfig');
 module.exports = Config.db;
-module.exports[Config.getconfig.env] = Config.db;
+if (Config.getconfig.env !== 'production') {
+  module.exports[Config.getconfig.env] = Config.db;
+}
