@@ -1,6 +1,9 @@
 {
   "clientUri": "https://lift.zone",
-  "db": "$DATABASE_URL",
+  "db": {
+    "client": "postgresql",
+    "connection": "$DATABASE_URL"
+  },
   "auth": {
     "secret": "$AUTH_SECRET",
     "seedPassword": "$SEED_PASSWORD"
