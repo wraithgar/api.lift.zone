@@ -8,11 +8,22 @@
     "secret": "$AUTH_SECRET",
     "seedPassword": "$SEED_PASSWORD"
   },
-  "connections": {
-    "routes": {
-      "cors": {
-        "origin": ["https://lift.zone"]
+  "hapi": {
+    "cache": {
+      "engine": "catbox-memory"
+    },
+    "connections": {
+      "routes": {
+        "cors": {
+          "origin": ["https://lift.zone"]
+        }
       }
+    }
+  },
+  "connection": {
+    "public": {
+      "port": 80,
+      "labels": "public"
     }
   },
   "good": {
