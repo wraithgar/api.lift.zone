@@ -22,7 +22,7 @@
   },
   "connection": {
     "public": {
-      "port": 80,
+      "port": "$PORT",
       "labels": "public"
     }
   },
