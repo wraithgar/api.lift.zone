@@ -1,7 +1,8 @@
 'use strict';
 
-const Boom = require('boom');
 const Joi = require('joi');
+const Moment = require('moment');
+const _ = require('lodash');
 
 module.exports = {
   description: 'Search for a workout by date',
@@ -9,20 +10,19 @@ module.exports = {
   handler: function (request, reply) {
 
     const params = Object.assign({}, request.params, { user_id: request.auth.credentials.id });
-    const result = this.db.workouts.findOne(params).then((workout) => {
+    const result = this.db.workouts.for_year(params).then((workouts) => {
 
-      if (!workout) {
-        throw Boom.notFound();
-      }
+      return _.groupBy(workouts, (workout) => {
 
-      return workout;
+        return Moment(workout.date).format('YYYY-MM-DD');
+      });
     });
 
     return reply(result);
   },
   validate: {
     params: {
-      date: Joi.date().format('YYYY-MM-DD')
+      year: Joi.number().min(1900).max(2020)
     }
   }
 };
