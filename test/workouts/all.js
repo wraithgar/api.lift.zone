@@ -13,7 +13,7 @@ const after = lab.after;
 const describe = lab.describe;
 const it = lab.it;
 
-describe('GET /search/workouts/{year}', () => {
+describe('GET /workouts', () => {
 
   let server;
   const user = Fixtures.user();
@@ -40,29 +40,16 @@ describe('GET /search/workouts/{year}', () => {
     ]);
   });
 
-  it('gets a workout', () => {
+  it('gets workouts', () => {
 
-    const year = workout.date.split('-')[0];
-    return server.inject({ method: 'get', url: `/search/workouts/${year}`, credentials: user }).then((res) => {
-
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result[workout.date]).to.include({ id: workout.id, name: workout.name });
-    });
-  });
-
-  it('does not find nonexistant workout', () => {
-
-    const year = Number(workout.date.split('-')[0]) + 1;
-    return server.inject({ method: 'get', url: `/search/workouts/${year}`, credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: '/workouts', credentials: user }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
     }).then((result) => {
 
-      expect(result).to.not.include({ id: workout.id, name: workout.name });
+      expect(result).to.include({ id: workout.id, name: workout.name });
     });
   });
+
 });
