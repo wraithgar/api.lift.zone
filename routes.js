@@ -26,5 +26,6 @@ module.exports = [
   /* /workouts */
   { method: 'GET', path: '/workouts', config: Controllers.workouts.all },
   { method: 'POST', path: '/workouts', config: Controllers.workouts.create },
-  { method: 'GET', path: '/workouts/{id}', config: Controllers.workouts.get }
+  { method: 'GET', path: '/workouts/{id}', config: Controllers.workouts.get },
+  { method: 'PUT', path: '/workouts/{id}', config: Controllers.workouts.update }
 ];

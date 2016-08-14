@@ -10,7 +10,7 @@ module.exports = {
   tags: ['workout'],
   handler: function (request, reply) {
 
-    const result = this.db.workouts.findOne({ date: request.payload.date }).then((existing) => {
+    const result = this.db.workouts.findOne({ date: request.payload.date, user_id: request.auth.credentials.id }).then((existing) => {
 
       if (existing) {
         throw Boom.conflict(`There is already a workout for ${request.payload.date}`);

@@ -10,6 +10,7 @@
     "start": "node server.js",
     "knex": "knex",
     "test": "lab -a code -t 100 -L -v -e test",
+    "coverage": "npm test -- -r html -o coverage.html",
     "lint": "eslint .",
     "mr": "mr $(node -pe 'JSON.stringify(require(\"getconfig\").db)')",
     "resetdb": "npm run unmakedb --silent && npm run makedb --silent && npm run migratedb --silent && npm run seeddb --silent",
