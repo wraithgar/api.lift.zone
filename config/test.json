@@ -1,4 +1,10 @@
 {
+  "aws": {
+    "ses": {
+      "accessKeyId": "dummy",
+      "secretAccessKey": "dummy"
+    }
+  },
   "auth": {
     "secret": "changeMeInProduction!",
     "seedPassword": "letmein!"

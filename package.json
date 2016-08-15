@@ -59,6 +59,7 @@
     "faker": "^3.1.0",
     "git-validate": "^2.1.4",
     "lab": "^10.9.0",
+    "stand-in": "4.0.0",
     "uuid": "^2.0.2"
   },
   "pre-commit": [

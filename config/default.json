@@ -1,4 +1,12 @@
 {
+  "aws": {
+    "ses": {
+      "region": "us-east-1"
+    }
+  },
+  "email": {
+    "from": "Lift zone <support@lift.zone>"
+  },
   "auth": {
     "options": {
       "algorithm": "HS256"

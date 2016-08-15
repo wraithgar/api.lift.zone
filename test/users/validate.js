@@ -2,6 +2,8 @@
 
 const Server = require('../../server');
 const Fixtures = require('../fixtures');
+const StandIn = require('stand-in');
+const AWS = require('../../lib/aws');
 
 const db = Fixtures.db;
 
@@ -45,6 +47,13 @@ describe('POST /user/validate', () => {
 
   it('requests validation', () => {
 
+    let sesParams;
+    StandIn.replace(AWS, 'sendEmail', (stand, params) => {
+
+      stand.restore();
+      sesParams = params;
+    });
+
     return server.inject({ method: 'post', url: '/user/validate', credentials: user1 }).then((res) => {
 
       expect(res.statusCode).to.equal(202);
@@ -52,6 +61,8 @@ describe('POST /user/validate', () => {
     }).then((createdValidation) => {
 
       expect(createdValidation).to.exist();
+      expect(sesParams.Destination.ToAddresses).to.include(user1.email);
+      expect(sesParams.Message.Body.Text.Data).to.include(createdValidation.token);
     });
   });
 

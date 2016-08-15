@@ -3,6 +3,8 @@
 const Server = require('../../server');
 const Fixtures = require('../fixtures');
 const Faker = require('faker');
+const StandIn = require('stand-in');
+const AWS = require('../../lib/aws');
 
 const db = Fixtures.db;
 
@@ -47,6 +49,13 @@ describe('POST /user/recover', () => {
 
   it('creates a recovery', (done) => {
 
+    let sesParams;
+    StandIn.replace(AWS, 'sendEmail', (stand, params) => {
+
+      stand.restore();
+      sesParams = params;
+    });
+
     server.inject({ method: 'post', url: '/user/recover', payload: { email: user1.email } }).then((res) => {
 
       //Wait for promises to fire asynchronously
@@ -57,6 +66,8 @@ describe('POST /user/recover', () => {
         db.recoveries.findOne({ email: user1.email }).then((recovery) => {
 
           expect(recovery).to.exist();
+          expect(sesParams.Destination.ToAddresses).to.include(user1.email);
+          expect(sesParams.Message.Body.Text.Data).to.include(recovery.token);
           done();
         });
       }, 50);
