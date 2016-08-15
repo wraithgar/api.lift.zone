@@ -2,6 +2,7 @@
 
 const Server = require('../../server');
 const Fixtures = require('../fixtures');
+const Utils = require('../../lib/utils');
 const Faker = require('faker');
 
 const db = Fixtures.db;
@@ -64,10 +65,12 @@ describe('PATCH /user', () => {
 
     return Promise.all([
       Server,
-      db.users.insert(user)
+      Utils.bcryptHash(user.password)
     ]).then((items) => {
 
+      user.hash = items[1];
       server = items[0];
+      return db.users.insert(user);
     });
   });
 
@@ -79,7 +82,7 @@ describe('PATCH /user', () => {
   it('can update user', () => {
 
     const name = Faker.name.findName();
-    return server.inject({ method: 'patch', url: '/user', payload: { name }, credentials: user }).then((res) => {
+    return server.inject({ method: 'patch', url: '/user', payload: { name, currentPassword: user.password }, credentials: user }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -100,7 +103,7 @@ describe('PATCH /user', () => {
   it('invalidates on email change', () => {
 
     const email = Faker.internet.email();
-    return server.inject({ method: 'patch', url: '/user', payload: { email }, credentials: user }).then((res) => {
+    return server.inject({ method: 'patch', url: '/user', payload: { email, currentPassword: user.password }, credentials: user }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -115,6 +118,34 @@ describe('PATCH /user', () => {
         expect(updatedUser.email).to.equal(email);
         expect(updatedUser.validated).to.equal(false);
       });
+    });
+  });
+
+  it('changes password', () => {
+
+    const password = Faker.internet.password();
+    return server.inject({ method: 'patch', url: '/user', payload: { newPassword: password, confirmPassword: password, currentPassword: user.password }, credentials: user }).then((res) => {
+
+      expect(res.statusCode).to.equal(200);
+      return res.result;
+    }).then((result) => {
+
+      expect(result).to.contain(['id', 'name', 'email', 'validated']);
+      expect(result).to.not.contain(['hash']);
+      expect(result.id).to.equal(user.id);
+      return db.users.findOne({ id: user.id }).then((updatedUser) => {
+
+        expect(updatedUser.hash).to.not.equal(user.hash);
+      });
+    });
+  });
+
+  it('requires valid password', () => {
+
+    const email = Faker.internet.email();
+    return server.inject({ method: 'patch', url: '/user', payload: { email, currentPassword: Faker.internet.password() }, credentials: user }).then((res) => {
+
+      expect(res.statusCode).to.equal(400);
     });
   });
 });
