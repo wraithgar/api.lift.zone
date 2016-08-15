@@ -33,6 +33,7 @@ module.exports = {
       name: Joi.string().required(),
       activity_id: Joi.string().guid(),
       sets: Joi.any().strip(),
+      comment: Joi.any().strip(),
       suggestions: Joi.any().strip()
     }
   },
