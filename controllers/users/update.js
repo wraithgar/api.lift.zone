@@ -33,7 +33,6 @@ module.exports = {
 
       delete attrs.currentPassword;
       delete attrs.newPassword;
-      console.log(attrs);
       return this.db.users.updateOne({ id: request.auth.credentials.id }, attrs);
     });
 

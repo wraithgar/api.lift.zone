@@ -5,6 +5,11 @@ const Config = require('getconfig');
 
 exports.seed = function (knex) {
 
+  if (process.env.NODE_ENV === 'production') {
+    console.log('not re-seeding admin in production');
+    return;
+  }
+
   return knex('users').where('email', 'gar+liftzone@danger.computer').del().then(() => {
 
     return knex('users').insert({
