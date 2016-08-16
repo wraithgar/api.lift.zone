@@ -23,6 +23,7 @@ module.exports = [
   { method: 'GET', path: '/activities', config: Controllers.activities.list },
   { method: 'GET', path: '/activities/{id}', config: Controllers.activities.get },
   { method: 'POST', path: '/activities', config: Controllers.activities.create },
+  { method: 'PUT', path: '/activities/{id}/promote', config: Controllers.activities.promote },
 
   /* /workouts */
   { method: 'GET', path: '/workouts', config: Controllers.workouts.all },

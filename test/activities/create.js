@@ -68,7 +68,7 @@ describe('POST /activities/{id}', () => {
     });
   });
 
-  it('404 on other user\'s activity', () => {
+  it('does not find other user\'s activity', () => {
 
     return server.inject({ method: 'post', url: '/activities', credentials: user2, payload: activity4 }).then((res) => {
 
