@@ -23,11 +23,5 @@ module.exports = {
     params: {
       id: Joi.string().guid()
     }
-  },
-  response: {
-    modify: true,
-    schema: Joi.object({
-      user_id: Joi.any().strip()
-    }).unknown()
   }
 };
