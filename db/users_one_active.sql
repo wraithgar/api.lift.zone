@@ -5,6 +5,7 @@ SELECT
   users.email,
   users.logout,
   users.validated,
+  users.scope,
   users.preferences
 FROM users WHERE
   users.active = TRUE AND
