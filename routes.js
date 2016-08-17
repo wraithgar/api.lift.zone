@@ -29,5 +29,8 @@ module.exports = [
   { method: 'GET', path: '/workouts', config: Controllers.workouts.all },
   { method: 'POST', path: '/workouts', config: Controllers.workouts.create },
   { method: 'GET', path: '/workouts/{id}', config: Controllers.workouts.get },
-  { method: 'PUT', path: '/workouts/{id}', config: Controllers.workouts.update }
+  { method: 'PUT', path: '/workouts/{id}', config: Controllers.workouts.update },
+
+  /* /admin */
+  { method: 'GET', path: '/admin/users', config: Controllers.admin.users.list }
 ];

@@ -11,7 +11,7 @@ module.exports = {
 
     request.server.log(['users', 'auth'], `Login: ${request.payload.email}`);
 
-    const result = this.db.users.findOne({ email: request.payload.email, active: true }).then((user) => {
+    const result = this.db.users.active(request.payload.email).then((user) => {
 
       if (!user) {
         throw Boom.unauthorized();

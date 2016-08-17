@@ -67,7 +67,7 @@ module.exports.invite = (attrs) => {
 module.exports.activity = (attrs, id) => {
 
   const defaults = {
-    name: Faker.random.words()
+    name: Faker.random.words(3)
   };
 
   return build(defaults, attrs, id);

@@ -63,7 +63,8 @@ module.exports = server.register([{
           return callback(null, false);
         }
 
-        return callback(null, true, decoded);
+        delete user.hash;
+        return callback(null, true, user);
       }).catch(callback);
     }
   });

@@ -41,7 +41,12 @@ module.exports = {
           ]
         };
 
-        return AWS.sendEmail(email);
+        // $lab:coverage:off$
+        if (process.env.NODE_ENV) {
+          return AWS.sendEmail(email);
+        }
+        request.log(['debug'], validation.token);
+        // $lab:coverage:on$
       });
     }).then(() => {
 

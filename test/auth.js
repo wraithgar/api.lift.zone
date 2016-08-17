@@ -51,6 +51,7 @@ describe('auth', () => {
     }).then((result) => {
 
       expect(result).to.be.an.object();
+      expect(result).to.not.include(['hash']);
       expect(result.email).to.equal(user.email);
     });
   });
