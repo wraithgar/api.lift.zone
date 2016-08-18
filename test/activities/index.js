@@ -35,9 +35,11 @@ describe('GET /activities', () => {
       return Promise.all([
         db.activities.insert(activity1),
         db.activities.insert(activity2),
-        db.activities.insert(activity3),
         db.activities.insert(activity4)
       ]);
+    }).then(() => {
+
+      return db.activities.insert(activity3);
     });
   });
 

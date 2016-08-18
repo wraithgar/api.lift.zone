@@ -30,6 +30,7 @@ module.exports = [
   { method: 'POST', path: '/workouts', config: Controllers.workouts.create },
   { method: 'GET', path: '/workouts/{id}', config: Controllers.workouts.get },
   { method: 'PUT', path: '/workouts/{id}', config: Controllers.workouts.update },
+  { method: 'GET', path: '/public/workouts/{id}', config: Controllers.workouts.public },
 
   /* /admin */
   { method: 'GET', path: '/admin/users', config: Controllers.admin.users.list }
