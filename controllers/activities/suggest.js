@@ -26,7 +26,7 @@ module.exports = {
   },
   validate: {
     params: {
-      name: Joi.string()
+      name: Joi.string().replace(/[^\w' ]/gi, '')
     }
   },
   response: {
