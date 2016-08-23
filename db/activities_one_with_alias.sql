@@ -11,3 +11,5 @@ WHERE
   activities.user_id = ${user_id}
   AND
   activities.id = ${id}
+  AND
+  activities.activity_id IS NULL

@@ -24,6 +24,7 @@ module.exports = [
   { method: 'GET', path: '/activities/{id}', config: Controllers.activities.get },
   { method: 'POST', path: '/activities', config: Controllers.activities.create },
   { method: 'PUT', path: '/activities/{id}/promote', config: Controllers.activities.promote },
+  { method: 'GET', path: '/activities/{id}/history', config: Controllers.activities.history },
 
   /* /workouts */
   { method: 'GET', path: '/workouts', config: Controllers.workouts.all },

@@ -24,5 +24,4 @@ module.exports = {
       id: Joi.string().guid()
     }
   }
-  //TODO strip user_id
 };
