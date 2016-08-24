@@ -8,7 +8,7 @@ module.exports = {
   tags: ['activity'],
   handler: function (request, reply) {
 
-    const result =  this.db.activities.with_alias({ id: request.params.id, user_id: request.auth.credentials.id }).then((activity) => {
+    const result =  this.db.activities.findOne({ id: request.params.id, user_id: request.auth.credentials.id }).then((activity) => {
 
       if (!activity) {
         throw Boom.notFound();
