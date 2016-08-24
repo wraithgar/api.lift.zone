@@ -9,4 +9,14 @@ FROM
 WHERE
     workouts.user_id = ${user_id}
   AND
-    workout_activities.id in (SELECT id FROM activities WHERE activity_id = ${id} or id = ${id})
+    workout_activities.id in (
+      SELECT activities.id
+      FROM activities
+      LEFT JOIN activities AS aliases ON aliases.activity_id = activities.id
+      WHERE
+        activities.activity_id = ${id}
+        OR
+        activities.id = ${id}
+        OR
+        aliases.id = ${id}
+    )
