@@ -20,6 +20,9 @@ if (process.env.NODE_ENV !== 'production') {
     console.log(m.stack);
   } );
 }
+else {
+  require('newrelic');
+}
 //$lab:coverage:on$
 
 module.exports = server.register([{

@@ -49,7 +49,8 @@
     "jsonwebtoken": "7.1.9",
     "knex": "0.11.10",
     "lodash": "4.15.0",
-    "muckraker": "3.4.0"
+    "muckraker": "3.4.0",
+    "newrelic": "1.29.0"
   },
   "devDependencies": {
     "catbox-memory": "^2.0.3",

@@ -1,4 +1,11 @@
 {
+  "newrelic": {
+    "app_name": ["production api.lift.zone"],
+    "license_key": "$NEW_RELIC_LICENSE_KEY",
+    "logging": {
+      "level": "info"
+    }
+  },
   "aws": {
     "ses": {
       "accessKeyId": "$AWS_ACCESS_KEY",
