@@ -1,4 +1,9 @@
 'use strict';
+//$lab:coverage:off$
+if (process.env.NODE_ENV === 'production') {
+  require('newrelic');
+}
+//$lab:coverage:on$
 
 const Config = require('getconfig');
 const Hapi = require('hapi');
@@ -19,9 +24,6 @@ if (process.env.NODE_ENV !== 'production') {
 
     console.log(m.stack);
   } );
-}
-else {
-  require('newrelic');
 }
 //$lab:coverage:on$
 
