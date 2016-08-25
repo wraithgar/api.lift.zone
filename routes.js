@@ -3,6 +3,8 @@
 const Controllers = require('./controllers');
 
 module.exports = [
+  /* heartbeat */
+  { method: 'GET', path: '/heartbeat', config: Controllers.heartbeat },
   /* /user */
   { method: 'GET', path: '/user', config: Controllers.users.self },
   { method: 'PATCH', path: '/user', config: Controllers.users.update },
