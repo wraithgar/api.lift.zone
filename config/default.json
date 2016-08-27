@@ -31,5 +31,6 @@
   },
   "invites": {
     "count": 5
-  }
+  },
+  "shutdownTimeout": 15000
 }

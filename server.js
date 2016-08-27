@@ -19,6 +19,15 @@ const server = new Hapi.Server(Config.hapi);
 server.connection(Config.connection.public);
 
 //$lab:coverage:off$
+process.on('SIGTERM', () => {
+
+  server.log(['info', 'shutdown'], 'Graceful shutdown');
+  server.stop({ timeout: Config.shutdownTimeout }).then(() => {
+
+    return process.exit(0);
+  });
+});
+
 if (process.env.NODE_ENV !== 'production') {
   server.on('request-error', (err, m) => {
 
