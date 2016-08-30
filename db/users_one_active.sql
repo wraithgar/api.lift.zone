@@ -9,4 +9,4 @@ SELECT
   users.preferences
 FROM users WHERE
   users.active = TRUE AND
-  users.email=$1;
+  lower(users.email)=lower($1);

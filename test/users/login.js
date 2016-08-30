@@ -47,6 +47,20 @@ describe('POST /user/login', () => {
     });
   });
 
+  it('IgNoReS cAsE', () => {
+
+    return server.inject({ method: 'post', url: '/user/login', payload: { email: user.email.toUpperCase(), password: user.password } }).then((res) => {
+
+      expect(res.statusCode).to.equal(201);
+      return res.result;
+    }).then((result) => {
+
+      expect(result).to.not.include(['hash']);
+      expect(result).to.be.an.object();
+      expect(result.token).to.be.a.string();
+    });
+  });
+
   it('401 on invalid user', () => {
 
     return server.inject({ method: 'post', url: '/user/login', payload: { email: 'nobody@danger.computer', password: user.password } }).then((res) => {
