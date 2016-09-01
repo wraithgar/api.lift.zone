@@ -1,9 +1,4 @@
 'use strict';
-//$lab:coverage:off$
-if (process.env.NODE_ENV === 'production') {
-  require('newrelic');
-}
-//$lab:coverage:on$
 
 const Config = require('getconfig');
 const Hapi = require('hapi');
