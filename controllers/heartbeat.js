@@ -9,7 +9,7 @@ module.exports = {
     const result = this.db.users.count().then((count) => {
 
       //$lab:coverage:off$
-      if (count.count > 0) {
+      if (count.count > -1) {
         return 'ok';
       }
 

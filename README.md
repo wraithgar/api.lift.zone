@@ -2,7 +2,7 @@
 
 Colors: http://clrs.cc
 
-Schema
+Schema (this is out of date lol)
 ```
                      ┌───────────────┐     ┌────────────────────┐
                      │   workouts    │     │ workout_activities │
