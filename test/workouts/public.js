@@ -70,7 +70,7 @@ describe('GET /public/workouts/{id}', () => {
     }).then((result) => {
 
       expect(result.id).to.equal(workout2.id);
-      expect(result).to.not.include(['user_id']);
+      expect(result).to.not.part.include(['user_id']);
     });
   });
 
@@ -91,7 +91,7 @@ describe('GET /public/workouts/{id}', () => {
     }).then((result) => {
 
       expect(result.id).to.equal(workout4.id);
-      expect(result).to.not.include(['user_id']);
+      expect(result).to.not.part.include(['user_id']);
     });
   });
 
@@ -104,7 +104,7 @@ describe('GET /public/workouts/{id}', () => {
     }).then((result) => {
 
       expect(result.id).to.equal(workout5.id);
-      expect(result).to.not.include(['user_id']);
+      expect(result).to.not.part.include(['user_id']);
     });
   });
 

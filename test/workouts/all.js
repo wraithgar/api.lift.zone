@@ -48,7 +48,7 @@ describe('GET /workouts', () => {
       return res.result;
     }).then((result) => {
 
-      expect(result).to.include({ id: workout.id, name: workout.name, activities: 0 });
+      expect(result).to.part.include({ id: workout.id, name: workout.name, activities: 0 });
     });
   });
 

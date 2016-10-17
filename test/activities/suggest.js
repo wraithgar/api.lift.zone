@@ -55,7 +55,7 @@ describe('GET /suggest/activities/{name}', () => {
       return res.result;
     }).then((result) => {
 
-      expect(result).to.include({ suggestions: [{ activity_id: activity1.id, name: 'Squat' }, { activity_id: activity2.id, name: 'Front Squat' }, { activity_id: activity1.id, name: 'Barbell Squat' }] });
+      expect(result).to.part.include({ suggestions: [{ activity_id: activity1.id, name: 'Squat' }, { activity_id: activity2.id, name: 'Front Squat' }, { activity_id: activity1.id, name: 'Barbell Squat' }] });
     });
   });
 

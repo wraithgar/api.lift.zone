@@ -59,12 +59,12 @@ describe('GET /activities', () => {
       return res.result;
     }).then((result) => {
 
-      expect(result).to.not.include(activity1);
-      expect(result).to.not.include(activity2);
-      expect(result).to.include({ name: activity1.name, aliases: [] });
-      expect(result).to.include({ id: activity2.id, aliases: [{ name: activity3.name }] });
-      expect(result).to.not.include(activity3);
-      expect(result).to.not.include(activity4);
+      expect(result).to.not.part.include(activity1);
+      expect(result).to.not.part.include(activity2);
+      expect(result).to.part.include({ name: activity1.name, aliases: [] });
+      expect(result).to.part.include({ id: activity2.id, aliases: [{ name: activity3.name }] });
+      expect(result).to.not.part.include(activity3);
+      expect(result).to.not.part.include(activity4);
     });
   });
 });

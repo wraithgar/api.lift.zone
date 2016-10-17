@@ -41,7 +41,7 @@ describe('POST /user/login', () => {
       return res.result;
     }).then((result) => {
 
-      expect(result).to.not.include(['hash']);
+      expect(result).to.not.part.include(['hash']);
       expect(result).to.be.an.object();
       expect(result.token).to.be.a.string();
     });
@@ -55,7 +55,7 @@ describe('POST /user/login', () => {
       return res.result;
     }).then((result) => {
 
-      expect(result).to.not.include(['hash']);
+      expect(result).to.not.part.include(['hash']);
       expect(result).to.be.an.object();
       expect(result.token).to.be.a.string();
     });

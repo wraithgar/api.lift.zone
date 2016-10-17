@@ -57,8 +57,8 @@ describe('PUT /activities/{id}/promote', () => {
     }).then((result) => {
 
       expect(result.id).to.equal(activity2.id);
-      expect(result.aliases).to.include({ id: activity1.id });
-      expect(result.aliases).to.not.include({ id: activity3.id });
+      expect(result.aliases).to.part.include({ id: activity1.id });
+      expect(result.aliases).to.not.part.include({ id: activity3.id });
     });
   });
 

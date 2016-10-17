@@ -66,9 +66,9 @@ describe('GET /activities/{id}/history', () => {
       return res.result;
     }).then((result) => {
 
-      expect(result).to.include([{ workout_name: workout1.name, sets: [{ reps: 4 }] }]);
-      expect(result).to.include([{ workout_name: workout2.name, sets: [{ reps: 5 }] }]);
-      expect(result).to.not.include([{ workout_name: workout3.name }]);
+      expect(result).to.part.include([{ workout_name: workout1.name, sets: [{ reps: 4 }] }]);
+      expect(result).to.part.include([{ workout_name: workout2.name, sets: [{ reps: 5 }] }]);
+      expect(result).to.not.part.include([{ workout_name: workout3.name }]);
     });
   });
 
@@ -88,9 +88,9 @@ describe('GET /activities/{id}/history', () => {
       return res.result;
     }).then((result) => {
 
-      expect(result).to.include([{ workout_name: workout1.name, sets: [{ reps: 4 }] }]);
-      expect(result).to.include([{ workout_name: workout2.name, sets: [{ reps: 5 }] }]);
-      expect(result).to.not.include([{ workout_name: workout3.name }]);
+      expect(result).to.part.include([{ workout_name: workout1.name, sets: [{ reps: 4 }] }]);
+      expect(result).to.part.include([{ workout_name: workout2.name, sets: [{ reps: 5 }] }]);
+      expect(result).to.not.part.include([{ workout_name: workout3.name }]);
     });
   });
 });

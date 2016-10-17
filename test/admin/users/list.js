@@ -54,8 +54,8 @@ describe('GET /admin/users', () => {
       return res.result;
     }).then((result) => {
 
-      expect(result).to.once.include({ id: user.id, workouts: 1, activities: 1 });
-      expect(result).to.once.include({ id: admin.id, workouts: 0, activities: 0 });
+      expect(result).to.once.part.include({ id: user.id, workouts: 1, activities: 1 });
+      expect(result).to.once.part.include({ id: admin.id, workouts: 0, activities: 0 });
     });
   });
 
