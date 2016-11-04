@@ -28,7 +28,7 @@
   },
   "keywords": [],
   "private": true,
-  "author": "Gar <gar+npm@danger.computer",
+  "author": "Gar <gar+npm@danger.computer>",
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "2.6.12",
