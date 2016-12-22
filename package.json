@@ -16,7 +16,7 @@
     "resetdb": "npm run unmakedb --silent && npm run makedb --silent && npm run migratedb --silent && npm run seeddb --silent",
     "createdb": "createdb $(node -pe 'require(\"getconfig\").db.connection.database') -O $(node -pe 'require(\"getconfig\").db.connection.user')",
     "dropdb": "dropdb --if-exists $(node -pe 'require(\"getconfig\").db.connection.database')",
-    "createrole": "psql -d postgres -c \"CREATE ROLE $(node -pe 'require(\"getconfig\").db.connection.user') WITH PASSWORD '$(node -pe 'require(\"getconfig\").db.connection.user')' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN\"",
+    "createrole": "psql -d postgres -c \"CREATE ROLE $(node -pe 'require(\"getconfig\").db.connection.user') WITH PASSWORD '$(node -pe 'require(\"getconfig\").db.connection.password')' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN\"",
     "droprole": "psql -d postgres -c \"DROP ROLE IF EXISTS $(node -pe 'require(\"getconfig\").db.connection.user')\"",
     "uuiddb": "psql -d $(node -pe 'require(\"getconfig\").db.connection.database') -c 'CREATE EXTENSION \"uuid-ossp\"'",
     "cryptodb": "psql -d $(node -pe 'require(\"getconfig\").db.connection.database') -c 'CREATE EXTENSION \"pgcrypto\"'",
@@ -49,6 +49,7 @@
     "joi": "10.0.1",
     "joi-date-extensions": "1.0.1",
     "jsonwebtoken": "7.1.9",
+    "keyfob": "1.0.0",
     "knex": "0.12.6",
     "lodash": "4.17.2",
     "muckraker": "3.4.0"

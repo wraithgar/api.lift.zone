@@ -1,6 +1,6 @@
 'use strict';
 
-const Controllers = require('./controllers');
+const Controllers = require('keyfob').load({ path: './controllers', fn: require });
 
 module.exports = [
   /* heartbeat */
