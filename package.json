@@ -29,6 +29,13 @@
   "keywords": [],
   "private": true,
   "author": "Gar <gar+npm@danger.computer>",
+  "bugs": {
+    "url": "https://github.com/wraithgar/lift.zone/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:wraithgar/api.lift.zone.git"
+  },
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "2.7.27",
