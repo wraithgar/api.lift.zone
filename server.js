@@ -31,7 +31,8 @@ if (process.env.NODE_ENV !== 'production') {
 }
 //$lab:coverage:on$
 
-module.exports = server.register([{
+module.exports.db = db;
+module.exports.server = server.register([{
   register: require('good'),
   options: Config.good
 }, {
