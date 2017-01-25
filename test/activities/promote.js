@@ -2,10 +2,10 @@
 
 const Faker = require('faker');
 
-const Server = require('../../server');
 const Fixtures = require('../fixtures');
 
 const db = Fixtures.db;
+const Server = Fixtures.server;
 
 const lab = exports.lab = require('lab').script();
 const expect = require('code').expect;

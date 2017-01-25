@@ -1,10 +1,12 @@
 'use strict';
 
 const Config = require('getconfig');
-const Muckraker = require('muckraker');
 const Faker = require('faker');
 const Bcrypt = require('bcrypt');
 const Moment = require('moment');
+
+module.exports.server = require('../server').server;
+module.exports.db = require('../server').db;
 
 const build = (defaults, attrs, id) => {
 
@@ -22,7 +24,6 @@ const build = (defaults, attrs, id) => {
   return record;
 };
 
-module.exports.db = new Muckraker(Config.db);
 
 module.exports.user = (attrs) => {
 

@@ -1,11 +1,11 @@
 'use strict';
 
-const Server = require('../../server');
 const Fixtures = require('../fixtures');
 const Utils = require('../../lib/utils');
 const Faker = require('faker');
 
 const db = Fixtures.db;
+const Server = Fixtures.server;
 
 const lab = exports.lab = require('lab').script();
 const expect = require('code').expect;

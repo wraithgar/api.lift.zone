@@ -1,6 +1,6 @@
 'use strict';
 
-const Server = require('../server');
+const Server = require('./fixtures').server;
 
 const lab = exports.lab = require('lab').script();
 const expect = require('code').expect;
