@@ -51,6 +51,7 @@
     "good-squeeze": "5.0.1",
     "hapi": "16.1.0",
     "hapi-auth-jwt2": "7.2.4",
+    "hapi-pagination": "1.11.2",
     "hapi-rate-limit": "1.2.4",
     "hoek": "4.1.0",
     "joi": "10.2.0",

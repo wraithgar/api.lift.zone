@@ -21,6 +21,7 @@
       "routes": {
         "security": true,
         "cors": {
+          "additionalExposedHeaders": ["Link"],
           "origin": ["http://localhost:8080"]
         }
       }

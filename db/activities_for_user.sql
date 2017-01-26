@@ -6,7 +6,10 @@ FROM
 LEFT JOIN
   activities AS aliases on activities.id = aliases.activity_id
 WHERE
-  activities.user_id = $1
+  activities.user_id = ${id}
   AND
   activities.activity_id is null
 GROUP BY activities.id
+ORDER BY activities.name
+LIMIT ${limit}
+OFFSET ${page}
