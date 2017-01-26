@@ -7,9 +7,21 @@ module.exports = {
   tags: ['activity'],
   handler: function (request, reply) {
 
-    const result = this.db.activities.for_user(request.auth.credentials.id);
+    const params = Object.assign({ id: request.auth.credentials.id }, request.query);
+    params.page = (params.page - 1) * params.limit;
+    const result = this.db.activities.for_user_count(params).then((activity_count) => {
+
+      request.totalCount = activity_count.count;
+      return this.db.activities.for_user(params);
+    });
 
     return reply(result);
+  },
+  validate: {
+    query: {
+      limit: Joi.number().default(10).min(1).max(100),
+      page: Joi.number().default(0).min(0)
+    }
   },
   response: {
     modify: true,

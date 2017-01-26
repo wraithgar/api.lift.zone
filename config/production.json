@@ -21,6 +21,7 @@
     "connections": {
       "routes": {
         "cors": {
+          "additionalExposedHeaders": ["Link"],
           "origin": ["https://lift.zone"]
         }
       }
