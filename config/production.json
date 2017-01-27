@@ -49,5 +49,10 @@
       }, "stdout"
       ]
     }
+  },
+  "pagination": {
+    "meta": {
+      "baseUri": "https://api.lift.zone"
+    }
   }
 }
