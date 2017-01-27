@@ -50,23 +50,7 @@ module.exports.server = server.register([{
   register: require('hapi-auth-jwt2')
 }, {
   register: require('hapi-pagination'),
-  options: {
-    meta: {
-      location: 'header',
-      count: {
-        active: false
-      },
-      last: {
-        active: false
-      },
-      first: {
-        active: false
-      }
-    },
-    routes: {
-      include: ['/activities']
-    }
-  }
+  options: Config.pagination
 }]).then(() => {
 
   server.bind({
