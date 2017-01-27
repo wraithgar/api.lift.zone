@@ -12,9 +12,8 @@
   "db": {
     "client": "postgresql",
     "connection": {
-      "database": "circle_test",
-      "user": "ubuntu",
-      "poolSize": 40
+      "database": "travis_ci_test",
+      "user": "postgres"
     }
   },
   "hapi": {
