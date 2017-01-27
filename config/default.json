@@ -32,5 +32,22 @@
   "invites": {
     "count": 5
   },
-  "shutdownTimeout": 15000
+  "shutdownTimeout": 15000,
+  "pagination": {
+    "meta": {
+      "location": "header",
+      "count": {
+        "active": false
+      },
+      "last": {
+        "active": false
+      },
+      "first": {
+        "active": false
+      }
+    },
+    "routes": {
+      "include": ["/activities"]
+    }
+  }
 }
