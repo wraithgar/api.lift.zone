@@ -1,7 +1,6 @@
 'use strict';
 
 const Boom = require('boom');
-const Hoek = require('hoek');
 
 const Utils = require('../../lib/utils');
 
@@ -16,9 +15,7 @@ module.exports = {
         throw Boom.conflict(`There is already a workout for ${request.payload.date}`);
       }
 
-      const attrs = Hoek.clone(request.payload);
-
-      attrs.user_id = request.auth.credentials.id;
+      const attrs = Object.assign(request.payload, { user_id: request.auth.credentials.id });
 
       return this.db.workouts.insert(attrs);
     });
