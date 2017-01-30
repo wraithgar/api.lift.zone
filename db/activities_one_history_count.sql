@@ -1,9 +1,6 @@
 --${id} is the current main id
 SELECT
-  workouts.name as workout_name,
-  to_char(workouts.date, 'YYYY-MM-DD') as workout_date,
-  workout_activities.comment,
-  workout_activities.sets
+  count(workouts.id)::integer as count
 FROM
   workouts,
   jsonb_to_recordset(workouts.activities) AS workout_activities(id uuid, comment text, sets jsonb)
@@ -18,6 +15,3 @@ WHERE
       WHERE activity_id = ${id}
     )
   )
-ORDER BY workouts.date
-LIMIT ${limit}
-OFFSET ${page}

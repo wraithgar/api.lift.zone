@@ -35,5 +35,10 @@ module.exports = {
         ).allow(null)
       }).unknown()
     )
+  },
+  plugins: {
+    pagination: {
+      enabled: true
+    }
   }
 };
