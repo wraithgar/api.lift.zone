@@ -63,6 +63,8 @@ describe('GET /activities/{id}/history', () => {
     return server.inject({ method: 'get', url: `/activities/${activity1.id}/history`, credentials: user }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
+      expect(res.headers).to.include('link');
+      expect(res.headers['content-range']).to.equal('0-1/2');
       return res.result;
     }).then((result) => {
 
@@ -80,11 +82,13 @@ describe('GET /activities/{id}/history', () => {
     });
   });
 
-  it('gets history for a now aliaed activity', () => {
+  it('gets history for a now aliased activity', () => {
 
-    return server.inject({ method: 'get', url: `/activities/${activity2.id}/history`, credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: `/activities/${activity2.id}/history?page=1`, credentials: user }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
+      expect(res.headers).to.include('link');
+      expect(res.headers['content-range']).to.equal('0-1/2');
       return res.result;
     }).then((result) => {
 

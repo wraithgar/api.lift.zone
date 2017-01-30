@@ -57,6 +57,7 @@ describe('GET /activities', () => {
 
       expect(res.statusCode).to.equal(200);
       expect(res.headers).to.include('link');
+      expect(res.headers['content-range']).to.equal('0-1/2');
       return res.result;
     }).then((result) => {
 

@@ -20,7 +20,7 @@ module.exports = {
   validate: {
     query: {
       limit: Joi.number().default(10).min(1).max(100),
-      page: Joi.number().default(0).min(0)
+      page: Joi.number().default(1).min(1)
     }
   },
   response: {
@@ -35,5 +35,10 @@ module.exports = {
         ).allow(null)
       }).unknown()
     )
+  },
+  plugins: {
+    pagination: {
+      enabled: true
+    }
   }
 };
