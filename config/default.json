@@ -34,6 +34,11 @@
   },
   "shutdownTimeout": 15000,
   "pagination": {
+    "query": {
+      "page": {
+        "default": 0
+      }
+    },
     "meta": {
       "location": "header",
       "last": {

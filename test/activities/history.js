@@ -84,7 +84,7 @@ describe('GET /activities/{id}/history', () => {
 
   it('gets history for a now aliased activity', () => {
 
-    return server.inject({ method: 'get', url: `/activities/${activity2.id}/history`, credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: `/activities/${activity2.id}/history?page=1`, credentials: user }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       expect(res.headers).to.include('link');
