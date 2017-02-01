@@ -54,7 +54,7 @@
     "hapi-pagination": "1.11.2",
     "hapi-rate-limit": "1.2.5",
     "joi": "10.2.0",
-    "joi-date-extensions": "1.0.1",
+    "joi-date-extensions": "1.0.2",
     "jsonwebtoken": "7.2.1",
     "keyfob": "1.0.0",
     "knex": "0.12.6",
