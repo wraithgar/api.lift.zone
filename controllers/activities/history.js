@@ -22,14 +22,20 @@ module.exports = {
       //id is now the real activity
       return this.db.activities.history_count({ id, user_id: request.auth.credentials.id }).then((history_count) => {
 
+        request.totalCount = history_count.count;
+
         if (request.query.page === 0) {
           request.query.page = this.utils.lastPage(history_count.count, request.query.limit);
         }
 
+        if (history_count.count === 0) {
+          return [];
+        }
+
+
         const query = Object.assign({ id, user_id: request.auth.credentials.id }, request.query);
         query.page = (query.page - 1) * query.limit;
 
-        request.totalCount = history_count.count;
         return this.db.activities.history(query);
       });
     });
