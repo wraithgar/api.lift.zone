@@ -55,7 +55,7 @@ describe('GET /activities', () => {
 
     return server.inject({ method: 'get', url: '/activities', credentials: user1 }).then((res) => {
 
-      expect(res.statusCode).to.equal(200);
+      expect(res.statusCode).to.equal(206);
       expect(res.headers).to.include('link');
       expect(res.headers['content-range']).to.equal('0-1/2');
       return res.result;
