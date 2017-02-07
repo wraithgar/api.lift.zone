@@ -46,6 +46,7 @@ module.exports = {
       newPassword: Joi.string().min(8, 'utf-8'),
       confirmPassword: Joi.any().valid(Joi.ref('newPassword')).strip(),
       preferences: Joi.object({
+        weightUnit: Joi.string().valid('lb', 'kg'),
         dateFormat: Joi.string(),
         smartmode: Joi.boolean(),
         visible: Joi.boolean()
