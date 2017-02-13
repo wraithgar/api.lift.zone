@@ -50,7 +50,7 @@
       }
     },
     "routes": {
-      "include": []
+      "include": ["/activities", "/activities/{id}/history"]
     }
   }
 }
