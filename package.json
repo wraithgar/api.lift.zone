@@ -57,7 +57,7 @@
     "joi-date-extensions": "1.0.2",
     "jsonwebtoken": "7.3.0",
     "keyfob": "1.0.0",
-    "knex": "0.12.6",
+    "knex": "0.12.7",
     "lodash": "4.17.4",
     "muckraker": "3.4.0"
   },
