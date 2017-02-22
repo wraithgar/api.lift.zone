@@ -64,9 +64,7 @@ describe('GET /activities/{id}/history', () => {
 
     return server.inject({ method: 'get', url: `/activities/${activity1.id}/history`, credentials: user }).then((res) => {
 
-      expect(res.statusCode).to.equal(206);
-      expect(res.headers).to.include('link');
-      expect(res.headers['content-range']).to.equal('0-1/2');
+      expect(res.statusCode).to.equal(200);
       return res.result;
     }).then((result) => {
 
@@ -88,9 +86,7 @@ describe('GET /activities/{id}/history', () => {
 
     return server.inject({ method: 'get', url: `/activities/${activity2.id}/history?page=1`, credentials: user }).then((res) => {
 
-      expect(res.statusCode).to.equal(206);
-      expect(res.headers).to.include('link');
-      expect(res.headers['content-range']).to.equal('0-1/2');
+      expect(res.statusCode).to.equal(200);
       return res.result;
     }).then((result) => {
 
@@ -104,9 +100,7 @@ describe('GET /activities/{id}/history', () => {
 
     return server.inject({ method: 'get', url: `/activities/${activity4.id}/history`, credentials: user }).then((res) => {
 
-      expect(res.statusCode).to.equal(206);
-      expect(res.headers).to.include('link');
-      expect(res.headers['content-range']).to.equal('0--1/0');
+      expect(res.statusCode).to.equal(200);
       return res.result;
     }).then((result) => {
 

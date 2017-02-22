@@ -22,6 +22,15 @@ describe('GET /activities', () => {
   const activity2 = Fixtures.activity({ user_id: user1.id }, true);
   const activity3 = Fixtures.activity({ user_id: user1.id, activity_id: activity2.id });
   const activity4 = Fixtures.activity({ user_id: user2.id });
+  const activity5 = Fixtures.activity({ user_id: user1.id });
+  const activity6 = Fixtures.activity({ user_id: user1.id });
+  const activity7 = Fixtures.activity({ user_id: user1.id });
+  const activity8 = Fixtures.activity({ user_id: user1.id });
+  const activity9 = Fixtures.activity({ user_id: user1.id });
+  const activity10 = Fixtures.activity({ user_id: user1.id });
+  const activity11 = Fixtures.activity({ user_id: user1.id });
+  const activity12 = Fixtures.activity({ user_id: user1.id });
+  const activity13 = Fixtures.activity({ user_id: user1.id });
 
   before(() => {
 
@@ -35,7 +44,16 @@ describe('GET /activities', () => {
       return Promise.all([
         db.activities.insert(activity1),
         db.activities.insert(activity2),
-        db.activities.insert(activity4)
+        db.activities.insert(activity4),
+        db.activities.insert(activity5),
+        db.activities.insert(activity6),
+        db.activities.insert(activity7),
+        db.activities.insert(activity8),
+        db.activities.insert(activity9),
+        db.activities.insert(activity10),
+        db.activities.insert(activity11),
+        db.activities.insert(activity12),
+        db.activities.insert(activity13)
       ]);
     }).then(() => {
 
@@ -55,9 +73,10 @@ describe('GET /activities', () => {
 
     return server.inject({ method: 'get', url: '/activities', credentials: user1 }).then((res) => {
 
+      console.log(res.result.length);
       expect(res.statusCode).to.equal(206);
       expect(res.headers).to.include('link');
-      expect(res.headers['content-range']).to.equal('0-1/2');
+      expect(res.headers['content-range']).to.equal('0-9/11');
       return res.result;
     }).then((result) => {
 
