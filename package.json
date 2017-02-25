@@ -38,7 +38,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "2.19.0",
+    "aws-sdk": "2.20.0",
     "bcrypt": "1.0.2",
     "boom": "4.2.0",
     "catbox-memory": "2.0.4",
