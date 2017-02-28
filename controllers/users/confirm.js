@@ -5,7 +5,7 @@ const Joi = require('joi');
 
 module.exports = {
   description: 'Confirm email',
-  tags: ['user'],
+  tags: ['api', 'user'],
   handler: function (request, reply) {
 
     const result = this.db.validations.confirm({ user_id: request.auth.credentials.id, token: request.payload.token }).then((validation) => {

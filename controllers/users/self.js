@@ -2,7 +2,7 @@
 
 module.exports = {
   description: 'Currently logged in user',
-  tags: ['user'],
+  tags: ['api', 'user'],
   handler: function (request, reply) {
 
     const user = request.auth.credentials;

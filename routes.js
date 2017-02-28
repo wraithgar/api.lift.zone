@@ -37,5 +37,8 @@ module.exports = [
   { method: 'GET', path: '/public/workouts/{id}', config: Controllers.workouts.public },
 
   /* /admin */
-  { method: 'GET', path: '/admin/users', config: Controllers.admin.users.list }
+  { method: 'GET', path: '/admin/users', config: Controllers.admin.users.list },
+
+  /* LICENSE */
+  { method: 'GET', path: '/license', handler: { file: 'LICENSE.TXT' }, config: { auth: false } }
 ];

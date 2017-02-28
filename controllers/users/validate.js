@@ -5,7 +5,7 @@ const Config = require('getconfig');
 
 module.exports = {
   description: 'Request email validation',
-  tags: ['user'],
+  tags: ['api', 'user'],
   handler: function (request, reply) {
 
     const result = this.db.validations.fresh({ user_id: request.auth.credentials.id }).then((existingValidation) => {

@@ -8,7 +8,7 @@ const _ = require('lodash');
 
 module.exports = {
   description: 'Sign up',
-  tags: ['user'],
+  tags: ['api', 'user'],
   handler: function (request, reply) {
 
     const result = this.db.invites.findOne({ token: request.payload.invite, claimed_by: null }).then((invite) => {

@@ -4,7 +4,7 @@ const Joi = require('joi');
 
 module.exports = {
   description: 'Search activities by name',
-  tags: ['activity'],
+  tags: ['api', 'activity'],
   handler: function (request, reply) {
 
     const user_id = request.auth.credentials.id;

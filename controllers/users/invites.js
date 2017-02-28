@@ -4,7 +4,7 @@ const Joi = require('joi');
 
 module.exports = {
   description: 'Invites for currently logged in user',
-  tags: ['user'],
+  tags: ['api', 'user'],
   handler: function (request, reply) {
 
     if (!request.auth.credentials.validated) {

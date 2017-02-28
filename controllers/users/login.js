@@ -6,7 +6,7 @@ const Joi = require('joi');
 
 module.exports = {
   description: 'Authenticates a user and returns a JWT',
-  tags: ['users'],
+  tags: ['api', 'user'],
   handler: function (request, reply) {
 
     request.server.log(['users', 'auth'], `Login: ${request.payload.email}`);

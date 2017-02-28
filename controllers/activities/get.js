@@ -5,7 +5,7 @@ const Joi = require('joi');
 
 module.exports = {
   description: 'Get activity by id',
-  tags: ['activity'],
+  tags: ['api', 'activity'],
   handler: function (request, reply) {
 
     const result =  this.db.activities.with_alias({ id: request.params.id, user_id: request.auth.credentials.id }).then((activity) => {

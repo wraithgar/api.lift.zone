@@ -4,7 +4,7 @@ const Boom = require('boom');
 
 module.exports = {
   description: 'Promote an activity to main activity',
-  tags: ['activity'],
+  tags: ['api', 'activity'],
   handler: function (request, reply) {
 
     const result = this.db.activities.findOne({ id: request.params.id, user_id: request.auth.credentials.id }).then((activity) => {

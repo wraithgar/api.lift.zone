@@ -5,6 +5,7 @@ const Joi = require('joi');
 
 module.exports = {
   description: 'Get workout history for an activity by id',
+  tags: ['api', 'activity'],
   handler: function (request, reply) {
 
     const params = Object.assign({ user_id: request.auth.credentials.id }, request.params);
