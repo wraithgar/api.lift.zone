@@ -3,6 +3,7 @@
 const Config = require('getconfig');
 const Hapi = require('hapi');
 const Muckraker = require('muckraker');
+const Pkg = require('./package.json');
 
 const Utils = require('./lib/utils');
 
@@ -33,6 +34,24 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports.db = db;
 module.exports.server = server.register([{
+  register: require('inert')
+}, {
+  register: require('vision')
+}, {
+  register: require('hapi-swagger'),
+  options: {
+    grouping: 'tags',
+    info: {
+      title: Pkg.description,
+      version: Pkg.version,
+      contact: Pkg.author,
+      license: {
+        name: Pkg.license,
+        url: 'https://api.lift.zone/license'
+      }
+    }
+  }
+}, {
   register: require('good'),
   options: Config.good
 }, {

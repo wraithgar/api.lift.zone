@@ -5,7 +5,7 @@ const Joi = require('joi');
 
 module.exports = {
   description: 'Create a new activity',
-  tags: ['activity'],
+  tags: ['api', 'activity'],
   handler: function (request, reply) {
 
     const user_id = request.auth.credentials.id;

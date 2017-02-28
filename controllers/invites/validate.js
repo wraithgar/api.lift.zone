@@ -6,7 +6,7 @@ const Joi = require('joi');
 
 module.exports = {
   description: 'Check invite validity',
-  tags: ['user'],
+  tags: ['api', 'user'],
   handler: function (request, reply) {
 
     const params = Object.assign({}, request.params, { claimed_by: null });

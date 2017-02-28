@@ -4,7 +4,7 @@ const Joi = require('joi');
 
 module.exports = {
   description: 'Get activities for logged in user',
-  tags: ['activity'],
+  tags: ['api', 'activity'],
   handler: function (request, reply) {
 
     const params = Object.assign({ id: request.auth.credentials.id }, request.query);

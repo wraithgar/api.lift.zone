@@ -5,7 +5,7 @@ const Boom = require('boom');
 
 module.exports = {
   description: 'Get a workout by id',
-  tags: ['workout'],
+  tags: ['api', 'workout'],
   handler: function (request, reply) {
 
     const attrs = Object.assign({}, request.params, { user_id: request.auth.credentials.id });

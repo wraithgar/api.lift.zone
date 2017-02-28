@@ -6,7 +6,7 @@ const Utils = require('../../lib/utils');
 
 module.exports = {
   description: 'Create a new workout',
-  tags: ['workout'],
+  tags: ['api', 'workout'],
   handler: function (request, reply) {
 
     const result = this.db.workouts.findOne({ date: request.payload.date, user_id: request.auth.credentials.id }).then((existing) => {

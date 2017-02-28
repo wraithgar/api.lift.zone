@@ -5,7 +5,7 @@ const Boom = require('boom');
 
 module.exports = {
   description: 'Get a public workout by id',
-  tags: ['workout'],
+  tags: ['api', 'workout'],
   handler: function (request, reply) {
 
     const result = this.db.workouts.public(request.params).then((workout) => {

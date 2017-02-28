@@ -6,7 +6,7 @@ const Config = require('getconfig');
 
 module.exports = {
   description: 'Request password recovery',
-  tags: ['user'],
+  tags: ['api', 'user'],
   handler: function (request, reply) {
 
     /* there is no condition under which we will do anything but this reply

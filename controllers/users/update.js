@@ -5,7 +5,7 @@ const Boom = require('boom');
 
 module.exports = {
   description: 'Update user info',
-  tags: ['user'],
+  tags: ['api', 'user'],
   handler: function (request, reply) {
 
     const result = this.db.users.findOne({ id: request.auth.credentials.id }).then((user) => {
