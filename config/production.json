@@ -5,7 +5,7 @@
       "secretAccessKey": "$AWS_SECRET_ACCESS_KEY"
     }
   },
-  "clientUri": "https://lift.zone",
+  "clientUri": "$CLIENT_URI",
   "db": {
     "client": "postgresql",
     "connection": "$DATABASE_URL"
@@ -22,7 +22,7 @@
       "routes": {
         "cors": {
           "additionalExposedHeaders": ["Link"],
-          "origin": ["https://lift.zone"]
+          "origin": ["$CORS_ORIGIN"]
         }
       }
     }
@@ -52,7 +52,7 @@
   },
   "pagination": {
     "meta": {
-      "baseUri": "https://api.lift.zone"
+      "baseUri": "$API_URI"
     }
   }
 }

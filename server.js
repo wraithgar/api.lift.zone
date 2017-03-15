@@ -47,7 +47,7 @@ module.exports.server = server.register([{
       contact: Pkg.author,
       license: {
         name: Pkg.license,
-        url: 'https://api.lift.zone/license'
+        url: 'https://api.lift.zone/license'//This one is ok to hard code imo
       }
     }
   }
