@@ -29,7 +29,6 @@
   },
   "connection": {
     "public": {
-      "port": "$PORT",
       "labels": "public"
     }
   },

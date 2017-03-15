@@ -12,6 +12,14 @@ const db = new Muckraker(Config.db);
 Config.hapi.cache.engine = require(Config.hapi.cache.engine);
 
 const server = new Hapi.Server(Config.hapi);
+
+//$PORT is not set during postinstall, so we can't
+//include it in the config, hence this if statement
+//$lab:coverage:off$
+if (process.env.NODE_ENV === 'production') {
+  Config.connection.public.port = process.env.PORT;
+}
+//$lab:coverage:on$
 server.connection(Config.connection.public);
 
 //$lab:coverage:off$
