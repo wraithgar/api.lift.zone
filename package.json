@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "postinstall": "if [ $MIGRATE_DATABASE ]; then npm run migratedb; fi",
+    "heroku-postbuild": "npm run migratedb",
     "knex": "knex",
     "test": "lab -a code -t 100 -L -v -e test",
     "coverage": "npm test -- -r html -o coverage.html",
