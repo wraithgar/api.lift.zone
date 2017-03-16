@@ -73,10 +73,21 @@ describe('GET /activities', () => {
 
     return server.inject({ method: 'get', url: '/activities', credentials: user1 }).then((res) => {
 
-      console.log(res.result.length);
       expect(res.statusCode).to.equal(206);
       expect(res.headers).to.include('link');
       expect(res.headers['content-range']).to.equal('0-9/11');
+      return res.result;
+    }).then((result) => {
+
+      expect(result).to.have.length(10);
+    });
+  });
+
+  it('lists all activities for a user', () => {
+
+    return server.inject({ method: 'get', url: '/activities?limit=20', credentials: user1 }).then((res) => {
+
+      expect(res.statusCode).to.equal(200);
       return res.result;
     }).then((result) => {
 
