@@ -5,16 +5,16 @@ const Config = require('getconfig');
 
 exports.seed = function (knex) {
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.ALLOW_SEED === 'production' && process.env.ALLOW_SEED !== 'true') {
     console.log('not re-seeding admin in production');
     return;
   }
 
-  return knex('users').where('email', 'gar+liftzone@danger.computer').del().then(() => {
+  return knex('users').where('email', 'admin@lift.zone').del().then(() => {
 
     return knex('users').insert({
-      name: 'Gar',
-      email: 'gar+liftzone@danger.computer',
+      name: 'Admin',
+      email: 'admin@lift.zone',
       hash: Bcrypt.hashSync(Config.auth.seedPassword, Bcrypt.genSaltSync(10)),
       scope: JSON.stringify(['admin']),
       created_at: new Date(),

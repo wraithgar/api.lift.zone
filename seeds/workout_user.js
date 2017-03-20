@@ -101,7 +101,7 @@ const addWorkout = function (knex, user_id, name, details) {
 
 exports.seed = function (knex) {
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.ALLOW_SEED === 'production' && process.env.ALLOW_SEED !== 'true') {
     console.log('not re-seeding admin in production');
     return;
   }
