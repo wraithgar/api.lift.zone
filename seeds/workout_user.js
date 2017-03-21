@@ -106,7 +106,7 @@ exports.seed = function (knex) {
     return;
   }
 
-  return knex('users').where('email', 'test@test.com').del().then(() => {
+  return knex('users').where('email', 'test@lift.zone').del().then(() => {
 
     return knex('users').insert({
       name: 'Trophy',
