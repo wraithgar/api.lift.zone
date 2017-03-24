@@ -5,6 +5,7 @@ const Controllers = require('keyfob').load({ path: './controllers', fn: require 
 module.exports = [
   /* heartbeat */
   { method: 'GET', path: '/heartbeat', config: Controllers.heartbeat },
+
   /* /user */
   { method: 'GET', path: '/user', config: Controllers.users.self },
   { method: 'PATCH', path: '/user', config: Controllers.users.update },
@@ -38,6 +39,11 @@ module.exports = [
 
   /* /admin */
   { method: 'GET', path: '/admin/users', config: Controllers.admin.users.list },
+
+  /* Static content */
+  { method: 'GET', path: '/favicon.ico', handler: { file: 'favicon.ico' }, config: { auth: false } },
+  { method: 'GET', path: '/humans.txt', handler: { file: 'humans.txt' }, config: { auth: false } },
+  { method: 'GET', path: '/robots.txt', handler: { file: 'robots.txt' }, config: { auth: false } },
 
   /* LICENSE */
   { method: 'GET', path: '/license', handler: { file: 'LICENSE.TXT' }, config: { auth: false } }
