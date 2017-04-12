@@ -41,7 +41,10 @@ if (process.env.NODE_ENV !== 'production') {
 //$lab:coverage:on$
 
 module.exports.db = db;
+
 module.exports.server = server.register([{
+  register: require('./lib/https')
+}, {
   register: require('inert')
 }, {
   register: require('vision')
