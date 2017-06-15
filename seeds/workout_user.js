@@ -35,7 +35,7 @@ const removeActivityAliases = function (knex, activity_id) {
 
   return knex('activities').select('id').where('activity_id', activity_id).map((activity_alias) =>
 
-   knex('activities').select().where('activity_id', activity_alias.id).del());
+    knex('activities').select().where('activity_id', activity_alias.id).del());
 };
 
 const removeActivity = function (knex, name) {
@@ -123,10 +123,10 @@ exports.seed = function (knex) {
         addActivity(knex, user[0], name, details))
       ).then(() =>
 
-          Promise.all(Object.entries(workouts).map(([name, details]) =>
+        Promise.all(Object.entries(workouts).map(([name, details]) =>
 
-            addWorkout(knex, user[0], name, details)
-          ))
+          addWorkout(knex, user[0], name, details)
+        ))
       );
       return Promise.all([
         ...[1,2,3,4,5].map((i) => knex('invites').insert({ user_id: user[0], created_at: new Date(), updated_at: new Date() })),

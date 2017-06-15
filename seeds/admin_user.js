@@ -5,7 +5,7 @@ const Config = require('getconfig');
 
 exports.seed = function (knex) {
 
-  if (process.env.ALLOW_SEED === 'production' && process.env.ALLOW_SEED !== 'true') {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_SEED !== 'true') {
     console.log('not re-seeding admin in production');
     return;
   }
