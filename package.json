@@ -41,7 +41,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "2.95.0",
+    "aws-sdk": "2.96.0",
     "bcrypt": "1.0.2",
     "boom": "5.2.0",
     "caber": "^5.0.0",
