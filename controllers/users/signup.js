@@ -9,42 +9,34 @@ const _ = require('lodash');
 module.exports = {
   description: 'Sign up',
   tags: ['api', 'user'],
-  handler: function (request, reply) {
+  handler: async function (request, reply) {
 
-    const result = this.db.invites.findOne({ token: request.payload.invite, claimed_by: null }).then((invite) => {
+    const invite = await this.db.invites.findOne({ token: request.payload.invite, claimed_by: null });
 
-      if (!invite) {
+    if (!invite) {
+      throw Boom.notFound('Invalid invite');
+    }
+    const hash = await this.utils.bcryptHash(request.payload.password);
 
-        throw Boom.notFound('Invalid invite');
-      }
-    }).then(() => {
+    await this.db.tx(async (tx) => {
 
-      return this.utils.bcryptHash(request.payload.password).then((hash) => {
-
-        return this.db.tx((tx) => {
-
-          return tx.users.insert({
-            name: request.payload.name,
-            email: request.payload.email,
-            hash
-          }).then((user) => {
-
-            return Promise.all(_.times(Config.invites.count, () => {
-
-              return tx.invites.insert({ user_id: user.id });
-            })).then(() => {
-
-              return tx.invites.update({ token: request.payload.invite }, { claimed_by: user.id });
-            }).then(() => {
-
-              return { token: JWT.sign(user, Config.auth.secret, Config.auth.options) };
-            });
-          });
-        });
+      const user = await tx.users.insert({
+        name: request.payload.name,
+        email: request.payload.email,
+        hash
       });
+
+      await Promise.all(_.times(Config.invites.count, () => {
+
+        return tx.invites.insert({ user_id: user.id });
+      }));
+
+      await tx.invites.update({ token: request.payload.invite }, { claimed_by: user.id });
     });
 
-    return reply(result).code(201);
+    const user = await this.db.users.active(request.payload.email);
+
+    return reply({ token: JWT.sign(user, Config.auth.secret, Config.auth.options) }).code(201);
   },
   validate: {
     payload: {

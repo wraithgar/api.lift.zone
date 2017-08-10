@@ -6,35 +6,30 @@ const Boom = require('boom');
 module.exports = {
   description: 'Update user info',
   tags: ['api', 'user'],
-  handler: function (request, reply) {
+  handler: async function (request, reply) {
 
-    const result = this.db.users.findOne({ id: request.auth.credentials.id }).then((user) => {
+    const user = await this.db.users.active(request.auth.credentials.email);
 
-      return this.utils.bcryptCompare(request.payload.currentPassword, user);
-    }).then((user) => {
+    const valid = await this.utils.bcryptCompare(request.payload.currentPassword, user);
 
-      if (!user) {
-        throw Boom.badRequest('Current password does not match');
-      }
-      const attrs = Object.assign({}, request.payload);
+    if (!valid) {
+      throw Boom.badRequest('Current password does not match');
+    }
 
-      if (attrs.email) {
-        attrs.validated = false;
-      }
-      if (attrs.newPassword) {
-        return this.utils.bcryptHash(attrs.newPassword).then((hash) => {
+    const attrs = Object.assign({}, request.payload);
 
-          attrs.hash = hash;
-          return attrs;
-        });
-      }
-      return attrs;
-    }).then((attrs) => {
+    if (attrs.email) {
+      attrs.validated = false;
+    }
+    if (attrs.newPassword) {
+      attrs.hash = await this.utils.bcryptHash(attrs.newPassword);
+    }
+    delete attrs.currentPassword;
+    delete attrs.newPassword;
 
-      delete attrs.currentPassword;
-      delete attrs.newPassword;
-      return this.db.users.updateOne({ id: request.auth.credentials.id }, attrs);
-    });
+    const updatedUser = await this.db.users.updateOne({ id: request.auth.credentials.id }, attrs);
+
+    const result = this.db.users.active(updatedUser.email);
 
     return reply(result);
   },

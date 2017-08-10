@@ -6,18 +6,17 @@ const Joi = require('joi');
 module.exports = {
   description: 'Delete a workout',
   tags: ['api', 'workout'],
-  handler: function (request, reply) {
+  handler: async function (request, reply) {
 
-    const result = this.db.workouts.findOne({ id: request.params.id, user_id: request.auth.credentials.id }).then((existing) => {
+    const existing = await this.db.workouts.findOne({ id: request.params.id, user_id: request.auth.credentials.id });
 
-      if (!existing) {
-        throw Boom.notFound();
-      }
+    if (!existing) {
+      throw Boom.notFound();
+    }
 
-      return this.db.workouts.destroy({ id: existing.id });
-    });
+    await this.db.workouts.destroy({ id: existing.id });
 
-    return reply(result).code(204);
+    return reply().code(204);
   },
   validate: {
     params: {

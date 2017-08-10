@@ -5,31 +5,29 @@ const Boom = require('boom');
 module.exports = {
   description: 'Promote an activity to main activity',
   tags: ['api', 'activity'],
-  handler: function (request, reply) {
+  handler: async function (request, reply) {
 
-    const result = this.db.activities.findOne({ id: request.params.id, user_id: request.auth.credentials.id }).then((activity) => {
+    const activity = await this.db.activities.findOne({ id: request.params.id, user_id: request.auth.credentials.id });
 
-      if (!activity) {
-        throw Boom.notFound();
-      }
-      return this.db.tx((tx) => {
+    if (!activity) {
+      throw Boom.notFound();
+    }
 
-        // Set any current aliases to us
-        return tx.activities.update({ activity_id: activity.activity_id }, { activity_id: activity.id }).then(() => {
+    await this.db.tx(async (tx) => {
 
-          return Promise.all([
-            // Set our activity_id to null
-            tx.activities.updateOne({ id: activity.id }, { activity_id: null }),
-            // Set old parent's activity_id to us
-            tx.activities.updateOne({ id: activity.activity_id }, { activity_id: activity.id })
-          ]);
-        });
-      });
-    }).then(() => {
+      // Set any current aliases to us
+      await tx.activities.update({ activity_id: activity.activity_id }, { activity_id: activity.id });
 
-      return this.db.activities.with_aliases({ id: request.params.id, user_id: request.auth.credentials.id });
+      await Promise.all([
+        // Set our activity_id to null
+        tx.activities.updateOne({ id: activity.id }, { activity_id: null }),
+        // Set old parent's activity_id to us
+        tx.activities.updateOne({ id: activity.activity_id }, { activity_id: activity.id })
+      ]);
     });
 
-    return reply(result);
+    const activities = await this.db.activities.with_aliases({ id: request.params.id, user_id: request.auth.credentials.id });
+
+    return reply(activities);
   }
 };

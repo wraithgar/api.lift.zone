@@ -7,29 +7,25 @@ const Joi = require('joi');
 module.exports = {
   description: 'Authenticates a user and returns a JWT',
   tags: ['api', 'user'],
-  handler: function (request, reply) {
+  handler: async function (request, reply) {
 
     request.server.log(['users', 'auth'], `Login: ${request.payload.email}`);
 
-    const result = this.db.users.active(request.payload.email).then((user) => {
+    const user = await this.db.users.active(request.payload.email);
 
-      if (!user) {
-        throw Boom.unauthorized();
-      }
+    if (!user) {
+      throw Boom.unauthorized();
+    }
 
-      return this.utils.bcryptCompare(request.payload.password, user);
-    }).then((user) => {
+    const valid = await this.utils.bcryptCompare(request.payload.password, user);
 
-      if (!user) {
-        throw Boom.unauthorized();
-      }
+    if (!valid) {
+      throw Boom.unauthorized();
+    }
 
-      delete user.hash;
-      user.timestamp = new Date();
-      return { token: JWT.sign(user, Config.auth.secret, Config.auth.options) };
-    });
-
-    return reply(result).code(201);
+    delete user.hash;
+    user.timestamp = new Date();
+    return reply({ token: JWT.sign(user, Config.auth.secret, Config.auth.options) }).code(201);
   },
   validate: {
     payload: {

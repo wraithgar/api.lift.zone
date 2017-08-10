@@ -117,6 +117,7 @@ describe('PATCH /user', () => {
 
         expect(updatedUser.email).to.equal(email);
         expect(updatedUser.validated).to.equal(false);
+        user.email = email; //Make other tests pass now
       });
     });
   });

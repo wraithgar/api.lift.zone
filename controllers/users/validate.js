@@ -6,53 +6,55 @@ const Config = require('getconfig');
 module.exports = {
   description: 'Request email validation',
   tags: ['api', 'user'],
-  handler: function (request, reply) {
+  handler: async function (request, reply) {
 
-    const result = this.db.validations.fresh({ user_id: request.auth.credentials.id }).then((existingValidation) => {
 
-      if (existingValidation) {
-        return null;
-      }
+    const existingValidation = await this.db.validations.fresh({ user_id: request.auth.credentials.id });
 
-      return this.db.validations.insert({ user_id: request.auth.credentials.id }).then((validation) => {
+    if (existingValidation) {
+      return reply(null).code(202);
+    }
 
-        const email = {
-          Destination: {
-            ToAddresses: [
-              request.auth.credentials.email
-            ]
+    const validation = await this.db.validations.insert({ user_id: request.auth.credentials.id });
+
+    const email = {
+      Destination: {
+        ToAddresses: [
+          request.auth.credentials.email
+        ]
+      },
+      Message: {
+        Body: {
+          Text: {
+            Data: `Here is the link to validate your lift.zone account: ${Config.clientUri}/validate?token=${validation.token}\n\nOnce validate you will be able to send invites and recover your password should you lose it.\n\nThis link expires in 15 minutes.`
           },
-          Message: {
-            Body: {
-              Text: {
-                Data: `Here is the link to validate your lift.zone account: ${Config.clientUri}/validate?token=${validation.token}\n\nOnce validate you will be able to send invites and recover your password should you lose it.\n\nThis link expires in 15 minutes.`
-              },
-              Html: {
-                Data: `<a href="${Config.clientUri}/validate?token=${validation.token}">Here</a> is the link you requested to recover your lift.zone password.<br /><br />Once validate you will be able to send invites and recover your password should you lose it.<br /><br />This link expires in 15 minutes.`
-              }
-            },
-            Subject: {
-              Data: 'Lift zone account validation'
-            }
-          },
-          Source: Config.email.from,
-          ReplyToAddresses: [
-            Config.email.from
-          ]
-        };
-
-        // $lab:coverage:off$
-        if (process.env.NODE_ENV) {
-          return AWS.sendEmail(email);
+          Html: {
+            Data: `<a href="${Config.clientUri}/validate?token=${validation.token}">Here</a> is the link you requested to recover your lift.zone password.<br /><br />Once validate you will be able to send invites and recover your password should you lose it.<br /><br />This link expires in 15 minutes.`
+          }
+        },
+        Subject: {
+          Data: 'Lift zone account validation'
         }
-        request.log(['debug'], validation.token);
-        // $lab:coverage:on$
-      });
-    }).then(() => {
+      },
+      Source: Config.email.from,
+      ReplyToAddresses: [
+        Config.email.from
+      ]
+    };
 
-      return null;
-    });
-    return reply(result).code(202);
+    // $lab:coverage:off$
+    if (process.env.NODE_ENV) {
+      try {
+        AWS.sendEmail(email);
+      }
+      catch (err) {
+        request.log(['error', 'user', 'validate'], err.stack || err);
+      };
+    }
+    // $lab:coverage:on$
+    request.log(['debug'], validation.token);
+
+    return reply(null).code(202);
   }
 };
 

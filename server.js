@@ -23,13 +23,11 @@ if (process.env.NODE_ENV === 'production') {
 server.connection(Config.connection.public);
 
 //$lab:coverage:off$
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
 
   server.log(['info', 'shutdown'], 'Graceful shutdown');
-  server.stop({ timeout: Config.shutdownTimeout }).then(() => {
-
-    return process.exit(0);
-  });
+  await server.stop({ timeout: Config.shutdownTimeout });
+  process.exit(0);
 });
 
 if (process.env.NODE_ENV !== 'production') {
@@ -113,23 +111,20 @@ module.exports.server = server.register([{
   });
 
   server.route(require('./routes'));
-}).then(() => {
+}).then(async () => {
 
   // coverage disabled because module.parent is always defined in tests
   // $lab:coverage:off$
   if (module.parent) {
-    return server.initialize().then(() => {
-
-      return server;
-    });
+    await server.initialize();
+    return server;
   }
 
-  return server.start().then(() => {
+  await server.start();
 
-    server.connections.forEach((connection) => {
+  server.connections.forEach((connection) => {
 
-      server.log(['info', 'startup'], `${connection.info.uri} ${connection.settings.labels}`);
-    });
+    server.log(['info', 'startup'], `${connection.info.uri} ${connection.settings.labels}`);
   });
   // $lab:coverage:on$
 }).catch((err) => {

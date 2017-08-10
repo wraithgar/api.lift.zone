@@ -6,24 +6,26 @@ const Joi = require('joi');
 module.exports = {
   description: 'Confirm email',
   tags: ['api', 'user'],
-  handler: function (request, reply) {
+  handler: async function (request, reply) {
 
-    const result = this.db.validations.confirm({ user_id: request.auth.credentials.id, token: request.payload.token }).then((validation) => {
+    const validation = await this.db.validations.confirm({ user_id: request.auth.credentials.id, token: request.payload.token });
 
-      if (!validation) {
+    if (!validation) {
+      throw Boom.notFound('Invalid Token');
+    }
 
-        throw Boom.notFound('Invalid Token');
-      }
-      return this.db.tx((tx) => {
+    await this.db.tx(async(tx) => {
 
-        return tx.validations.destroy({ user_id: validation.user_id }).then(() => {
-
-          return tx.users.updateOne({ id: request.auth.credentials.id }, { validated: true });
-        });
-      });
+      await Promise.all([
+        tx.validations.destroy({ user_id: validation.user_id }),
+        tx.users.updateOne({ id: request.auth.credentials.id }, { validated: true })
+      ]);
     });
-    return reply(result);
 
+    const user = await this.db.users.active(request.auth.credentials.email);
+    delete user.hash;
+
+    return reply(user);
   },
   validate: {
     payload: {
