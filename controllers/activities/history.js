@@ -6,42 +6,36 @@ const Joi = require('joi');
 module.exports = {
   description: 'Get workout history for an activity by id',
   tags: ['api', 'activity'],
-  handler: function (request, reply) {
+  handler: async function (request, reply) {
 
     const params = Object.assign({ user_id: request.auth.credentials.id }, request.params);
+    const activity = await this.db.activities.findOne(params);
 
-    const result = this.db.activities.findOne(params).then((activity) => {
+    if (!activity) {
+      throw Boom.notFound();
+    }
 
-      if (!activity) {
-        throw Boom.notFound();
-      }
+    let id = activity.id;
+    if (activity.activity_id) {
+      id = activity.activity_id;
+    }
 
-      let id = activity.id;
-      if (activity.activity_id) {
-        id = activity.activity_id;
-      }
-      //id is now the real activity
-      return this.db.activities.history_count({ id, user_id: request.auth.credentials.id }).then((history_count) => {
+    const history_count = await this.db.activities.history_count({ id, user_id: request.auth.credentials.id });
+    request.totalCount = history_count.count;
 
-        request.totalCount = history_count.count;
+    if (request.query.page === 0) {
+      request.query.page = this.utils.lastPage(history_count.count, request.query.limit);
+    }
 
-        if (request.query.page === 0) {
-          request.query.page = this.utils.lastPage(history_count.count, request.query.limit);
-        }
+    if (history_count.count === 0) {
+      return reply([]);
+    }
 
-        if (history_count.count === 0) {
-          return [];
-        }
+    const query = Object.assign({ id, user_id: request.auth.credentials.id }, request.query);
+    query.page = (query.page - 1) * query.limit;
+    const activities = await this.db.activities.history(query);
 
-
-        const query = Object.assign({ id, user_id: request.auth.credentials.id }, request.query);
-        query.page = (query.page - 1) * query.limit;
-
-        return this.db.activities.history(query);
-      });
-    });
-
-    return reply(result);
+    return reply(activities);
   },
   validate: {
     params: {

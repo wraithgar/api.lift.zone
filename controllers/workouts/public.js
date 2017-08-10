@@ -6,18 +6,15 @@ const Boom = require('boom');
 module.exports = {
   description: 'Get a public workout by id',
   tags: ['api', 'workout'],
-  handler: function (request, reply) {
+  handler: async function (request, reply) {
 
-    const result = this.db.workouts.public(request.params).then((workout) => {
+    const workout = await this.db.workouts.public(request.params);
 
-      if (!workout) {
-        throw Boom.notFound();
-      }
+    if (!workout) {
+      throw Boom.notFound();
+    }
 
-      return workout;
-    });
-
-    return reply(result);
+    return reply(workout);
   },
   validate: {
     params: {

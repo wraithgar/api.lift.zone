@@ -54,6 +54,7 @@ describe('POST /user/confirm', () => {
     }).then((result) => {
 
       expect(result.validated).to.equal(true);
+      expect(result).to.not.include('hash');
       return db.users.findOne({ id: user1.id });
     }).then((updatedUser) => {
 

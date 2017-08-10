@@ -4,20 +4,17 @@ const Boom = require('boom');
 
 module.exports = {
   description: 'Heartbeat',
-  handler: function (request, reply) {
+  handler: async function (request, reply) {
 
-    const result = this.db.users.count().then((count) => {
+    const count = await this.db.users.count();
 
-      //$lab:coverage:off$
-      if (count.count > -1) {
-        return 'ok';
-      }
+    //$lab:coverage:off$
+    if (count.count > -1) {
+      return reply('ok').type('text/plain');
+    }
 
-      throw Boom.internal('Heartbeat error');
-      //$lab:coverage:on$
-    });
-
-    return reply(result);
+    throw Boom.internal('Heartbeat error');
+    //$lab:coverage:on$
   },
   auth: false
 };
