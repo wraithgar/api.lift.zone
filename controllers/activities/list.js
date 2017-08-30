@@ -7,7 +7,7 @@ module.exports = {
   tags: ['api', 'activity'],
   handler: async function (request, reply) {
 
-    const params = Object.assign({ id: request.auth.credentials.id }, request.query);
+    const params = { ...request.query, id: request.auth.credentials.id };
     params.page = (params.page - 1) * params.limit;
     const activity_count = await this.db.activities.for_user_count(params);
     request.totalCount = activity_count.count;

@@ -16,7 +16,7 @@ module.exports = {
       throw Boom.badRequest('Current password does not match');
     }
 
-    const attrs = Object.assign({}, request.payload);
+    const attrs = { ...request.payload };
 
     if (attrs.email) {
       attrs.validated = false;

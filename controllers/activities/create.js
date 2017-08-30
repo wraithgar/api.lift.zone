@@ -18,7 +18,7 @@ module.exports = {
       }
     }
 
-    const attrs = Object.assign({}, { user_id }, request.payload);
+    const attrs =  { ...request.payload, user_id };
     const result =  this.db.activities.insert(attrs);
 
     return reply(result).code(201);

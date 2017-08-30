@@ -8,7 +8,7 @@ module.exports = {
   tags: ['api', 'activity'],
   handler: async function (request, reply) {
 
-    const params = Object.assign({ user_id: request.auth.credentials.id }, request.params);
+    const params = { ...request.params, user_id: request.auth.credentials.id };
     const activity = await this.db.activities.findOne(params);
 
     if (!activity) {
@@ -31,7 +31,7 @@ module.exports = {
       return reply([]);
     }
 
-    const query = Object.assign({ id, user_id: request.auth.credentials.id }, request.query);
+    const query = { ...request.query, id, user_id: request.auth.credentials.id };
     query.page = (query.page - 1) * query.limit;
     const activities = await this.db.activities.history(query);
 
