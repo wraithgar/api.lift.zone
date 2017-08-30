@@ -15,7 +15,7 @@ module.exports = {
       throw Boom.conflict(`There is already a workout for ${request.payload.date}`);
     }
 
-    const attrs = Object.assign(request.payload, { user_id: request.auth.credentials.id });
+    const attrs = { ...request.payload, user_id: request.auth.credentials.id };
 
     return reply(this.db.workouts.insert(attrs)).code(201);
   },

@@ -8,7 +8,7 @@ module.exports = {
   tags: ['api', 'workout'],
   handler: async function (request, reply) {
 
-    const attrs = Object.assign({}, request.params, { user_id: request.auth.credentials.id });
+    const attrs = { ...request.params, user_id: request.auth.credentials.id };
     const workout = await this.db.workouts.findOne(attrs);
 
     if (!workout) {

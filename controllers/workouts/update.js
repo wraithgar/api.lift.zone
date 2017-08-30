@@ -22,7 +22,7 @@ module.exports = {
       throw Boom.conflict(`There is already a workout for ${request.payload.date}`);
     }
 
-    const attrs = Object.assign({}, request.payload);
+    const attrs = { ...request.payload };
 
     const workout = this.db.workouts.updateOne({ id: request.params.id }, attrs);
 

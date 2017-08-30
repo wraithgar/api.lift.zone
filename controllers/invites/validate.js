@@ -9,7 +9,7 @@ module.exports = {
   tags: ['api', 'user'],
   handler: async function (request, reply) {
 
-    const params = Object.assign({}, request.params, { claimed_by: null });
+    const params = { ...request.params, claimed_by: null };
     const invite = await this.db.invites.findOne(params, ['token']);
 
     if (!invite) {
