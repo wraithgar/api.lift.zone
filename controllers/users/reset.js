@@ -31,7 +31,7 @@ module.exports = {
 
     delete user.hash;
     user.timestamp = new Date();
-    return reply({ token: JWT.sign(user, Config.auth.secret, Config.auth.options) }).code(201);
+    return reply({ token: JWT.sign({ ...user }, Config.auth.secret, Config.auth.options) }).code(201);
   },
   validate: {
     payload: {
