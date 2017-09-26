@@ -45,7 +45,7 @@
     "bcrypt": "1.0.3",
     "boom": "5.2.0",
     "caber": "^5.0.0",
-    "catbox-memory": "2.0.4",
+    "catbox-memory": "3.0.0",
     "drboom": "1.1.0",
     "drboom-joi": "0.5.0",
     "drboom-pg": "0.3.1",
