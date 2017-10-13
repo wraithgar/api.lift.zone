@@ -60,7 +60,7 @@
     "hapi-swagger": "7.8.1",
     "inert": "4.2.1",
     "joi": "11.3.4",
-    "joi-date-extensions": "1.0.2",
+    "joi-date-extensions": "1.1.0",
     "jsonwebtoken": "8.1.0",
     "keyfob": "1.0.0",
     "knex": "0.13.0",
