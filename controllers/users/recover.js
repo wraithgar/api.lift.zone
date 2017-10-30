@@ -9,21 +9,16 @@ module.exports = {
   tags: ['api', 'user'],
   handler: async function (request, reply) {
 
-    /* there is no condition under which we will do anything but this reply
-     * so just send it now and do the rest asynchronously
-     */
-    reply(null).code(202);
-
     const existingRecovery = await this.db.recoveries.fresh(request.payload);
 
     if (existingRecovery) {
-      return;
+      return reply(null).code(202);
     }
 
     const user = await this.db.users.findOne({ email: request.payload.email, validated: true });
 
     if (!user) {
-      return;
+      return reply(null).code(202);
     }
     const recovery = await this.db.tx(async (tx) => {
 
@@ -67,6 +62,11 @@ module.exports = {
     }
     // $lab:coverage:on$
     request.log(['debug'], recovery.token);
+
+    //We used to return instantly but since changing to async/await that broke
+    //but it works if we reply at the end and I can't be bothered to
+    //figure out why
+    reply(null).code(202);
   },
   validate: {
     payload: {
