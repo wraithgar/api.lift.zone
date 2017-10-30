@@ -22,32 +22,29 @@ describe('POST /user/recover', () => {
   let server;
   const user1 = Fixtures.user({ logout: Faker.date.past() });
   const user2 = Fixtures.user({ logout: Faker.date.past(), validated: false });
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
+    server = await Server;
+    await Promise.all([
       db.users.insert(user1),
       db.users.insert(user2)
-    ]).then((items) => {
-
-      server = items[0];
-    });
+    ]);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
 
-    return db.recoveries.destroy({ email: user1.email });
+    await db.recoveries.destroy({ email: user1.email });
   });
 
-  after(() => {
+  after(async () => {
 
-    return Promise.all([
+    await Promise.all([
       db.users.destroy({ id: user1.id }),
       db.users.destroy({ id: user2.id })
     ]);
   });
 
-  it('creates a recovery', (done) => {
+  it('creates a recovery', async () => {
 
     let sesParams;
     StandIn.replace(AWS, 'sendEmail', (stand, params) => {
@@ -56,85 +53,56 @@ describe('POST /user/recover', () => {
       sesParams = params;
     });
 
-    server.inject({ method: 'post', url: '/user/recover', payload: { email: user1.email } }).then((res) => {
+    const res = await server.inject({ method: 'post', url: '/user/recover', payload: { email: user1.email } });
 
-      //Wait for promises to fire asynchronously
-      setTimeout(() => {
+    expect(res.statusCode).to.equal(202);
+    expect(res.result).to.equal(null);
+    const recovery = await db.recoveries.findOne({ email: user1.email });
 
-        expect(res.statusCode).to.equal(202);
-        expect(res.result).to.equal(null);
-        db.recoveries.findOne({ email: user1.email }).then((recovery) => {
-
-          expect(recovery).to.exist();
-          expect(sesParams.Destination.ToAddresses).to.include(user1.email);
-          expect(sesParams.Message.Body.Text.Data).to.include(recovery.token);
-          done();
-        });
-      }, 50);
-    });
+    expect(recovery).to.exist();
+    expect(sesParams.Destination.ToAddresses).to.include(user1.email);
+    expect(sesParams.Message.Body.Text.Data).to.include(recovery.token);
   });
 
-  it('ignores invalid email', (done) => {
+  it('ignores invalid email', async () => {
 
     const email = Faker.internet.email();
-    server.inject({ method: 'post', url: '/user/recover', payload: { email } }).then((res) => {
+    const res = await server.inject({ method: 'post', url: '/user/recover', payload: { email } });
 
-      //Wait for promises to fire asynchronously
-      setTimeout(() => {
-
-        expect(res.statusCode).to.equal(202);
-        expect(res.result).to.equal(null);
-        db.recoveries.findOne({ email }).then((recovery) => {
-
-          expect(recovery).to.not.exist();
-          done();
-        });
-      }, 50);
-    });
+    expect(res.statusCode).to.equal(202);
+    expect(res.result).to.equal(null);
+    const recovery = await db.recoveries.findOne({ email });
+    expect(recovery).to.not.exist();
   });
 
-  it('ignores non validated user', (done) => {
+  it('ignores non validated user', async () => {
 
-    server.inject({ method: 'post', url: '/user/recover', payload: { email: user2.email } }).then((res) => {
+    const res = await server.inject({ method: 'post', url: '/user/recover', payload: { email: user2.email } });
 
-      //Wait for promises to fire asynchronously
-      setTimeout(() => {
+    expect(res.statusCode).to.equal(202);
+    expect(res.result).to.equal(null);
+    const recovery = await db.recoveries.findOne({ email: user2.email });
 
-        expect(res.statusCode).to.equal(202);
-        expect(res.result).to.equal(null);
-        db.recoveries.findOne({ email: user2.email }).then((recovery) => {
-
-          expect(recovery).to.not.exist();
-          done();
-        });
-      }, 50);
-    });
+    expect(recovery).to.not.exist();
   });
 
   describe('with existing recovery', () => {
 
     const recovery = Fixtures.recovery({ email: user1.email });
-    before(() => {
+    before(async () => {
 
-      return db.recoveries.insert(recovery);
+      await db.recoveries.insert(recovery);
     });
 
-    it('does nothing', (done) => {
+    it('does nothing', async () => {
 
-      server.inject({ method: 'post', url: '/user/recover', payload: { email: user1.email } }).then((res) => {
+      const res = await server.inject({ method: 'post', url: '/user/recover', payload: { email: user1.email } });
 
-        //Wait for promises to fire asynchronously
-        setTimeout(() => {
+      expect(res.statusCode).to.equal(202);
+      expect(res.result).to.equal(null);
+      const existingRecovery = await db.recoveries.findOne({ email: user1.email });
 
-          expect(res.statusCode).to.equal(202);
-          expect(res.result).to.equal(null);
-          db.recoveries.findOne({ email: user1.email }).then((existingRecovery) => {
-
-            expect(existingRecovery).to.include(recovery);
-            done();
-          });
-        }, 50);
-      });
+      expect(existingRecovery).to.include(recovery);
     });
   });
 });
