@@ -43,7 +43,7 @@
   "dependencies": {
     "aws-sdk": "2.141.0",
     "bcrypt": "1.0.3",
-    "boom": "6.0.0",
+    "boom": "7.0.0",
     "caber": "^5.0.0",
     "catbox-memory": "2.0.4",
     "drboom": "1.1.0",
