@@ -56,7 +56,7 @@
     "hapi": "16.6.2",
     "hapi-auth-jwt2": "7.3.0",
     "hapi-pagination": "1.22.0",
-    "hapi-rate-limit": "1.4.1",
+    "hapi-rate-limit": "2.0.0",
     "hapi-swagger": "8.0.0",
     "inert": "4.2.1",
     "joi": "13.0.1",
