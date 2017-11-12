@@ -59,7 +59,7 @@
     "hapi-rate-limit": "1.4.1",
     "hapi-swagger": "8.0.0",
     "inert": "4.2.1",
-    "joi": "13.0.1",
+    "joi": "13.0.2",
     "joi-date-extensions": "1.1.0",
     "jsonwebtoken": "8.1.0",
     "keyfob": "1.0.0",
