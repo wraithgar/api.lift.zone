@@ -15,21 +15,15 @@
     "seedPassword": "$SEED_PASSWORD"
   },
   "hapi": {
+    "port": 3001,
     "cache": {
       "engine": "catbox-memory"
     },
-    "connections": {
-      "routes": {
-        "cors": {
-          "additionalExposedHeaders": ["Link"],
-          "origin": ["$CORS_ORIGIN"]
-        }
+    "routes": {
+      "cors": {
+        "additionalExposedHeaders": ["Link"],
+        "origin": ["$CORS_ORIGIN"]
       }
-    }
-  },
-  "connection": {
-    "public": {
-      "labels": "public"
     }
   },
   "good": {

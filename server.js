@@ -11,16 +11,15 @@ const db = new Muckraker(Config.db);
 
 Config.hapi.cache.engine = require(Config.hapi.cache.engine);
 
-const server = new Hapi.Server(Config.hapi);
-
 //$PORT is not set during postinstall, so we can't
 //include it in the config, hence this if statement
 //$lab:coverage:off$
 if (process.env.NODE_ENV === 'production') {
-  Config.connection.public.port = process.env.PORT;
+  Config.hapi.port = process.env.PORT;
 }
 //$lab:coverage:on$
-server.connection(Config.connection.public);
+
+const server = new Hapi.Server(Config.hapi);
 
 //$lab:coverage:off$
 process.on('SIGTERM', async () => {
@@ -31,53 +30,53 @@ process.on('SIGTERM', async () => {
 });
 
 if (process.env.NODE_ENV !== 'production') {
-  server.on('request-error', (err, m) => {
+  server.events.on({ name: 'request', channels: ['error'] }, (request, event) => {
 
-    console.log(m.stack);
-  } );
+      console.log(event.stack || event);
+  });
 }
 //$lab:coverage:on$
 
 module.exports.db = db;
 
 module.exports.server = server.register([{
-  register: require('./lib/https')
+  plugin: require('./lib/https')
 }, {
-  register: require('inert')
+  plugin: require('inert')
+//}, {
+  //register: require('vision')
+//}, {
+  //register: require('hapi-swagger'),
+  //options: {
+    //grouping: 'tags',
+    //info: {
+      //title: Pkg.description,
+      //version: Pkg.version,
+      //contact: Pkg.author,
+      //license: {
+        //name: Pkg.license,
+        //url: 'https://api.lift.zone/license'//This one is ok to hard code imo
+      //}
+    //}
+  //}
+//}, {
+  //register: require('good'),
+  //options: Config.good
 }, {
-  register: require('vision')
-}, {
-  register: require('hapi-swagger'),
-  options: {
-    grouping: 'tags',
-    info: {
-      title: Pkg.description,
-      version: Pkg.version,
-      contact: Pkg.author,
-      license: {
-        name: Pkg.license,
-        url: 'https://api.lift.zone/license'//This one is ok to hard code imo
-      }
-    }
-  }
-}, {
-  register: require('good'),
-  options: Config.good
-}, {
-  register: require('hapi-rate-limit'),
+  plugin: require('hapi-rate-limit'),
   options: Config.rateLimit
+//}, {
+  //register: require('drboom'),
+  //options: {
+    //plugins: [
+      //require('drboom-joi')({ Boom: require('boom') }),
+      //require('drboom-pg')({})
+    //]
+  //}
 }, {
-  register: require('drboom'),
-  options: {
-    plugins: [
-      require('drboom-joi')({ Boom: require('boom') }),
-      require('drboom-pg')({})
-    ]
-  }
+  plugin: require('@now-ims/hapi-now-auth')
 }, {
-  register: require('hapi-auth-jwt2')
-}, {
-  register: require('hapi-pagination'),
+  plugin: require('hapi-pagination'),
   options: Config.pagination
 }]).then(() => {
 
@@ -85,30 +84,30 @@ module.exports.server = server.register([{
     db,
     utils: Utils
   });
-
-  server.auth.strategy('jwt', 'jwt', true, {
-    key: Config.auth.secret,
+  server.auth.strategy('jwt', 'hapi-now-auth', {
+    verifyJWT: true,
+    keychain: [Config.auth.secret],
     verifyOptions: {
       algorithms: [Config.auth.options.algorithm]
     },
-    validateFunc: (decoded, request, callback) => {
+    validate: async (request, decoded, h) => {
 
-      db.users.active(decoded.email).then((user) => {
+      const user = await db.users.active(decoded.email);
 
-        if (!user) {
-          return callback(null, false);
-        }
+      if (!user) {
+        return { isValid: false };
+      }
 
-        if (Date.parse(decoded.timestamp) < user.logout.getTime()) {
+      if (Date.parse(decoded.timestamp) < user.logout.getTime()) {
 
-          return callback(null, false);
-        }
+        return { isValid: false };
+      }
 
-        delete user.hash;
-        return callback(null, true, user);
-      }).catch(callback);
+      delete user.hash;
+      return { isValid: true, credentials: user };
     }
   });
+  server.auth.default('jwt');
 
   server.route(require('./routes'));
 }).then(async () => {
@@ -122,10 +121,7 @@ module.exports.server = server.register([{
 
   await server.start();
 
-  server.connections.forEach((connection) => {
-
-    server.log(['info', 'startup'], `${connection.info.uri} ${connection.settings.labels}`);
-  });
+  server.log(['info', 'startup'], `${server.info.uri}`);
   // $lab:coverage:on$
 }).catch((err) => {
 

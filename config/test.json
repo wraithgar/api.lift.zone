@@ -27,11 +27,6 @@
     "reporters": {
     }
   },
-  "connection": {
-    "public": {
-      "labels": "public"
-    }
-  },
   "inviteValidateRateLimit": {
     "pathLimit": 10,
     "pathCache": {
