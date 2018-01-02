@@ -5,7 +5,7 @@ const Joi = require('joi');
 module.exports = {
   description: 'Get activities for logged in user',
   tags: ['api', 'activity'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     const params = { ...request.query, id: request.auth.credentials.id };
     params.page = (params.page - 1) * params.limit;
@@ -13,7 +13,7 @@ module.exports = {
     request.totalCount = activity_count.count;
     const activities = await this.db.activities.for_user(params);
 
-    return reply(activities);
+    return activities;
   },
   validate: {
     query: {

@@ -5,15 +5,15 @@ const Joi = require('joi');
 module.exports = {
   description: 'Invites for currently logged in user',
   tags: ['api', 'user'],
-  handler: function (request, reply) {
+  handler: function (request, h) {
 
     if (!request.auth.credentials.validated) {
-      return reply([]);
+      return [];
     }
 
     const result = this.db.invites.find({ user_id: request.auth.credentials.id, claimed_by: null });
 
-    return reply(result);
+    return result;
   },
   response: {
     modify: true,

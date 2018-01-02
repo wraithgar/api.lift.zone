@@ -19,9 +19,9 @@ module.exports = {
     }
 
     const attrs =  { ...request.payload, user_id };
-    const result =  this.db.activities.insert(attrs);
+    const result = await this.db.activities.insert(attrs);
 
-    return reply(result).code(201);
+    return h.response(result).code(201);
   },
   validate: {
     payload: {

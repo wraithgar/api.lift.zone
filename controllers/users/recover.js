@@ -7,18 +7,18 @@ const Config = require('getconfig');
 module.exports = {
   description: 'Request password recovery',
   tags: ['api', 'user'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     const existingRecovery = await this.db.recoveries.fresh(request.payload);
 
     if (existingRecovery) {
-      return reply(null).code(202);
+      return h.response(null).code(202);
     }
 
     const user = await this.db.users.findOne({ email: request.payload.email, validated: true });
 
     if (!user) {
-      return reply(null).code(202);
+      return h.response(null).code(202);
     }
     const recovery = await this.db.tx(async (tx) => {
 
@@ -66,7 +66,7 @@ module.exports = {
     //We used to return instantly but since changing to async/await that broke
     //but it works if we reply at the end and I can't be bothered to
     //figure out why
-    reply(null).code(202);
+    return h.response(null).code(202);
   },
   validate: {
     payload: {

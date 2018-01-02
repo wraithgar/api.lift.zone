@@ -3,10 +3,10 @@
 module.exports = {
   description: 'Currently logged in user',
   tags: ['api', 'user'],
-  handler: function (request, reply) {
+  handler: function (request, h) {
 
     const user = request.auth.credentials;
 
-    reply(user);
+    return user;
   }
 };

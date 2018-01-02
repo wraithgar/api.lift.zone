@@ -6,7 +6,7 @@ const Joi = require('joi');
 module.exports = {
   description: 'Get workout history for an activity by id',
   tags: ['api', 'activity'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     const params = { ...request.params, user_id: request.auth.credentials.id };
     const activity = await this.db.activities.findOne(params);
@@ -28,14 +28,14 @@ module.exports = {
     }
 
     if (history_count.count === 0) {
-      return reply([]);
+      return [];
     }
 
     const query = { ...request.query, id, user_id: request.auth.credentials.id };
     query.page = (query.page - 1) * query.limit;
     const activities = await this.db.activities.history(query);
 
-    return reply(activities);
+    return activities;
   },
   validate: {
     params: {

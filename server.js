@@ -43,36 +43,28 @@ module.exports.server = server.register([{
   plugin: require('./lib/https')
 }, {
   plugin: require('inert')
-//}, {
-  //register: require('vision')
-//}, {
-  //register: require('hapi-swagger'),
-  //options: {
-    //grouping: 'tags',
-    //info: {
-      //title: Pkg.description,
-      //version: Pkg.version,
-      //contact: Pkg.author,
-      //license: {
-        //name: Pkg.license,
-        //url: 'https://api.lift.zone/license'//This one is ok to hard code imo
-      //}
-    //}
-  //}
+}, {
+  plugin: require('vision')
+}, {
+  plugin: require('hapi-swagger'),
+  options: {
+    grouping: 'tags',
+    info: {
+      title: Pkg.description,
+      version: Pkg.version,
+      contact: Pkg.author,
+      license: {
+        name: Pkg.license,
+        url: 'https://api.lift.zone/license'//This one is ok to hard code imo
+      }
+    }
+  }
 //}, {
   //register: require('good'),
   //options: Config.good
 }, {
   plugin: require('hapi-rate-limit'),
   options: Config.rateLimit
-//}, {
-  //register: require('drboom'),
-  //options: {
-    //plugins: [
-      //require('drboom-joi')({ Boom: require('boom') }),
-      //require('drboom-pg')({})
-    //]
-  //}
 }, {
   plugin: require('@now-ims/hapi-now-auth')
 }, {

@@ -1,13 +1,14 @@
 'use strict';
+const Bcrypt = require('bcrypt');
 const Boom = require('boom');
 const Config = require('getconfig');
-const JWT = require('jsonwebtoken');
 const Joi = require('joi');
+const JWT = require('jsonwebtoken');
 
 module.exports = {
   description: 'Authenticates a user and returns a JWT',
   tags: ['api', 'user'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     request.server.log(['users', 'auth'], `Login: ${request.payload.email}`);
 
@@ -17,7 +18,7 @@ module.exports = {
       throw Boom.unauthorized();
     }
 
-    const valid = await this.utils.bcryptCompare(request.payload.password, user);
+    const valid = await Bcrypt.compare(request.payload.password, user.hash);
 
     if (!valid) {
       throw Boom.unauthorized();
@@ -25,7 +26,7 @@ module.exports = {
 
     delete user.hash;
     user.timestamp = new Date();
-    return reply({ token: JWT.sign({ ...user }, Config.auth.secret, Config.auth.options) }).code(201);
+    return h.response({ token: JWT.sign({ ...user }, Config.auth.secret, Config.auth.options) }).code(201);
   },
   validate: {
     payload: {

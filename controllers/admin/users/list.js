@@ -4,11 +4,11 @@
 module.exports = {
   description: 'Get all users',
   tags: ['admin'],
-  handler: function (request, reply) {
+  handler: async function (request, h) {
 
-    const result = this.db.users.summary();
+    const result = await this.db.users.summary();
 
-    return reply(result);
+    return result;
   },
   auth: {
     scope: 'admin'
