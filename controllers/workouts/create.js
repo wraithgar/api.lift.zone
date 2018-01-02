@@ -7,7 +7,7 @@ const Utils = require('../../lib/utils');
 module.exports = {
   description: 'Create a new workout',
   tags: ['api', 'workout'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     const existing = await this.db.workouts.findOne({ date: request.payload.date, user_id: request.auth.credentials.id });
 
@@ -16,8 +16,9 @@ module.exports = {
     }
 
     const attrs = { ...request.payload, user_id: request.auth.credentials.id };
+    const workout = await this.db.workouts.insert(attrs);
 
-    return reply(this.db.workouts.insert(attrs)).code(201);
+    return h.response(workout).code(201);
   },
   validate: {
     payload: Utils.workoutValidator

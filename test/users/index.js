@@ -3,7 +3,6 @@
 const Bcrypt = require('bcrypt');
 const Config = require('getconfig');
 const Fixtures = require('../fixtures');
-const Utils = require('../../lib/utils');
 const Faker = require('faker');
 
 const db = Fixtures.db;

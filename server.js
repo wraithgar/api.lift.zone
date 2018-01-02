@@ -32,7 +32,7 @@ process.on('SIGTERM', async () => {
 if (process.env.NODE_ENV !== 'production') {
   server.events.on({ name: 'request', channels: ['error'] }, (request, event) => {
 
-      console.log(event.stack || event);
+    console.log(event.stack || event);
   });
 }
 //$lab:coverage:on$
@@ -40,6 +40,8 @@ if (process.env.NODE_ENV !== 'production') {
 module.exports.db = db;
 
 module.exports.server = server.register([{
+  plugin: require('./lib/jwt_authorization')
+}, {
   plugin: require('./lib/https')
 }, {
   plugin: require('inert')
@@ -79,20 +81,22 @@ module.exports.server = server.register([{
   server.auth.strategy('jwt', 'hapi-now-auth', {
     verifyJWT: true,
     keychain: [Config.auth.secret],
+    tokenType: 'JWT',
     verifyOptions: {
       algorithms: [Config.auth.options.algorithm]
     },
-    validate: async (request, decoded, h) => {
+    validate: async (request, token, h) => {
 
+      const decoded = token.decodedJWT;
       const user = await db.users.active(decoded.email);
 
       if (!user) {
-        return { isValid: false };
+        return { isValid: false, credentials: decoded };
       }
 
       if (Date.parse(decoded.timestamp) < user.logout.getTime()) {
 
-        return { isValid: false };
+        return { isValid: false, credentials: decoded };
       }
 
       delete user.hash;

@@ -8,7 +8,7 @@ const Utils = require('../../lib/utils');
 module.exports = {
   description: 'Update a new workout',
   tags: ['api', 'workout'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     const existingId = await this.db.workouts.findOne({ id: request.params.id });
 
@@ -24,9 +24,9 @@ module.exports = {
 
     const attrs = { ...request.payload };
 
-    const workout = this.db.workouts.updateOne({ id: request.params.id }, attrs);
+    const workout = await this.db.workouts.updateOne({ id: request.params.id }, attrs);
 
-    return reply(workout);
+    return workout;
   },
   validate: {
     params: {

@@ -6,7 +6,7 @@ const Joi = require('joi');
 module.exports = {
   description: 'Create a new activity',
   tags: ['api', 'activity'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     const user_id = request.auth.credentials.id;
 
