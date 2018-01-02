@@ -6,7 +6,7 @@ const Joi = require('joi');
 module.exports = {
   description: 'Get activity by id',
   tags: ['api', 'activity'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     const activity = await this.db.activities.with_alias({ id: request.params.id, user_id: request.auth.credentials.id });
 
@@ -14,7 +14,7 @@ module.exports = {
       throw Boom.notFound();
     }
 
-    return reply(activity);
+    return activity;
   },
   validate: {
     params: {

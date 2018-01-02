@@ -5,7 +5,7 @@ const Boom = require('boom');
 module.exports = {
   description: 'Promote an activity to main activity',
   tags: ['api', 'activity'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     const activity = await this.db.activities.findOne({ id: request.params.id, user_id: request.auth.credentials.id });
 
@@ -28,6 +28,6 @@ module.exports = {
 
     const activities = await this.db.activities.with_aliases({ id: request.params.id, user_id: request.auth.credentials.id });
 
-    return reply(activities);
+    return activities;
   }
 };

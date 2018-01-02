@@ -32,8 +32,9 @@ describe('auth', () => {
     return db.users.destroy({ id: user.id });
   });
 
-  it('can make a request with a jwt', () => {
+  it('can make a request with a jwt (with and without JWT in the header)', () => {
 
+    let token;
     return server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } }).then((res) => {
 
       expect(res.statusCode).to.equal(201);
@@ -42,7 +43,14 @@ describe('auth', () => {
 
       expect(result).to.be.an.object();
       expect(result.token).to.be.a.string();
-      return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
+      token = result.token;
+      return server.inject({ method: 'get', url: '/user', headers: { authorization: token } });
+    }).then((res) => {
+
+      expect(res.statusCode).to.equal(200);
+      return res.result;
+    }).then((result) => {
+      return server.inject({ method: 'get', url: '/user', headers: { authorization: `JWT ${token}` } });
     }).then((res) => {
 
       expect(res.statusCode).to.equal(200);

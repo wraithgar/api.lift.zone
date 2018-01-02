@@ -1,16 +1,18 @@
 'use strict';
 
-const Joi = require('joi');
+const Bcrypt = require('bcrypt');
 const Boom = require('boom');
+const Config = require('getconfig');
+const Joi = require('joi');
 
 module.exports = {
   description: 'Update user info',
   tags: ['api', 'user'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     const user = await this.db.users.active(request.auth.credentials.email);
 
-    const valid = await this.utils.bcryptCompare(request.payload.currentPassword, user);
+    const valid = await Bcrypt.compare(request.payload.currentPassword, user.hash);
 
     if (!valid) {
       throw Boom.badRequest('Current password does not match');
@@ -22,16 +24,16 @@ module.exports = {
       attrs.validated = false;
     }
     if (attrs.newPassword) {
-      attrs.hash = await this.utils.bcryptHash(attrs.newPassword);
+      attrs.hash = await Bcrypt.hash(attrs.newPassword, Config.saltRounds);
     }
     delete attrs.currentPassword;
     delete attrs.newPassword;
 
     const updatedUser = await this.db.users.updateOne({ id: request.auth.credentials.id }, attrs);
 
-    const result = this.db.users.active(updatedUser.email);
+    const result = await this.db.users.active(updatedUser.email);
 
-    return reply(result);
+    return result;
   },
   validate: {
     payload: Joi.object().keys({

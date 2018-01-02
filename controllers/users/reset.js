@@ -1,15 +1,16 @@
 'use strict';
 
+const Bcrypt = require('bcrypt');
 const Boom = require('boom');
-const Joi = require('joi');
 const Config = require('getconfig');
+const Joi = require('joi');
 const JWT = require('jsonwebtoken');
 
 module.exports = {
   description: 'Reset password using recovery token',
   notes: 'Logs out any existing sessions',
   tags: ['user'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     const recovery = await this.db.recoveries.findOne({ token: request.payload.token });
 
@@ -17,7 +18,7 @@ module.exports = {
       throw Boom.notFound('Invalid token');
     }
 
-    const hash = await this.utils.bcryptHash(request.payload.password);
+    const hash = await Bcrypt.hash(request.payload.password, Config.saltRounds);
 
     await this.db.tx(async (tx) => {
 
@@ -31,7 +32,7 @@ module.exports = {
 
     delete user.hash;
     user.timestamp = new Date();
-    return reply({ token: JWT.sign({ ...user }, Config.auth.secret, Config.auth.options) }).code(201);
+    return h.response({ token: JWT.sign({ ...user }, Config.auth.secret, Config.auth.options) }).code(201);
   },
   validate: {
     payload: {

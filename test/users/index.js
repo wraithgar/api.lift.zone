@@ -1,7 +1,8 @@
 'use strict';
 
+const Bcrypt = require('bcrypt');
+const Config = require('getconfig');
 const Fixtures = require('../fixtures');
-const Utils = require('../../lib/utils');
 const Faker = require('faker');
 
 const db = Fixtures.db;
@@ -65,7 +66,7 @@ describe('PATCH /user', () => {
 
     return Promise.all([
       Server,
-      Utils.bcryptHash(user.password)
+      Bcrypt.hash(user.password, Config.saltRounds)
     ]).then((items) => {
 
       user.hash = items[1];

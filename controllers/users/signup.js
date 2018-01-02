@@ -1,5 +1,6 @@
 'use strict';
 
+const Bcrypt = require('bcrypt');
 const Boom = require('boom');
 const Config = require('getconfig');
 const JWT = require('jsonwebtoken');
@@ -9,14 +10,14 @@ const _ = require('lodash');
 module.exports = {
   description: 'Sign up',
   tags: ['api', 'user'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     const invite = await this.db.invites.findOne({ token: request.payload.invite, claimed_by: null });
 
     if (!invite) {
       throw Boom.notFound('Invalid invite');
     }
-    const hash = await this.utils.bcryptHash(request.payload.password);
+    const hash = await Bcrypt.hash(request.payload.password, Config.saltRounds);
 
     await this.db.tx(async (tx) => {
 
@@ -36,7 +37,7 @@ module.exports = {
 
     const user = await this.db.users.active(request.payload.email);
 
-    return reply({ token: JWT.sign({ ...user }, Config.auth.secret, Config.auth.options) }).code(201);
+    return h.response({ token: JWT.sign({ ...user }, Config.auth.secret, Config.auth.options) }).code(201);
   },
   validate: {
     payload: {

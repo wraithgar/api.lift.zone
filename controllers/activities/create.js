@@ -6,7 +6,7 @@ const Joi = require('joi');
 module.exports = {
   description: 'Create a new activity',
   tags: ['api', 'activity'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     const user_id = request.auth.credentials.id;
 
@@ -19,9 +19,9 @@ module.exports = {
     }
 
     const attrs =  { ...request.payload, user_id };
-    const result =  this.db.activities.insert(attrs);
+    const result = await this.db.activities.insert(attrs);
 
-    return reply(result).code(201);
+    return h.response(result).code(201);
   },
   validate: {
     payload: {

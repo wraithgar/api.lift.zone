@@ -6,7 +6,7 @@ const Boom = require('boom');
 module.exports = {
   description: 'Get a workout by id',
   tags: ['api', 'workout'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
     const attrs = { ...request.params, user_id: request.auth.credentials.id };
     const workout = await this.db.workouts.findOne(attrs);
@@ -15,7 +15,7 @@ module.exports = {
       throw Boom.notFound();
     }
 
-    return reply(workout);
+    return workout;
   },
   validate: {
     params: {

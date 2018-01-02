@@ -6,13 +6,13 @@ const Config = require('getconfig');
 module.exports = {
   description: 'Request email validation',
   tags: ['api', 'user'],
-  handler: async function (request, reply) {
+  handler: async function (request, h) {
 
 
     const existingValidation = await this.db.validations.fresh({ user_id: request.auth.credentials.id });
 
     if (existingValidation) {
-      return reply(null).code(202);
+      return h.response(null).code(202);
     }
 
     const validation = await this.db.validations.insert({ user_id: request.auth.credentials.id });
@@ -54,7 +54,7 @@ module.exports = {
     // $lab:coverage:on$
     request.log(['debug'], validation.token);
 
-    return reply(null).code(202);
+    return h.response(null).code(202);
   }
 };
 
