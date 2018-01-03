@@ -32,7 +32,7 @@ describe('auth', () => {
     return db.users.destroy({ id: user.id });
   });
 
-  it('can make a request with a jwt (with and without JWT in the header)', () => {
+  it('can make a request with a jwt (with and without Bearer in the header)', () => {
 
     let token;
     return server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } }).then((res) => {
@@ -50,7 +50,7 @@ describe('auth', () => {
       expect(res.statusCode).to.equal(200);
       return res.result;
     }).then((result) => {
-      return server.inject({ method: 'get', url: '/user', headers: { authorization: `JWT ${token}` } });
+      return server.inject({ method: 'get', url: '/user', headers: { authorization: `Bearer ${token}` } });
     }).then((res) => {
 
       expect(res.statusCode).to.equal(200);

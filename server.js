@@ -81,7 +81,7 @@ module.exports.server = server.register([{
   server.auth.strategy('jwt', 'hapi-now-auth', {
     verifyJWT: true,
     keychain: [Config.auth.secret],
-    tokenType: 'JWT',
+    tokenType: 'Bearer',
     verifyOptions: {
       algorithms: [Config.auth.options.algorithm]
     },
