@@ -117,7 +117,7 @@ module.exports.server = server.register([{
 
   await server.start();
 
-  server.log(['info', 'startup'], `${server.info.uri}`);
+  server.log(['info', 'startup'], server.info.uri);
   // $lab:coverage:on$
 }).catch((err) => {
 

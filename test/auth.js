@@ -50,6 +50,7 @@ describe('auth', () => {
       expect(res.statusCode).to.equal(200);
       return res.result;
     }).then((result) => {
+
       return server.inject({ method: 'get', url: '/user', headers: { authorization: `Bearer ${token}` } });
     }).then((res) => {
 
