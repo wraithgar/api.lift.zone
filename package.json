@@ -58,7 +58,7 @@
     "hapi-pagination": "2.0.0",
     "hapi-rate-limit": "2.1.0",
     "hapi-swagger": "9.0.2",
-    "inert": "5.0.1",
+    "inert": "5.1.0",
     "joi": "13.1.0",
     "joi-date-extensions": "1.1.0",
     "jsonwebtoken": "8.1.0",
