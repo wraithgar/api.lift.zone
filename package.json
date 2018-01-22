@@ -61,7 +61,7 @@
     "inert": "5.1.0",
     "joi": "13.1.1",
     "joi-date-extensions": "1.1.0",
-    "jsonwebtoken": "8.1.0",
+    "jsonwebtoken": "8.1.1",
     "keyfob": "1.0.0",
     "knex": "0.14.2",
     "lodash": "4.17.4",
