@@ -6,11 +6,11 @@ module.exports = {
   description: 'Delete user',
   notes: 'The query parameter "confirm" is meant to aid clients in confirming with the end user that they really want to do this',
   tags: ['user'],
-  handler: function (request, reply) {
+  handler: async function (request, h) {
 
-    const result = this.db.users.destroy({ id: request.auth.credentials.id });
+    await this.db.users.destroy({ id: request.auth.credentials.id });
 
-    return reply(result).code(204);
+    return h.response().code(204);
   },
   validate: {
     query: {

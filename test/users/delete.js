@@ -18,64 +18,49 @@ describe('DELETE /user', () => {
   let server;
   const keepUser = Fixtures.user();
 
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      db.users.insert(keepUser)
-    ]).then((items) => {
-
-      server = items[0];
-    });
+    server = await Server;
+    await db.users.insert(keepUser);
   });
 
-  after(() => {
+  after(async () => {
 
-    return Promise.all([
-      db.users.destroy({ id: keepUser.id })
-    ]);
+    await db.users.destroy({ id: keepUser.id });
   });
 
-  it('requires confirmation', () => {
+  it('requires confirmation', async () => {
 
-    return server.inject({ method: 'delete', url: '/user', credentials: keepUser }).then((res) => {
+    const res = await server.inject({ method: 'delete', url: '/user', credentials: keepUser });
 
-      expect(res.statusCode).to.equal(400);
-      return Fixtures.db.users.findOne({ id: keepUser.id });
-    }).then((keptUser) => {
-
-      expect(keptUser).to.exist();
-    });
+    expect(res.statusCode).to.equal(400);
+    const keptUser = await Fixtures.db.users.findOne({ id: keepUser.id });
+    expect(keptUser).to.exist();
   });
 
   describe('deleting a user', () => {
 
     const user = Fixtures.user();
 
-    before(() => {
+    before(async () => {
 
-      return db.users.insert(user);
+      await db.users.insert(user);
     });
 
-    after(() => {
+    after(async () => {
 
-      return db.users.destroy({ id: user.id });
+      await db.users.destroy({ id: user.id });
     });
 
-    it('deletes a user', () => {
+    it('deletes a user', async () => {
 
-      return server.inject({ method: 'delete', url: '/user?confirm=true', credentials: user }).then((res) => {
+      const res = await server.inject({ method: 'delete', url: '/user?confirm=true', credentials: user });
 
-        expect(res.statusCode).to.equal(204);
-        return Fixtures.db.users.findOne({ id: user.id });
-      }).then((deletedUser) => {
-
-        expect(deletedUser).to.not.exist();
-        return Fixtures.db.users.findOne({ id: keepUser.id });
-      }).then((keptUser) => {
-
-        expect(keptUser).to.exist();
-      });
+      expect(res.statusCode).to.equal(204);
+      const deletedUser = await Fixtures.db.users.findOne({ id: user.id });
+      const keptUser = await Fixtures.db.users.findOne({ id: keepUser.id });
+      expect(deletedUser).to.not.exist();
+      expect(keptUser).to.exist();
     });
   });
 });
