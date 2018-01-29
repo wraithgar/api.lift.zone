@@ -9,6 +9,7 @@ module.exports = [
   /* /user */
   { method: 'GET', path: '/user', config: Controllers.users.self },
   { method: 'PATCH', path: '/user', config: Controllers.users.update },
+  { method: 'DELETE', path: '/user', config: Controllers.users.delete },
   { method: 'POST', path: '/user/login', config: Controllers.users.login },
   { method: 'POST', path: '/user/logout', config: Controllers.users.logout },
   { method: 'POST', path: '/user/recover', config: Controllers.users.recover },
