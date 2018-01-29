@@ -56,7 +56,7 @@
     "good-squeeze": "5.0.2",
     "hapi": "17.2.0",
     "hapi-pagination": "2.0.0",
-    "hapi-rate-limit": "2.1.0",
+    "hapi-rate-limit": "2.1.1",
     "hapi-swagger": "9.0.2",
     "inert": "5.1.0",
     "joi": "13.1.1",
