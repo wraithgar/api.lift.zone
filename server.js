@@ -5,6 +5,9 @@ const Hapi = require('hapi');
 const Muckraker = require('muckraker');
 const Pkg = require('./package.json');
 
+const PinoNoir = require('pino-noir');
+Config.pino.serializers = PinoNoir(['req.headers.authorization']);
+
 const Utils = require('./lib/utils');
 
 const db = new Muckraker(Config.db);

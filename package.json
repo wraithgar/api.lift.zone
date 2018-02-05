@@ -4,7 +4,7 @@
   "description": "API for lift.zone",
   "main": "server.js",
   "engines": {
-    "node": "8.7.0"
+    "node": "8.9.4"
   },
   "scripts": {
     "start": "node server.js",
@@ -47,9 +47,6 @@
     "boom": "7.1.1",
     "caber": "5.0.1",
     "catbox-memory": "3.1.1",
-    "drboom": "1.1.0",
-    "drboom-joi": "0.5.0",
-    "drboom-pg": "0.3.1",
     "getconfig": "4.1.0",
     "hapi": "17.2.0",
     "hapi-pagination": "2.0.0",
@@ -62,10 +59,9 @@
     "jsonwebtoken": "8.1.1",
     "keyfob": "1.0.0",
     "knex": "0.14.2",
-    "lodash": "4.17.4",
     "moment": "2.20.1",
     "muckraker": "4.0.1",
-    "object.entries": "1.0.4",
+    "pino-noir": "2.0.0",
     "vision": "5.3.1"
   },
   "devDependencies": {

@@ -5,7 +5,6 @@ const Boom = require('boom');
 const Config = require('getconfig');
 const JWT = require('jsonwebtoken');
 const Joi = require('joi');
-const _ = require('lodash');
 
 module.exports = {
   description: 'Sign up',
@@ -27,10 +26,9 @@ module.exports = {
         hash
       });
 
-      await Promise.all(_.times(Config.invites.count, () => {
-
-        return tx.invites.insert({ user_id: user.id });
-      }));
+      for (let i = 0; i < Config.invites.count; i++) {
+        await tx.invites.insert({ user_id: user.id });
+      }
 
       await tx.invites.update({ token: request.payload.invite }, { claimed_by: user.id });
     });

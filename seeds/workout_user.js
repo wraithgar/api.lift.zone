@@ -3,12 +3,6 @@
 const Bcrypt = require('bcrypt');
 const Config = require('getconfig');
 const Caber = require('caber');
-const Entries = require('object.entries');
-
-if (!Object.entries) {
-  Entries.shim();
-}
-
 
 const activities = {
   'Squats': {
