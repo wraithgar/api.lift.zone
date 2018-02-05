@@ -14,10 +14,8 @@
   },
   "saltRounds": 10,
   "tokenLength": 48,
-  "good": {
-    "includes": {
-      "request": ["headers"]
-    }
+  "pino": {
+    "prettyPrint": true
   },
   "rateLimit": {
     "userLimit": false,

@@ -62,8 +62,8 @@ module.exports.server = server.register([{
     }
   }
 }, {
-  plugin: require('good'),
-  options: Config.good
+  plugin: require('hapi-pino'),
+  options: Config.pino
 }, {
   plugin: require('hapi-rate-limit'),
   options: Config.rateLimit
