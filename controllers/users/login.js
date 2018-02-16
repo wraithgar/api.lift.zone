@@ -17,14 +17,14 @@ module.exports = {
     if (!user) {
       throw Boom.unauthorized();
     }
+    const { hash } = await this.db.users.findOne({ id: user.id }, ['hash']);
 
-    const valid = await Bcrypt.compare(request.payload.password, user.hash);
+    const valid = await Bcrypt.compare(request.payload.password, hash);
 
     if (!valid) {
       throw Boom.unauthorized();
     }
 
-    delete user.hash;
     user.timestamp = new Date();
     return h.response({ token: JWT.sign({ ...user }, Config.auth.secret, Config.auth.options) }).code(201);
   },

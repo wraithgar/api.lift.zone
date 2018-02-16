@@ -23,7 +23,6 @@ module.exports = {
     });
 
     const user = await this.db.users.active(request.auth.credentials.email);
-    delete user.hash;
 
     return user;
   },

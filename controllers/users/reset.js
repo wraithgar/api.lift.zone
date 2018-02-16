@@ -30,7 +30,6 @@ module.exports = {
 
     const user = await this.db.users.active(recovery.email);
 
-    delete user.hash;
     user.timestamp = new Date();
     return h.response({ token: JWT.sign({ ...user }, Config.auth.secret, Config.auth.options) }).code(201);
   },

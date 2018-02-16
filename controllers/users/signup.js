@@ -35,6 +35,7 @@ module.exports = {
 
     const user = await this.db.users.active(request.payload.email);
 
+    user.timestamp = new Date();
     return h.response({ token: JWT.sign({ ...user }, Config.auth.secret, Config.auth.options) }).code(201);
   },
   validate: {

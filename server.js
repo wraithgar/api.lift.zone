@@ -102,7 +102,6 @@ module.exports.server = server.register([{
         return { isValid: false, credentials: decoded };
       }
 
-      delete user.hash;
       return { isValid: true, credentials: user };
     }
   });

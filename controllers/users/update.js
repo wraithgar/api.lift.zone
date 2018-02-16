@@ -10,9 +10,9 @@ module.exports = {
   tags: ['api', 'user'],
   handler: async function (request, h) {
 
-    const user = await this.db.users.active(request.auth.credentials.email);
-
-    const valid = await Bcrypt.compare(request.payload.currentPassword, user.hash);
+    const credentials = request.auth.credentials;
+    const { hash } = await this.db.users.findOne({ id: credentials.id }, ['hash']);
+    const valid = await Bcrypt.compare(request.payload.currentPassword, hash);
 
     if (!valid) {
       throw Boom.badRequest('Current password does not match');
