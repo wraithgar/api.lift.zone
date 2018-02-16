@@ -42,7 +42,7 @@
   "license": "MIT",
   "dependencies": {
     "@now-ims/hapi-now-auth": "1.0.1",
-    "aws-sdk": "2.196.0",
+    "aws-sdk": "2.197.0",
     "bcrypt": "1.0.3",
     "boom": "7.1.1",
     "caber": "5.0.1",
