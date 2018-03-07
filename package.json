@@ -61,7 +61,7 @@
     "keyfob": "1.0.0",
     "knex": "0.14.4",
     "muckraker": "4.0.1",
-    "pino-noir": "2.0.0",
+    "pino-noir": "2.2.0",
     "vision": "5.3.1"
   },
   "devDependencies": {
