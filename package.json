@@ -48,7 +48,7 @@
     "boom": "7.2.0",
     "caber": "5.0.1",
     "catbox-memory": "3.1.2",
-    "getconfig": "4.4.1",
+    "getconfig": "4.5.0",
     "hapi": "17.5.1",
     "hapi-pagination": "2.0.0",
     "hapi-pino": "4.0.4",
@@ -72,7 +72,7 @@
     "faker": "^4.0.0",
     "git-validate": "^2.2.2",
     "lab": "15.4.5",
-    "moment": "2.22.1",
+    "moment": "2.22.2",
     "stand-in": "^4.2.0"
   },
   "pre-commit": [
