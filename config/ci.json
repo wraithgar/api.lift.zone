@@ -21,9 +21,8 @@
       "engine": "catbox-memory"
     }
   },
-  "good": {
-    "reporters": {
-    }
+  "pino": {
+    "level": "silent"
   },
   "inviteValidateRateLimit": {
     "pathLimit": 10,
