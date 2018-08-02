@@ -43,7 +43,7 @@
   "license": "MIT",
   "dependencies": {
     "@now-ims/hapi-now-auth": "1.2.0",
-    "aws-sdk": "2.270.1",
+    "aws-sdk": "2.285.1",
     "bcrypt": "3.0.0",
     "boom": "7.2.0",
     "caber": "5.0.1",
@@ -56,11 +56,11 @@
     "hapi-swagger": "9.1.1",
     "hoek": "5.0.3",
     "inert": "5.1.0",
-    "joi": "13.4.0",
+    "joi": "13.5.2",
     "joi-date-extensions": "1.2.0",
     "jsonwebtoken": "8.3.0",
     "keyfob": "1.0.0",
-    "knex": "0.15.0",
+    "knex": "0.15.2",
     "muckraker": "4.0.1",
     "pino-noir": "2.2.1",
     "vision": "5.3.3"
