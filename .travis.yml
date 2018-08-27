@@ -21,8 +21,8 @@ before_script:
 after_script:
   - greenkeeper-lockfile-upload
 branches:
-  except:
-    - "/^v\\d+\\.\\d+\\.\\d+$/"
+  only:
+    - master
 services:
   - postgresql
 addons:
