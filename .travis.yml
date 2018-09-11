@@ -5,10 +5,11 @@ notifications:
   email: false
 node_js:
   - '10'
-before_install:
-  - npm install -g node-gyp
 install:
   - npm install
+before_install:
+  - npm install -g node-gyp
+  - npm install -g greenkeeper-lockfile
 before_script:
   - greenkeeper-lockfile-update
   - cp config/ci.json config/test.json
@@ -20,9 +21,6 @@ before_script:
   - npm run seeddb --silent
 after_script:
   - greenkeeper-lockfile-upload
-branches:
-  only:
-    - master
 services:
   - postgresql
 addons:
