@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node server.js",
     "knex": "knex",
-    "test": "lab -a code -t 100 -v -e test",
+    "test": "lab -a code -t 100 -v -e test -I 'core,__core-js_shared__'",
     "coverage": "npm test -- -r html -o coverage.html",
     "lint": "eslint .",
     "mr": "mr $(node -pe 'JSON.stringify(require(\"getconfig\").db)')",
