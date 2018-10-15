@@ -57,7 +57,7 @@
     "hapi-swagger": "9.1.2",
     "hoek": "5.0.4",
     "inert": "5.1.0",
-    "joi": "13.7.0",
+    "joi": "14.0.0",
     "joi-date-extensions": "1.2.0",
     "jsonwebtoken": "8.3.0",
     "keyfob": "1.0.0",
