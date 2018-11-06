@@ -47,7 +47,7 @@
     "bcrypt": "3.0.2",
     "boom": "7.2.1",
     "caber": "5.0.1",
-    "catbox-memory": "4.0.0",
+    "catbox-memory": "4.0.1",
     "getconfig": "4.5.0",
     "hapi": "17.6.2",
     "hapi-pagination": "2.0.1",
