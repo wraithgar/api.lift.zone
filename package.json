@@ -63,7 +63,7 @@
     "knex": "0.15.2",
     "muckraker": "4.0.1",
     "pino-noir": "2.2.1",
-    "vision": "5.4.2"
+    "vision": "5.4.3"
   },
   "devDependencies": {
     "code": "^5.2.0",
