@@ -58,7 +58,7 @@
     "inert": "5.1.2",
     "joi": "14.0.5",
     "joi-date-extensions": "1.2.0",
-    "jsonwebtoken": "8.3.0",
+    "jsonwebtoken": "8.4.0",
     "keyfob": "1.0.0",
     "knex": "0.15.2",
     "muckraker": "4.0.1",
