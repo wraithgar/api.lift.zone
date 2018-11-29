@@ -54,7 +54,7 @@
     "hapi-pino": "5.1.0",
     "hapi-rate-limit": "2.1.4",
     "hapi-swagger": "9.1.3",
-    "hoek": "6.0.4",
+    "hoek": "6.1.1",
     "inert": "5.1.2",
     "joi": "14.3.0",
     "joi-date-extensions": "1.2.0",
