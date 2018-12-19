@@ -60,7 +60,7 @@
     "joi-date-extensions": "1.2.0",
     "jsonwebtoken": "8.4.0",
     "keyfob": "1.0.0",
-    "knex": "0.16.1",
+    "knex": "0.16.3",
     "muckraker": "4.0.1",
     "pino-noir": "2.2.1",
     "vision": "5.4.4"
