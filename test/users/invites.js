@@ -48,7 +48,7 @@ describe('GET /user/invites', () => {
 
   it('lists invites', () => {
 
-    return server.inject({ method: 'get', url: '/user/invites', credentials: user1 }).then((res) => {
+    return server.inject({ method: 'get', url: '/user/invites', auth: { strategy: 'jwt', credentials: user1 } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -60,7 +60,7 @@ describe('GET /user/invites', () => {
 
   it('lists no invites if user not validated', () => {
 
-    return server.inject({ method: 'get', url: '/user/invites', credentials: user2 }).then((res) => {
+    return server.inject({ method: 'get', url: '/user/invites', auth: { strategy: 'jwt', credentials: user2 } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;

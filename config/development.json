@@ -15,9 +15,6 @@
   },
   "hapi": {
     "port": 3001,
-    "cache": {
-      "engine": "catbox-memory"
-    },
     "routes": {
       "security": true,
       "cors": {

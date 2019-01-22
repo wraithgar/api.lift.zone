@@ -16,11 +16,6 @@
       "user": "postgres"
     }
   },
-  "hapi": {
-    "cache": {
-      "engine": "catbox-memory"
-    }
-  },
   "pino": {
     "level": "silent"
   },

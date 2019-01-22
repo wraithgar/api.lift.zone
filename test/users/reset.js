@@ -39,7 +39,7 @@ describe('POST /user/reset', () => {
   it('resets password', () => {
 
     const newPassword = Faker.internet.password();
-    return server.inject({ method: 'post', url: '/user/reset', credentials: user, payload: { token: recovery.token, password: newPassword, passwordConfirm: newPassword } }).then((res) => {
+    return server.inject({ method: 'post', url: '/user/reset', auth: { strategy: 'jwt', credentials: user }, payload: { token: recovery.token, password: newPassword, passwordConfirm: newPassword } }).then((res) => {
 
       expect(res.statusCode).to.equal(201);
       return res.result;
@@ -69,7 +69,7 @@ describe('POST /user/reset', () => {
   it('rejects invalid token', () => {
 
     const newPassword = Faker.internet.password();
-    return server.inject({ method: 'post', url: '/user/reset', credentials: user, payload: { token: Faker.random.uuid(), password: newPassword, passwordConfirm: newPassword } }).then((res) => {
+    return server.inject({ method: 'post', url: '/user/reset', auth: { strategy: 'jwt', credentials: user }, payload: { token: Faker.random.uuid(), password: newPassword, passwordConfirm: newPassword } }).then((res) => {
 
       expect(res.statusCode).to.equal(404);
     });

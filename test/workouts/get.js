@@ -44,7 +44,7 @@ describe('GET /workouts/{id}', () => {
 
   it('gets a workout', () => {
 
-    return server.inject({ method: 'get', url: `/workouts/${workout.id}`, credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: `/workouts/${workout.id}`, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -56,7 +56,7 @@ describe('GET /workouts/{id}', () => {
 
   it('does not find nonexistant workout', () => {
 
-    return server.inject({ method: 'get', url: `/workouts/${Faker.random.uuid()}`, credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: `/workouts/${Faker.random.uuid()}`, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(404);
     });
