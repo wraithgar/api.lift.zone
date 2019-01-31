@@ -54,7 +54,7 @@ describe('POST /user/validate', () => {
       sesParams = params;
     });
 
-    return server.inject({ method: 'post', url: '/user/validate', credentials: user1 }).then((res) => {
+    return server.inject({ method: 'post', url: '/user/validate', auth: { strategy: 'jwt', credentials: user1 } }).then((res) => {
 
       expect(res.statusCode).to.equal(202);
       return db.validations.findOne({ user_id: user1.id });
@@ -68,7 +68,7 @@ describe('POST /user/validate', () => {
 
   it('ignores if validation exists', () => {
 
-    return server.inject({ method: 'post', url: '/user/validate', credentials: user2 }).then((res) => {
+    return server.inject({ method: 'post', url: '/user/validate', auth: { strategy: 'jwt', credentials: user2 } }).then((res) => {
 
       expect(res.statusCode).to.equal(202);
       return db.validations.findOne({ user_id: user2.id });

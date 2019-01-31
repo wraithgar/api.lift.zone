@@ -50,7 +50,7 @@ describe('POST /activities/{id}', () => {
 
   it('creates an activity', () => {
 
-    return server.inject({ method: 'post', url: '/activities', credentials: user1, payload: activity1 }).then((res) => {
+    return server.inject({ method: 'post', url: '/activities', auth: { credentials: user1, strategy: 'jwt' }, payload: activity1 }).then((res) => {
 
       expect(res.statusCode).to.equal(201);
       return res.result;
@@ -62,7 +62,7 @@ describe('POST /activities/{id}', () => {
 
   it('404 on invalid activity_id', () => {
 
-    return server.inject({ method: 'post', url: '/activities', credentials: user1, payload: activity2 }).then((res) => {
+    return server.inject({ method: 'post', url: '/activities', auth: { credentials: user1, strategy: 'jwt' }, payload: activity2 }).then((res) => {
 
       expect(res.statusCode).to.equal(404);
     });
@@ -70,7 +70,7 @@ describe('POST /activities/{id}', () => {
 
   it('does not find other user\'s activity', () => {
 
-    return server.inject({ method: 'post', url: '/activities', credentials: user2, payload: activity4 }).then((res) => {
+    return server.inject({ method: 'post', url: '/activities', auth: { credentials: user2, strategy: 'jwt' }, payload: activity4 }).then((res) => {
 
       expect(res.statusCode).to.equal(404);
     });
@@ -78,7 +78,7 @@ describe('POST /activities/{id}', () => {
 
   it('creates alias', () => {
 
-    return server.inject({ method: 'post', url: '/activities', credentials: user1, payload: activity4 }).then((res) => {
+    return server.inject({ method: 'post', url: '/activities', auth: { credentials: user1, strategy: 'jwt' }, payload: activity4 }).then((res) => {
 
       expect(res.statusCode).to.equal(201);
       return res.result;

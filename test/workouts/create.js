@@ -49,7 +49,7 @@ describe('POST /workouts', () => {
 
   it('creates a workout', () => {
 
-    return server.inject({ method: 'post', url: '/workouts', payload: workout1, credentials: user1 }).then((res) => {
+    return server.inject({ method: 'post', url: '/workouts', payload: workout1, auth: { strategy: 'jwt', credentials: user1 } }).then((res) => {
 
       expect(res.statusCode).to.equal(201);
       return res.result;
@@ -65,7 +65,7 @@ describe('POST /workouts', () => {
 
   it('does not create workout for same day', () => {
 
-    return server.inject({ method: 'post', url: '/workouts', payload: workout3, credentials: user1 }).then((res) => {
+    return server.inject({ method: 'post', url: '/workouts', payload: workout3, auth: { strategy: 'jwt', credentials: user1 } }).then((res) => {
 
       expect(res.statusCode).to.equal(409);
     });

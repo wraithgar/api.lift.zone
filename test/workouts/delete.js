@@ -45,7 +45,7 @@ describe('DELETE /workouts/{id}', () => {
 
   it('deletes a workout', () => {
 
-    return server.inject({ method: 'delete', url: `/workouts/${workout1.id}`, credentials: user }).then((res) => {
+    return server.inject({ method: 'delete', url: `/workouts/${workout1.id}`, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(204);
       return Fixtures.db.workouts.findOne({ id: workout1.id });
@@ -61,7 +61,7 @@ describe('DELETE /workouts/{id}', () => {
 
   it('does not delete nonexistant workout', () => {
 
-    return server.inject({ method: 'delete', url: `/workouts/${Faker.random.uuid()}`, credentials: user }).then((res) => {
+    return server.inject({ method: 'delete', url: `/workouts/${Faker.random.uuid()}`, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(404);
     });

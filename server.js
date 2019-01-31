@@ -12,8 +12,6 @@ const Utils = require('./lib/utils');
 
 const db = new Muckraker(Config.db);
 
-Config.hapi.cache.engine = require(Config.hapi.cache.engine);
-
 //$PORT is not set during postinstall, so we can't
 //include it in the config, hence this if statement
 //$lab:coverage:off$

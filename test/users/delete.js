@@ -31,7 +31,7 @@ describe('DELETE /user', () => {
 
   it('requires confirmation', async () => {
 
-    const res = await server.inject({ method: 'delete', url: '/user', credentials: keepUser });
+    const res = await server.inject({ method: 'delete', url: '/user', auth: { strategy: 'jwt', credentials: keepUser } });
 
     expect(res.statusCode).to.equal(400);
     const keptUser = await Fixtures.db.users.findOne({ id: keepUser.id });
@@ -54,7 +54,7 @@ describe('DELETE /user', () => {
 
     it('deletes a user', async () => {
 
-      const res = await server.inject({ method: 'delete', url: '/user?confirm=true', credentials: user });
+      const res = await server.inject({ method: 'delete', url: '/user?confirm=true', auth: { strategy: 'jwt', credentials: user } });
 
       expect(res.statusCode).to.equal(204);
       const deletedUser = await Fixtures.db.users.findOne({ id: user.id });

@@ -49,7 +49,7 @@ describe('GET /suggest/activities/{name}', () => {
 
   it('finds suggestions', () => {
 
-    return server.inject({ method: 'get', url: '/suggest/activities/Hack%20Squat', credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: '/suggest/activities/Hack%20Squat', auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -61,7 +61,7 @@ describe('GET /suggest/activities/{name}', () => {
 
   it('finds a match', () => {
 
-    return server.inject({ method: 'get', url: '/suggest/activities/Barbell%20Squat', credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: '/suggest/activities/Barbell%20Squat', auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;

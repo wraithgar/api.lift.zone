@@ -42,7 +42,7 @@ describe('GET /workouts', () => {
 
   it('gets workouts', () => {
 
-    return server.inject({ method: 'get', url: '/workouts', credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: '/workouts', auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;

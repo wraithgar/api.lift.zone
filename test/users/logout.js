@@ -36,7 +36,7 @@ describe('POST /user/logout', () => {
 
   it('can logout', () => {
 
-    return server.inject({ method: 'post', url: '/user/logout', credentials: user }).then((res) => {
+    return server.inject({ method: 'post', url: '/user/logout', auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(204);
       return db.users.findOne({ id: user.id });

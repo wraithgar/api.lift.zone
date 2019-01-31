@@ -48,7 +48,7 @@ describe('GET /admin/users', () => {
 
   it('lists users', () => {
 
-    return server.inject({ method: 'get', url: '/admin/users', credentials: admin }).then((res) => {
+    return server.inject({ method: 'get', url: '/admin/users', auth: { strategy: 'jwt', credentials: admin } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -61,7 +61,7 @@ describe('GET /admin/users', () => {
 
   it('requires admin', () => {
 
-    return server.inject({ method: 'get', url: '/admin/users', credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: '/admin/users', auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(403);
     });

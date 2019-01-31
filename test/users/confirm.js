@@ -47,7 +47,7 @@ describe('POST /user/confirm', () => {
 
   it('confirms user', () => {
 
-    return server.inject({ method: 'post', url: '/user/confirm', credentials: user1, payload: { token: validation1.token } }).then((res) => {
+    return server.inject({ method: 'post', url: '/user/confirm', auth: { strategy: 'jwt', credentials: user1 }, payload: { token: validation1.token } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -68,7 +68,7 @@ describe('POST /user/confirm', () => {
 
   it('ignores invalid token', () => {
 
-    return server.inject({ method: 'post', url: '/user/confirm', credentials: user2, payload: { token: Faker.random.uuid() } }).then((res) => {
+    return server.inject({ method: 'post', url: '/user/confirm', auth: { strategy: 'jwt', credentials: user2 }, payload: { token: Faker.random.uuid() } }).then((res) => {
 
       expect(res.statusCode).to.equal(404);
       return db.users.findOne({ id: user2.id });
@@ -80,7 +80,7 @@ describe('POST /user/confirm', () => {
 
   it('ignores old token', () => {
 
-    return server.inject({ method: 'post', url: '/user/confirm', credentials: user2, payload: { token: validation2.token } }).then((res) => {
+    return server.inject({ method: 'post', url: '/user/confirm', auth: { strategy: 'jwt', credentials: user2 }, payload: { token: validation2.token } }).then((res) => {
 
       expect(res.statusCode).to.equal(404);
       return db.users.findOne({ id: user2.id });

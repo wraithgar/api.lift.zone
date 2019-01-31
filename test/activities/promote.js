@@ -50,7 +50,7 @@ describe('PUT /activities/{id}/promote', () => {
 
   it('promotes an activity', () => {
 
-    return server.inject({ method: 'put', url: `/activities/${activity2.id}/promote`, credentials: user }).then((res) => {
+    return server.inject({ method: 'put', url: `/activities/${activity2.id}/promote`, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -64,7 +64,7 @@ describe('PUT /activities/{id}/promote', () => {
 
   it('does not find invalid activity', () => {
 
-    return server.inject({ method: 'put', url: `/activities/${Faker.random.uuid()}/promote`, credentials: user }).then((res) => {
+    return server.inject({ method: 'put', url: `/activities/${Faker.random.uuid()}/promote`, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(404);
     });

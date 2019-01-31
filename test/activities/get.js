@@ -49,7 +49,7 @@ describe('GET /activities/{id}', () => {
 
   it('finds activity', () => {
 
-    return server.inject({ method: 'get', url: `/activities/${activity1.id}`, credentials: user1 }).then((res) => {
+    return server.inject({ method: 'get', url: `/activities/${activity1.id}`, auth: { credentials: user1, strategy: 'jwt' } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -61,7 +61,7 @@ describe('GET /activities/{id}', () => {
 
   it('does not find other user\'s activity', () => {
 
-    return server.inject({ method: 'get', url: `/activities/${activity2.id}`, credentials: user1 }).then((res) => {
+    return server.inject({ method: 'get', url: `/activities/${activity2.id}`, auth: { credentials: user1, strategy: 'jwt' } }).then((res) => {
 
       expect(res.statusCode).to.equal(404);
     });
@@ -69,7 +69,7 @@ describe('GET /activities/{id}', () => {
 
   it('does not find nonexistant activity', () => {
 
-    return server.inject({ method: 'get', url: `/activities/${Faker.random.uuid()}`, credentials: user1 }).then((res) => {
+    return server.inject({ method: 'get', url: `/activities/${Faker.random.uuid()}`, auth: { credentials: user1, strategy: 'jwt' } }).then((res) => {
 
       expect(res.statusCode).to.equal(404);
     });

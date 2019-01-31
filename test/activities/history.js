@@ -62,7 +62,7 @@ describe('GET /activities/{id}/history', () => {
 
   it('gets history for an activity', () => {
 
-    return server.inject({ method: 'get', url: `/activities/${activity1.id}/history`, credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: `/activities/${activity1.id}/history`, auth: { credentials: user, strategy: 'jwt' } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -76,7 +76,7 @@ describe('GET /activities/{id}/history', () => {
 
   it('does not find nonexistant activity', () => {
 
-    return server.inject({ method: 'get', url: `/activities/${Faker.random.uuid()}/history`, credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: `/activities/${Faker.random.uuid()}/history`, auth: { credentials: user, strategy: 'jwt' } }).then((res) => {
 
       expect(res.statusCode).to.equal(404);
     });
@@ -84,7 +84,7 @@ describe('GET /activities/{id}/history', () => {
 
   it('gets history for a now aliased activity', () => {
 
-    return server.inject({ method: 'get', url: `/activities/${activity2.id}/history?page=1`, credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: `/activities/${activity2.id}/history?page=1`, auth: { credentials: user, strategy: 'jwt' } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -98,7 +98,7 @@ describe('GET /activities/{id}/history', () => {
 
   it('gets history for an activity with no workouts', () => {
 
-    return server.inject({ method: 'get', url: `/activities/${activity4.id}/history`, credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: `/activities/${activity4.id}/history`, auth: { credentials: user, strategy: 'jwt' } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;

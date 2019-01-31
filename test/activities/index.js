@@ -71,7 +71,7 @@ describe('GET /activities', () => {
 
   it('lists activities for a user', () => {
 
-    return server.inject({ method: 'get', url: '/activities', credentials: user1 }).then((res) => {
+    return server.inject({ method: 'get', url: '/activities', auth: { strategy: 'jwt', credentials: user1 } }).then((res) => {
 
       expect(res.statusCode).to.equal(206);
       expect(res.headers).to.include('link');
@@ -85,7 +85,7 @@ describe('GET /activities', () => {
 
   it('lists all activities for a user', () => {
 
-    return server.inject({ method: 'get', url: '/activities?limit=20', credentials: user1 }).then((res) => {
+    return server.inject({ method: 'get', url: '/activities?limit=20', auth: { strategy: 'jwt', credentials: user1 } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;

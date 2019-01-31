@@ -53,7 +53,7 @@ describe('PUT /workouts', () => {
 
   it('updates a workout', () => {
 
-    return server.inject({ method: 'put', url: `/workouts/${workout1.id}`, credentials: user1, payload: workout3 }).then((res) => {
+    return server.inject({ method: 'put', url: `/workouts/${workout1.id}`, auth: { strategy: 'jwt', credentials: user1 }, payload: workout3 }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -70,7 +70,7 @@ describe('PUT /workouts', () => {
 
   it('does not updated nonexistant workout', () => {
 
-    return server.inject({ method: 'put', url: `/workouts/${Faker.random.uuid()}`, credentials: user1, payload: Fixtures.workout({}, true) }).then((res) => {
+    return server.inject({ method: 'put', url: `/workouts/${Faker.random.uuid()}`, auth: { strategy: 'jwt', credentials: user1 }, payload: Fixtures.workout({}, true) }).then((res) => {
 
       expect(res.statusCode).to.equal(404);
     });
@@ -78,7 +78,7 @@ describe('PUT /workouts', () => {
 
   it('does not update over existing date', () => {
 
-    return server.inject({ method: 'put', url: `/workouts/${workout1.id}`, credentials: user1, payload: workout5 }).then((res) => {
+    return server.inject({ method: 'put', url: `/workouts/${workout1.id}`, auth: { strategy: 'jwt', credentials: user1 }, payload: workout5 }).then((res) => {
 
       expect(res.statusCode).to.equal(409);
     });
@@ -90,7 +90,7 @@ describe('PUT /workouts', () => {
     date.setYear(date.getFullYear() - 1);
     date = Moment(date).format('YYYY-MM-DD');
     const workout = Fixtures.workout({ date }, true);
-    return server.inject({ method: 'put', url: `/workouts/${workout1.id}`, credentials: user1, payload: workout }).then((res) => {
+    return server.inject({ method: 'put', url: `/workouts/${workout1.id}`, auth: { strategy: 'jwt', credentials: user1 }, payload: workout }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
     });

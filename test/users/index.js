@@ -46,7 +46,7 @@ describe('GET /user', () => {
 
   it('can get user', () => {
 
-    return server.inject({ method: 'get', url: '/user', credentials: user }).then((res) => {
+    return server.inject({ method: 'get', url: '/user', auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -83,7 +83,7 @@ describe('PATCH /user', () => {
   it('can update user', () => {
 
     const name = Faker.name.findName();
-    return server.inject({ method: 'patch', url: '/user', payload: { name, currentPassword: user.password }, credentials: user }).then((res) => {
+    return server.inject({ method: 'patch', url: '/user', payload: { name, currentPassword: user.password }, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -104,7 +104,7 @@ describe('PATCH /user', () => {
   it('invalidates on email change', () => {
 
     const email = Faker.internet.email();
-    return server.inject({ method: 'patch', url: '/user', payload: { email, currentPassword: user.password }, credentials: user }).then((res) => {
+    return server.inject({ method: 'patch', url: '/user', payload: { email, currentPassword: user.password }, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -126,7 +126,7 @@ describe('PATCH /user', () => {
   it('changes password', () => {
 
     const password = Faker.internet.password();
-    return server.inject({ method: 'patch', url: '/user', payload: { newPassword: password, confirmPassword: password, currentPassword: user.password }, credentials: user }).then((res) => {
+    return server.inject({ method: 'patch', url: '/user', payload: { newPassword: password, confirmPassword: password, currentPassword: user.password }, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(200);
       return res.result;
@@ -145,7 +145,7 @@ describe('PATCH /user', () => {
   it('requires valid password', () => {
 
     const email = Faker.internet.email();
-    return server.inject({ method: 'patch', url: '/user', payload: { email, currentPassword: Faker.internet.password() }, credentials: user }).then((res) => {
+    return server.inject({ method: 'patch', url: '/user', payload: { email, currentPassword: Faker.internet.password() }, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
 
       expect(res.statusCode).to.equal(400);
     });
