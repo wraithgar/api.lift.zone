@@ -52,7 +52,7 @@
     "hapi": "18.0.1",
     "hapi-pagination": "2.0.1",
     "hapi-pino": "5.4.0",
-    "hapi-rate-limit": "3.0.0",
+    "hapi-rate-limit": "3.1.0",
     "hapi-swagger": "9.3.0",
     "hoek": "6.1.2",
     "inert": "5.1.2",
