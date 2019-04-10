@@ -43,8 +43,6 @@ module.exports.db = db;
 module.exports.server = server.register([{
   plugin: require('./lib/jwt_authorization')
 }, {
-  plugin: require('./lib/https')
-}, {
   plugin: require('inert')
 }, {
   plugin: require('vision')
@@ -65,6 +63,9 @@ module.exports.server = server.register([{
 }, {
   plugin: require('hapi-pino'),
   options: Config.pino
+}, {
+  //This has to come after hapi-pino
+  plugin: require('./lib/https')
 }, {
   plugin: require('hapi-rate-limit'),
   options: Config.rateLimit
