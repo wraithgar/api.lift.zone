@@ -4,8 +4,9 @@ const Faker = require('faker');
 
 const Fixtures = require('../fixtures');
 
-const { db, Server, lab_script, expect } = Fixtures;
-const lab = exports.lab = lab_script;
+const { db, Server, expect } = Fixtures;
+
+const lab = exports.lab = require('@hapi/lab').script();
 
 const { before, after, describe, it } = lab;
 
