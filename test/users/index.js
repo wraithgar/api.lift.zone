@@ -2,59 +2,46 @@
 
 const Bcrypt = require('bcrypt');
 const Config = require('getconfig');
-const Fixtures = require('../fixtures');
 const Faker = require('faker');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const Fixtures = require('../fixtures');
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const lab = exports.lab = lab_script;
+
+const { before, after, describe, it } = lab;
 
 describe('GET /user', () => {
 
   let server;
   const user = Fixtures.user();
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      db.users.insert(user)
-    ]).then((items) => {
-
-      server = items[0];
-    });
+    server = await Server;
+    await db.users.insert(user)
   });
 
-  after(() => {
+  after(async () => {
 
-    return db.users.destroy({ id: user.id });
+    await db.users.destroy({ id: user.id });
   });
 
-  it('requires auth', () => {
+  it('requires auth', async () => {
 
-    return server.inject({ method: 'get', url: '/user' }).then((res) => {
+    const res = await server.inject({ method: 'get', url: '/user' });
 
-      expect(res.statusCode).to.equal(401);
-    });
+    expect(res.statusCode).to.equal(401);
   });
 
-  it('can get user', () => {
+  it('can get user', async () => {
 
-    return server.inject({ method: 'get', url: '/user', auth: { strategy: 'jwt', credentials: user } }).then((res) => {
+    const res = await server.inject({ method: 'get', url: '/user', auth: { strategy: 'jwt', credentials: user } });
 
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.be.an.object();
-      expect(result).to.equal(user);
-    });
+    expect(res.statusCode).to.equal(200);
+    const result = res.result;
+    expect(result).to.be.an.object();
+    expect(result).to.equal(user);
   });
 });
 
@@ -62,92 +49,72 @@ describe('PATCH /user', () => {
 
   let server;
   const user = Fixtures.user();
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      Bcrypt.hash(user.password, Config.saltRounds)
-    ]).then((items) => {
-
-      user.hash = items[1];
-      server = items[0];
-      return db.users.insert(user);
-    });
+    server = await Server;
+    user.hash = await Bcrypt.hash(user.password, Config.saltRounds)
+    await db.users.insert(user);
   });
 
-  after(() => {
+  after(async () => {
 
-    return db.users.destroy({ id: user.id });
+    await db.users.destroy({ id: user.id });
   });
 
-  it('can update user', () => {
+  it('can update user', async () => {
 
     const name = Faker.name.findName();
-    return server.inject({ method: 'patch', url: '/user', payload: { name, currentPassword: user.password }, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
+    const res = await server.inject({ method: 'patch', url: '/user', payload: { name, currentPassword: user.password }, auth: { strategy: 'jwt', credentials: user } });
 
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
+    expect(res.statusCode).to.equal(200);
+    const result = res.result;
+    expect(result).to.contain(['id', 'name', 'email', 'validated']);
+    expect(result).to.not.contain(['hash']);
+    expect(result.id).to.equal(user.id);
+    expect(result.name).to.equal(name);
+    const updatedUser = await db.users.findOne({ id: user.id });
 
-      expect(result).to.contain(['id', 'name', 'email', 'validated']);
-      expect(result).to.not.contain(['hash']);
-      expect(result.id).to.equal(user.id);
-      expect(result.name).to.equal(name);
-      return db.users.findOne({ id: user.id }).then((updatedUser) => {
-
-        expect(updatedUser.name).to.equal(name);
-        expect(updatedUser.validated).to.equal(true);
-      });
-    });
+    expect(updatedUser.name).to.equal(name);
+    expect(updatedUser.validated).to.equal(true);
   });
 
-  it('invalidates on email change', () => {
+  it('invalidates on email change', async () => {
 
     const email = Faker.internet.email();
-    return server.inject({ method: 'patch', url: '/user', payload: { email, currentPassword: user.password }, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
+    const res = await server.inject({ method: 'patch', url: '/user', payload: { email, currentPassword: user.password }, auth: { strategy: 'jwt', credentials: user } });
+    expect(res.statusCode).to.equal(200);
+    const result = res.result;
+    expect(result).to.contain(['id', 'name', 'email', 'validated']);
+    expect(result).to.not.contain(['hash']);
+    expect(result.id).to.equal(user.id);
+    expect(result.email).to.equal(email);
+    const updatedUser = await db.users.findOne({ id: user.id });
 
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.contain(['id', 'name', 'email', 'validated']);
-      expect(result).to.not.contain(['hash']);
-      expect(result.id).to.equal(user.id);
-      expect(result.email).to.equal(email);
-      return db.users.findOne({ id: user.id }).then((updatedUser) => {
-
-        expect(updatedUser.email).to.equal(email);
-        expect(updatedUser.validated).to.equal(false);
-        user.email = email; //Make other tests pass now
-      });
-    });
+    expect(updatedUser.email).to.equal(email);
+    expect(updatedUser.validated).to.equal(false);
+    user.email = email; //Make other tests pass now
   });
 
-  it('changes password', () => {
+  it('changes password', async () => {
 
     const password = Faker.internet.password();
-    return server.inject({ method: 'patch', url: '/user', payload: { newPassword: password, confirmPassword: password, currentPassword: user.password }, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
+    const res = await server.inject({ method: 'patch', url: '/user', payload: { newPassword: password, confirmPassword: password, currentPassword: user.password }, auth: { strategy: 'jwt', credentials: user } });
 
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
+    expect(res.statusCode).to.equal(200);
+    const result =  res.result;
+    expect(result).to.contain(['id', 'name', 'email', 'validated']);
+    expect(result).to.not.contain(['hash']);
+    expect(result.id).to.equal(user.id);
+    const updatedUser = await db.users.findOne({ id: user.id });
 
-      expect(result).to.contain(['id', 'name', 'email', 'validated']);
-      expect(result).to.not.contain(['hash']);
-      expect(result.id).to.equal(user.id);
-      return db.users.findOne({ id: user.id }).then((updatedUser) => {
-
-        expect(updatedUser.hash).to.not.equal(user.hash);
-      });
-    });
+    expect(updatedUser.hash).to.not.equal(user.hash);
   });
 
-  it('requires valid password', () => {
+  it('requires valid password', async () => {
 
     const email = Faker.internet.email();
-    return server.inject({ method: 'patch', url: '/user', payload: { email, currentPassword: Faker.internet.password() }, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
+    const res = await server.inject({ method: 'patch', url: '/user', payload: { email, currentPassword: Faker.internet.password() }, auth: { strategy: 'jwt', credentials: user } });
 
-      expect(res.statusCode).to.equal(400);
-    });
+    expect(res.statusCode).to.equal(400);
   });
 });

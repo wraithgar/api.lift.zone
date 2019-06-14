@@ -4,16 +4,11 @@ const Faker = require('faker');
 
 const Fixtures = require('../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const lab = exports.lab = lab_script;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
 
 describe('PUT /activities/{id}/promote', () => {
 
@@ -23,50 +18,38 @@ describe('PUT /activities/{id}/promote', () => {
   const activity2 = Fixtures.activity({ activity_id: activity1.id, user_id: user.id }, true);
   const activity3 = Fixtures.activity({ user_id: user.id });
 
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      db.users.insert(user)
-    ]).then((items) => {
+    server = await Server;
 
-      server = items[0];
-      return Promise.all([
-        db.activities.insert(activity1),
-        db.activities.insert(activity3)
-      ]);
-    }).then(() => {
-
-      return db.activities.insert(activity2);
-    });
-  });
-
-  after(() => {
-
-    return Promise.all([
-      db.users.destroy({ id: user.id })
+    await db.users.insert(user)
+    await Promise.all([
+      db.activities.insert(activity1),
+      db.activities.insert(activity3)
     ]);
+    await db.activities.insert(activity2);
   });
 
-  it('promotes an activity', () => {
+  after(async () => {
 
-    return server.inject({ method: 'put', url: `/activities/${activity2.id}/promote`, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
-
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result.id).to.equal(activity2.id);
-      expect(result.aliases).to.part.include({ id: activity1.id });
-      expect(result.aliases).to.not.part.include({ id: activity3.id });
-    });
+    await db.users.destroy({ id: user.id });
   });
 
-  it('does not find invalid activity', () => {
+  it('promotes an activity', async () => {
 
-    return server.inject({ method: 'put', url: `/activities/${Faker.random.uuid()}/promote`, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
+    const res = await server.inject({ method: 'put', url: `/activities/${activity2.id}/promote`, auth: { strategy: 'jwt', credentials: user } });
 
-      expect(res.statusCode).to.equal(404);
-    });
+    expect(res.statusCode).to.equal(200);
+    const result = res.result;
+    expect(result.id).to.equal(activity2.id);
+    expect(result.aliases).to.part.include({ id: activity1.id });
+    expect(result.aliases).to.not.part.include({ id: activity3.id });
+  });
+
+  it('does not find invalid activity', async () => {
+
+    const res = await server.inject({ method: 'put', url: `/activities/${Faker.random.uuid()}/promote`, auth: { strategy: 'jwt', credentials: user } });
+
+    expect(res.statusCode).to.equal(404);
   });
 });

@@ -1,18 +1,14 @@
 'use strict';
 
-const Fixtures = require('../fixtures');
 const Faker = require('faker');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const Fixtures = require('../fixtures');
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const lab = exports.lab = lab_script;
+
+const { before, after, describe, it } = lab;
 
 describe('DELETE /workouts/{id}', () => {
 
@@ -21,49 +17,34 @@ describe('DELETE /workouts/{id}', () => {
   const workout1 = Fixtures.workout({ user_id: user.id }, true);
   const workout2 = Fixtures.workout({ user_id: user.id }, true);
 
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      db.users.insert(user)
-    ]).then((items) => {
-
-      server = items[0];
-      return Promise.all([
-        db.workouts.insert(workout1),
-        db.workouts.insert(workout2)
-      ]);
-    });
-  });
-
-  after(() => {
-
-    return Promise.all([
-      db.users.destroy({ id: user.id })
+    server = await Server;
+    await db.users.insert(user)
+    await Promise.all([
+      db.workouts.insert(workout1),
+      db.workouts.insert(workout2)
     ]);
   });
 
-  it('deletes a workout', () => {
+  after(async () => {
 
-    return server.inject({ method: 'delete', url: `/workouts/${workout1.id}`, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
-
-      expect(res.statusCode).to.equal(204);
-      return Fixtures.db.workouts.findOne({ id: workout1.id });
-    }).then((deletedWorkout) => {
-
-      expect(deletedWorkout).to.not.exist();
-      return Fixtures.db.workouts.findOne({ id: workout2.id });
-    }).then((workout) => {
-
-      expect(workout).to.exist();
-    });
+    await db.users.destroy({ id: user.id })
   });
 
-  it('does not delete nonexistant workout', () => {
+  it('deletes a workout', async () => {
 
-    return server.inject({ method: 'delete', url: `/workouts/${Faker.random.uuid()}`, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
+    const res = await server.inject({ method: 'delete', url: `/workouts/${workout1.id}`, auth: { strategy: 'jwt', credentials: user } });
+    expect(res.statusCode).to.equal(204);
+    const deletedWorkout = await Fixtures.db.workouts.findOne({ id: workout1.id });
+    expect(deletedWorkout).to.not.exist();
+    const workout = await Fixtures.db.workouts.findOne({ id: workout2.id });
+    expect(workout).to.exist();
+  });
 
-      expect(res.statusCode).to.equal(404);
-    });
+  it('does not delete nonexistant workout', async () => {
+
+    const res = await server.inject({ method: 'delete', url: `/workouts/${Faker.random.uuid()}`, auth: { strategy: 'jwt', credentials: user } });
+    expect(res.statusCode).to.equal(404);
   });
 });

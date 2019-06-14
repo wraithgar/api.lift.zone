@@ -1,19 +1,13 @@
 'use strict';
 
-const Faker = require('faker');
-
 const Fixtures = require('../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const lab = exports.lab = lab_script;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
+
 
 describe('POST /activities/{id}', () => {
 
@@ -21,70 +15,55 @@ describe('POST /activities/{id}', () => {
   const user1 = Fixtures.user();
   const user2 = Fixtures.user();
   const activity1 = Fixtures.activity();
-  const activity2 = Fixtures.activity({ activity_id: Faker.random.uuid() });
+  const activity2 = Fixtures.activity({ activity_id: Fixtures.uuid() });
   const activity3 = Fixtures.activity({ user_id: user1.id }, true);
   const activity4 = Fixtures.activity({ activity_id: activity3.id });
 
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
+    server = await Server;
+    await Promise.all([
       db.users.insert(user1),
       db.users.insert(user2)
-    ]).then((items) => {
-
-      server = items[0];
-      return Promise.all([
-        db.activities.insert(activity3)
-      ]);
-    });
+    ]);
+    await db.activities.insert(activity3)
   });
 
-  after(() => {
+  after(async () => {
 
-    return Promise.all([
+    await Promise.all([
       db.users.destroy({ id: user1.id }),
       db.users.destroy({ id: user2.id })
     ]);
   });
 
-  it('creates an activity', () => {
+  it('creates an activity', async () => {
 
-    return server.inject({ method: 'post', url: '/activities', auth: { credentials: user1, strategy: 'jwt' }, payload: activity1 }).then((res) => {
+    const res = await server.inject({ method: 'post', url: '/activities', auth: { credentials: user1, strategy: 'jwt' }, payload: activity1 });
 
-      expect(res.statusCode).to.equal(201);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.include(activity1);
-    });
+    expect(res.statusCode).to.equal(201);
+    expect(res.result).to.include(activity1);
   });
 
-  it('404 on invalid activity_id', () => {
+  it('404 on invalid activity_id', async () => {
 
-    return server.inject({ method: 'post', url: '/activities', auth: { credentials: user1, strategy: 'jwt' }, payload: activity2 }).then((res) => {
+    const res = await server.inject({ method: 'post', url: '/activities', auth: { credentials: user1, strategy: 'jwt' }, payload: activity2 });
 
-      expect(res.statusCode).to.equal(404);
-    });
+    expect(res.statusCode).to.equal(404);
   });
 
-  it('does not find other user\'s activity', () => {
+  it("does not find other user's activity", async () => {
 
-    return server.inject({ method: 'post', url: '/activities', auth: { credentials: user2, strategy: 'jwt' }, payload: activity4 }).then((res) => {
+    const res = await server.inject({ method: 'post', url: '/activities', auth: { credentials: user2, strategy: 'jwt' }, payload: activity4 });
 
-      expect(res.statusCode).to.equal(404);
-    });
+    expect(res.statusCode).to.equal(404);
   });
 
-  it('creates alias', () => {
+  it('creates alias', async () => {
 
-    return server.inject({ method: 'post', url: '/activities', auth: { credentials: user1, strategy: 'jwt' }, payload: activity4 }).then((res) => {
+    const res = await server.inject({ method: 'post', url: '/activities', auth: { credentials: user1, strategy: 'jwt' }, payload: activity4 });
 
-      expect(res.statusCode).to.equal(201);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.include(activity4);
-    });
+    expect(res.statusCode).to.equal(201);
+    expect(res.result).to.include(activity4);
   });
 });

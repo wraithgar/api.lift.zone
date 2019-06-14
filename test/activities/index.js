@@ -2,16 +2,11 @@
 
 const Fixtures = require('../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const lab = exports.lab = lab_script;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
 
 describe('GET /activities', () => {
 
@@ -32,71 +27,59 @@ describe('GET /activities', () => {
   const activity12 = Fixtures.activity({ user_id: user1.id });
   const activity13 = Fixtures.activity({ user_id: user1.id });
 
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
+    server = await Server;
+    await Promise.all([
       db.users.insert(user1),
       db.users.insert(user2)
-    ]).then((items) => {
-
-      server = items[0];
-      return Promise.all([
-        db.activities.insert(activity1),
-        db.activities.insert(activity2),
-        db.activities.insert(activity4),
-        db.activities.insert(activity5),
-        db.activities.insert(activity6),
-        db.activities.insert(activity7),
-        db.activities.insert(activity8),
-        db.activities.insert(activity9),
-        db.activities.insert(activity10),
-        db.activities.insert(activity11),
-        db.activities.insert(activity12),
-        db.activities.insert(activity13)
-      ]);
-    }).then(() => {
-
-      return db.activities.insert(activity3);
-    });
+    ]);
+    await Promise.all([
+      db.activities.insert(activity1),
+      db.activities.insert(activity2),
+      db.activities.insert(activity4),
+      db.activities.insert(activity5),
+      db.activities.insert(activity6),
+      db.activities.insert(activity7),
+      db.activities.insert(activity8),
+      db.activities.insert(activity9),
+      db.activities.insert(activity10),
+      db.activities.insert(activity11),
+      db.activities.insert(activity12),
+      db.activities.insert(activity13)
+    ]);
+    await db.activities.insert(activity3);
   });
 
-  after(() => {
+  after(async () => {
 
-    return Promise.all([
+    await Promise.all([
       db.users.destroy({ id: user1.id }),
       db.users.destroy({ id: user2.id })
     ]);
   });
 
-  it('lists activities for a user', () => {
+  it('lists activities for a user', async () => {
 
-    return server.inject({ method: 'get', url: '/activities', auth: { strategy: 'jwt', credentials: user1 } }).then((res) => {
+    const res = await server.inject({ method: 'get', url: '/activities', auth: { strategy: 'jwt', credentials: user1 } });
 
-      expect(res.statusCode).to.equal(206);
-      expect(res.headers).to.include('link');
-      expect(res.headers['content-range']).to.equal('0-9/11');
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.have.length(10);
-    });
+    expect(res.statusCode).to.equal(206);
+    expect(res.headers).to.include('link');
+    expect(res.headers['content-range']).to.equal('0-9/11');
+    expect(res.result).to.have.length(10);
   });
 
-  it('lists all activities for a user', () => {
+  it('lists all activities for a user', async () => {
 
-    return server.inject({ method: 'get', url: '/activities?limit=20', auth: { strategy: 'jwt', credentials: user1 } }).then((res) => {
+    const res = await server.inject({ method: 'get', url: '/activities?limit=20', auth: { strategy: 'jwt', credentials: user1 } });
 
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.not.part.include(activity1);
-      expect(result).to.not.part.include(activity2);
-      expect(result).to.part.include({ name: activity1.name, aliases: [] });
-      expect(result).to.part.include({ id: activity2.id, aliases: [{ name: activity3.name }] });
-      expect(result).to.not.part.include(activity3);
-      expect(result).to.not.part.include(activity4);
-    });
+    expect(res.statusCode).to.equal(200);
+    const result = res.result;
+    expect(result).to.not.part.include(activity1);
+    expect(result).to.not.part.include(activity2);
+    expect(result).to.part.include({ name: activity1.name, aliases: [] });
+    expect(result).to.part.include({ id: activity2.id, aliases: [{ name: activity3.name }] });
+    expect(result).to.not.part.include(activity3);
+    expect(result).to.not.part.include(activity4);
   });
 });

@@ -1,7 +1,7 @@
 'use strict';
 
 const Config = require('getconfig');
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const Muckraker = require('muckraker');
 const Pkg = require('./package.json');
 

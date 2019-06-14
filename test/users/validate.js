@@ -1,19 +1,17 @@
 'use strict';
 
-const Fixtures = require('../fixtures');
 const StandIn = require('stand-in');
 const AWS = require('../../lib/aws');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const Faker = require('faker');
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const Fixtures = require('../fixtures');
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { db, Server, lab_script, expect } = Fixtures;
+
+const lab = exports.lab = lab_script;
+
+const { before, after, describe, it } = lab;
 
 describe('POST /user/validate', () => {
 
@@ -22,30 +20,25 @@ describe('POST /user/validate', () => {
   const user2 = Fixtures.user({ validated: false });
   const validation2 = Fixtures.validation({ user_id: user2.id });
 
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
+    server = await Server;
+    await Promise.all([
       db.users.insert(user1),
       db.users.insert(user2)
-    ]).then((items) => {
-
-      server = items[0];
-      return Promise.all([
-        db.validations.insert(validation2)
-      ]);
-    });
+    ]);
+    await db.validations.insert(validation2)
   });
 
-  after(() => {
+  after(async () => {
 
-    return Promise.all([
+    await Promise.all([
       db.users.destroy({ id: user1.id }),
       db.users.destroy({ id: user2.id })
     ]);
   });
 
-  it('requests validation', () => {
+  it('requests validation', async () => {
 
     let sesParams;
     StandIn.replace(AWS, 'sendEmail', (stand, params) => {
@@ -54,27 +47,21 @@ describe('POST /user/validate', () => {
       sesParams = params;
     });
 
-    return server.inject({ method: 'post', url: '/user/validate', auth: { strategy: 'jwt', credentials: user1 } }).then((res) => {
+     const res = await server.inject({ method: 'post', url: '/user/validate', auth: { strategy: 'jwt', credentials: user1 } });
 
-      expect(res.statusCode).to.equal(202);
-      return db.validations.findOne({ user_id: user1.id });
-    }).then((createdValidation) => {
-
-      expect(createdValidation).to.exist();
-      expect(sesParams.Destination.ToAddresses).to.include(user1.email);
-      expect(sesParams.Message.Body.Text.Data).to.include(createdValidation.token);
-    });
+    expect(res.statusCode).to.equal(202);
+    const createdValidation = await db.validations.findOne({ user_id: user1.id });
+    expect(createdValidation).to.exist();
+    expect(sesParams.Destination.ToAddresses).to.include(user1.email);
+    expect(sesParams.Message.Body.Text.Data).to.include(createdValidation.token);
   });
 
-  it('ignores if validation exists', () => {
+  it('ignores if validation exists', async () => {
 
-    return server.inject({ method: 'post', url: '/user/validate', auth: { strategy: 'jwt', credentials: user2 } }).then((res) => {
+    const res = await server.inject({ method: 'post', url: '/user/validate', auth: { strategy: 'jwt', credentials: user2 } });
 
-      expect(res.statusCode).to.equal(202);
-      return db.validations.findOne({ user_id: user2.id });
-    }).then((createdValidation) => {
-
-      expect(createdValidation).to.include(validation2);
-    });
+    expect(res.statusCode).to.equal(202);
+    const createdValidation = await db.validations.findOne({ user_id: user2.id });
+    expect(createdValidation).to.include(validation2);
   });
 });

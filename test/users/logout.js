@@ -1,48 +1,36 @@
 'use strict';
 
-const Fixtures = require('../fixtures');
 const Faker = require('faker');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const Fixtures = require('../fixtures');
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const lab = exports.lab = lab_script;
+
+const { before, after, describe, it } = lab;
 
 describe('POST /user/logout', () => {
 
   let server;
   const user = Fixtures.user({ logout: Faker.date.past() });
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      db.users.insert(user)
-    ]).then((items) => {
-
-      server = items[0];
-    });
+     server = await Server;
+     await db.users.insert(user)
   });
 
-  after(() => {
+  after(async () => {
 
-    return db.users.destroy({ id: user.id });
+    await db.users.destroy({ id: user.id });
   });
 
-  it('can logout', () => {
+  it('can logout', async () => {
 
-    return server.inject({ method: 'post', url: '/user/logout', auth: { strategy: 'jwt', credentials: user } }).then((res) => {
+    const res = await server.inject({ method: 'post', url: '/user/logout', auth: { strategy: 'jwt', credentials: user } });
 
-      expect(res.statusCode).to.equal(204);
-      return db.users.findOne({ id: user.id });
-    }).then((updatedUser) => {
-
-      expect(updatedUser.logout).to.be.above(user.logout);
-    });
+    expect(res.statusCode).to.equal(204);
+    const updatedUser = await db.users.findOne({ id: user.id });
+    expect(updatedUser.logout).to.be.above(user.logout);
   });
 });

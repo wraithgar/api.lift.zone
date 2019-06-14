@@ -1,17 +1,14 @@
 'use strict';
 
+const Faker = require('faker');
+
 const Fixtures = require('../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const lab = exports.lab = lab_script;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
 
 describe('POST /user/signup', () => {
 
@@ -21,31 +18,26 @@ describe('POST /user/signup', () => {
   const invite2 = Fixtures.invite({ user_id: user.id, claimed_by: user.id });
   const signupUser1 = Fixtures.user();
   const signupUser2 = Fixtures.user();
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      db.users.insert(user)
-    ]).then((items) => {
-
-      server = items[0];
-      return Promise.all([
-        db.invites.insert(invite1),
-        db.invites.insert(invite2)
-      ]);
-    });
+    server = await Server;
+    await db.users.insert(user)
+    await Promise.all([
+      db.invites.insert(invite1),
+      db.invites.insert(invite2)
+    ]);
   });
 
-  after(() => {
+  after(async () => {
 
-    return Promise.all([
+    await Promise.all([
       db.users.destroy({ id: user.id }),
       db.users.destroy({ email: signupUser1.email }),
       db.users.destroy({ email: signupUser2.email })
     ]);
   });
 
-  it('creates a user', () => {
+  it('creates a user', async () => {
 
     const signup = {
       invite: invite1.token,
@@ -55,29 +47,23 @@ describe('POST /user/signup', () => {
       passwordConfirm: signupUser1.password
     };
 
-    return server.inject({ method: 'post', url: '/user/signup', payload: signup }).then((res) => {
+    let res = await server.inject({ method: 'post', url: '/user/signup', payload: signup });
 
-      expect(res.statusCode).to.equal(201);
-      return res.result;
-    }).then((result) => {
+    expect(res.statusCode).to.equal(201);
+    let result = res.result
+    expect(result).to.include(['token']);
+    const newUser = await db.users.findOne({ email: signupUser1.email });
 
-      expect(result).to.include(['token']);
-      return db.users.findOne({ email: signupUser1.email }).then((newUser) => {
+    expect(newUser).to.exist();
 
-        expect(newUser).to.exist();
-        return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } }).then((newRes) => {
+    res = await server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
+    result = res.result;
 
-          expect(newRes.statusCode).to.equal(200);
-          return newRes.result;
-        }).then((newResult) => {
-
-          expect(newResult.email).to.equal(signupUser1.email);
-        });
-      });
-    });
+    expect(res.statusCode).to.equal(200);
+    expect(result.email).to.equal(signupUser1.email);
   });
 
-  it('rejects claimed invite', () => {
+  it('rejects claimed invite', async () => {
 
     const signup = {
       invite: invite2.token,
@@ -87,14 +73,10 @@ describe('POST /user/signup', () => {
       passwordConfirm: signupUser2.password
     };
 
-    return server.inject({ method: 'post', url: '/user/signup', payload: signup }).then((res) => {
+    const res = await server.inject({ method: 'post', url: '/user/signup', payload: signup });
 
-      expect(res.statusCode).to.equal(404);
-      return db.users.findOne({ email: signupUser2.email });
-    }).then((newUser) => {
-
-      expect(newUser).to.not.exist();
-    });
+    expect(res.statusCode).to.equal(404);
+    const newUser = await db.users.findOne({ email: signupUser2.email });
+    expect(newUser).to.not.exist();
   });
 });
-

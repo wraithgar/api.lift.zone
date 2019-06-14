@@ -4,16 +4,11 @@ const Faker = require('faker');
 
 const Fixtures = require('../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const lab = exports.lab = lab_script;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
 
 describe('GET /workouts/{id}', () => {
 
@@ -21,44 +16,31 @@ describe('GET /workouts/{id}', () => {
   const user = Fixtures.user();
   const workout = Fixtures.workout({ user_id: user.id }, true);
 
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      db.users.insert(user)
-    ]).then((items) => {
-
-      server = items[0];
-      return Promise.all([
-        db.workouts.insert(workout)
-      ]);
-    });
-  });
-
-  after(() => {
-
-    return Promise.all([
-      db.users.destroy({ id: user.id })
+    server = await Server;
+    await db.users.insert(user)
+    await Promise.all([
+      db.workouts.insert(workout)
     ]);
   });
 
-  it('gets a workout', () => {
+  after(async () => {
 
-    return server.inject({ method: 'get', url: `/workouts/${workout.id}`, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
-
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.include({ id: workout.id, name: workout.name });
-    });
+    await db.users.destroy({ id: user.id })
   });
 
-  it('does not find nonexistant workout', () => {
+  it('gets a workout', async () => {
 
-    return server.inject({ method: 'get', url: `/workouts/${Faker.random.uuid()}`, auth: { strategy: 'jwt', credentials: user } }).then((res) => {
+    const res = await server.inject({ method: 'get', url: `/workouts/${workout.id}`, auth: { strategy: 'jwt', credentials: user } });
+    expect(res.statusCode).to.equal(200);
+    expect(res.result).to.include({ id: workout.id, name: workout.name });
+  });
 
-      expect(res.statusCode).to.equal(404);
-    });
+  it('does not find nonexistant workout', async () => {
+
+    const res = await server.inject({ method: 'get', url: `/workouts/${Faker.random.uuid()}`, auth: { strategy: 'jwt', credentials: user } });
+
+    expect(res.statusCode).to.equal(404);
   });
 });

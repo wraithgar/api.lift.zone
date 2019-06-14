@@ -1,17 +1,14 @@
 'use strict';
 
+const Faker = require('faker');
+
 const Fixtures = require('../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const lab = exports.lab = lab_script;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
 
 describe('POST /workouts', () => {
 
@@ -23,51 +20,39 @@ describe('POST /workouts', () => {
   const workout3 = Fixtures.workout({ date: workout2.date });
   const workout4 = Fixtures.workout({ date: workout1.date, user_id: user2.id });
 
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
+    server = await Server;
+    await Promise.all([
       db.users.insert(user1),
       db.users.insert(user2)
-    ]).then((items) => {
-
-      server = items[0];
-      return Promise.all([
-        db.workouts.insert(workout2),
-        db.workouts.insert(workout4)
-      ]);
-    });
+    ]);
+    await Promise.all([
+      db.workouts.insert(workout2),
+      db.workouts.insert(workout4)
+    ]);
   });
 
-  after(() => {
+  after(async () => {
 
-    return Promise.all([
+    await Promise.all([
       db.users.destroy({ id: user1.id }),
       db.users.destroy({ id: user2.id })
     ]);
   });
 
-  it('creates a workout', () => {
+  it('creates a workout', async () => {
 
-    return server.inject({ method: 'post', url: '/workouts', payload: workout1, auth: { strategy: 'jwt', credentials: user1 } }).then((res) => {
-
-      expect(res.statusCode).to.equal(201);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.include({ name: workout1.name });
-      return db.workouts.findOne({ id: result.id });
-    }).then((createdWorkout) => {
-
-      expect(createdWorkout).to.exist();
-    });
+    const res = await server.inject({ method: 'post', url: '/workouts', payload: workout1, auth: { strategy: 'jwt', credentials: user1 } });
+    expect(res.statusCode).to.equal(201);
+    expect(res.result).to.include({ name: workout1.name });
+    const createdWorkout = await db.workouts.findOne({ id: res.result.id });
+    expect(createdWorkout).to.exist();
   });
 
-  it('does not create workout for same day', () => {
+  it('does not create workout for same day', async () => {
 
-    return server.inject({ method: 'post', url: '/workouts', payload: workout3, auth: { strategy: 'jwt', credentials: user1 } }).then((res) => {
-
-      expect(res.statusCode).to.equal(409);
-    });
+    const res = await server.inject({ method: 'post', url: '/workouts', payload: workout3, auth: { strategy: 'jwt', credentials: user1 } });
+    expect(res.statusCode).to.equal(409);
   });
 });

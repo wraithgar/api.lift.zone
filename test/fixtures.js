@@ -5,8 +5,12 @@ const Faker = require('faker');
 const Bcrypt = require('bcrypt');
 const Moment = require('moment');
 
-module.exports.server = require('../server').server;
+module.exports.Server = require('../server').server;
 module.exports.db = require('../server').db;
+
+//Don't export as lab cause that's how lab finds its tests
+module.exports.lab_script = require('@hapi/lab').script();
+module.exports.expect = require('@hapi/code').expect;
 
 const build = (defaults, attrs, id) => {
 
@@ -24,7 +28,10 @@ const build = (defaults, attrs, id) => {
   return record;
 };
 
+module.exports.uuid = () => {
 
+  return Faker.random.uuid();
+};
 module.exports.user = (attrs) => {
 
   const defaults = {

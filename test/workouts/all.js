@@ -1,17 +1,14 @@
 'use strict';
 
+const Faker = require('faker');
+
 const Fixtures = require('../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const lab = exports.lab = lab_script;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
 
 describe('GET /workouts', () => {
 
@@ -19,37 +16,24 @@ describe('GET /workouts', () => {
   const user = Fixtures.user();
   const workout = Fixtures.workout({ user_id: user.id }, true);
 
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      db.users.insert(user)
-    ]).then((items) => {
-
-      server = items[0];
-      return Promise.all([
-        db.workouts.insert(workout)
-      ]);
-    });
+    server = await Server;
+    await db.users.insert(user)
+    await db.workouts.insert(workout)
   });
 
-  after(() => {
+  after(async () => {
 
-    return Promise.all([
-      db.users.destroy({ id: user.id })
-    ]);
+    await db.users.destroy({ id: user.id })
   });
 
-  it('gets workouts', () => {
+  it('gets workouts', async () => {
 
-    return server.inject({ method: 'get', url: '/workouts', auth: { strategy: 'jwt', credentials: user } }).then((res) => {
+    const res = await server.inject({ method: 'get', url: '/workouts', auth: { strategy: 'jwt', credentials: user } });
 
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.part.include({ id: workout.id, name: workout.name, activities: 0 });
-    });
+    expect(res.statusCode).to.equal(200);
+    expect(res.result).to.part.include({ id: workout.id, name: workout.name, activities: 0 });
   });
 
 });

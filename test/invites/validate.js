@@ -4,16 +4,11 @@ const Faker = require('faker');
 
 const Fixtures = require('../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const lab = exports.lab = lab_script;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
 
 describe('GET /invites/{token}', () => {
 
@@ -21,52 +16,41 @@ describe('GET /invites/{token}', () => {
   const user = Fixtures.user();
   const invite1 = Fixtures.invite({ user_id: user.id });
   const invite2 = Fixtures.invite({ user_id: user.id, claimed_by: user.id });
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      db.users.insert(user)
-    ]).then((items) => {
-
-      server = items[0];
-      return Promise.all([
-        db.invites.insert(invite1),
-        db.invites.insert(invite2)
-      ]);
-    });
+    server = await Server;
+    await db.users.insert(user)
+    await Promise.all([
+      db.invites.insert(invite1),
+      db.invites.insert(invite2)
+    ]);
   });
 
-  after(() => {
+  after(async () => {
 
-    return db.users.destroy({ id: user.id });
+    await db.users.destroy({ id: user.id });
   });
 
-  it('unclaimed invite', () => {
+  it('unclaimed invite', async () => {
 
-    return server.inject({ method: 'get', url: `/invites/${invite1.token}` }).then((res) => {
+    const res = await server.inject({ method: 'get', url: `/invites/${invite1.token}` });
 
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(invite1).to.include(result);
-    });
+    expect(res.statusCode).to.equal(200);
+    expect(invite1).to.include(res.result);
   });
 
-  it('claimed invite', () => {
+  it('claimed invite', async () => {
 
-    return server.inject({ method: 'get', url: `/invites/${invite2.token}` }).then((res) => {
+    const res = await server.inject({ method: 'get', url: `/invites/${invite2.token}` });
 
-      expect(res.statusCode).to.equal(404);
-    });
+    expect(res.statusCode).to.equal(404);
   });
 
-  it('invalid invite', () => {
+  it('invalid invite', async () => {
 
     const token = Faker.random.uuid();
-    return server.inject({ method: 'get', url: `/invites/${token}` }).then((res) => {
+    const res = await server.inject({ method: 'get', url: `/invites/${token}` });
 
-      expect(res.statusCode).to.equal(404);
-    });
+    expect(res.statusCode).to.equal(404);
   });
 });

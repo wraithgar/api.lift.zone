@@ -1,17 +1,14 @@
 'use strict';
 
+const Faker = require('faker');
+
 const Fixtures = require('../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const lab = exports.lab = lab_script;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
 
 describe('GET /suggest/activities/{name}', () => {
 
@@ -24,50 +21,35 @@ describe('GET /suggest/activities/{name}', () => {
   activity2.activity_id = activity2.id;
   activity2.activity_id = activity2.id;
 
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      db.users.insert(user)
-    ]).then((items) => {
-
-      server = items[0];
-      return Promise.all([
-        db.activities.insert(activity1),
-        db.activities.insert(activity2)
-      ]);
-    }).then(() => {
-
-      return db.activities.insert(activity3);
-    });
+    server = await Server;
+    await db.users.insert(user)
+    await Promise.all([
+      db.activities.insert(activity1),
+      db.activities.insert(activity2)
+    ]);
+    await db.activities.insert(activity3);
   });
 
-  after(() => {
+  after(async () => {
 
-    return db.users.destroy({ id: user.id });
+    await db.users.destroy({ id: user.id });
   });
 
-  it('finds suggestions', () => {
+  it('finds suggestions', async () => {
 
-    return server.inject({ method: 'get', url: '/suggest/activities/Hack%20Squat', auth: { strategy: 'jwt', credentials: user } }).then((res) => {
+    const res = await server.inject({ method: 'get', url: '/suggest/activities/Hack%20Squat', auth: { strategy: 'jwt', credentials: user } });
 
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.part.include({ suggestions: [{ activity_id: activity1.id, name: 'Squat' }, { activity_id: activity2.id, name: 'Front Squat' }, { activity_id: activity1.id, name: 'Barbell Squat' }] });
-    });
+    expect(res.statusCode).to.equal(200);
+    expect(res.result).to.part.include({ suggestions: [{ activity_id: activity1.id, name: 'Squat' }, { activity_id: activity2.id, name: 'Front Squat' }, { activity_id: activity1.id, name: 'Barbell Squat' }] });
   });
 
-  it('finds a match', () => {
+  it('finds a match', async () => {
 
-    return server.inject({ method: 'get', url: '/suggest/activities/Barbell%20Squat', auth: { strategy: 'jwt', credentials: user } }).then((res) => {
+    const res = await server.inject({ method: 'get', url: '/suggest/activities/Barbell%20Squat', auth: { strategy: 'jwt', credentials: user } });
 
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.include({ id: activity1.id, name: activity1.name });
-    });
+    expect(res.statusCode).to.equal(200);
+    expect(res.result).to.include({ id: activity1.id, name: activity1.name });
   });
 });

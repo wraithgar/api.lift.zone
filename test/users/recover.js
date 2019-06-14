@@ -1,21 +1,18 @@
 'use strict';
 
-const Fixtures = require('../fixtures');
-const Faker = require('faker');
 const StandIn = require('stand-in');
+
 const AWS = require('../../lib/aws');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const Faker = require('faker');
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const Fixtures = require('../fixtures');
 
-const before = lab.before;
-const after = lab.after;
-const afterEach = lab.afterEach;
-const describe = lab.describe;
-const it = lab.it;
+const { db, Server, lab_script, expect } = Fixtures;
+
+const lab = exports.lab = lab_script;
+
+const { before, after, afterEach, describe, it } = lab;
 
 describe('POST /user/recover', () => {
 

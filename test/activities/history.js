@@ -4,16 +4,11 @@ const Faker = require('faker');
 
 const Fixtures = require('../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const lab = exports.lab = lab_script;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
 
 describe('GET /activities/{id}/history', () => {
 
@@ -27,51 +22,36 @@ describe('GET /activities/{id}/history', () => {
   const workout2 = Fixtures.workout({ user_id: user.id, activities: [activity2] }, true);
   const workout3 = Fixtures.workout({ user_id: user.id, activities: [activity3] }, true);
 
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      db.users.insert(user)
-    ]).then((items) => {
-
-      server = items[0];
-      return db.activities.insert(activity1);
-    }).then(() => {
-
-      return Promise.all([
-        db.activities.insert(activity2),
-        db.activities.insert(activity3),
-        db.activities.insert(activity4)
-      ]);
-    }).then(() => {
-
-      return Promise.all([
-        db.workouts.insert(workout1),
-        db.workouts.insert(workout2),
-        db.workouts.insert(workout3)
-      ]);
-    });
-  });
-
-  after(() => {
-
-    return Promise.all([
-      db.users.destroy({ id: user.id })
+    server = await Server;
+    await db.users.insert(user)
+    await db.activities.insert(activity1);
+    await Promise.all([
+      db.activities.insert(activity2),
+      db.activities.insert(activity3),
+      db.activities.insert(activity4)
+    ]);
+    await Promise.all([
+      db.workouts.insert(workout1),
+      db.workouts.insert(workout2),
+      db.workouts.insert(workout3)
     ]);
   });
 
-  it('gets history for an activity', () => {
+  after(async () => {
 
-    return server.inject({ method: 'get', url: `/activities/${activity1.id}/history`, auth: { credentials: user, strategy: 'jwt' } }).then((res) => {
+    await db.users.destroy({ id: user.id })
+  });
 
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
+  it('gets history for an activity', async () => {
 
-      expect(result).to.part.include([{ workout_name: workout1.name, sets: [{ reps: 4 }] }]);
-      expect(result).to.part.include([{ workout_name: workout2.name, sets: [{ reps: 5 }] }]);
-      expect(result).to.not.part.include([{ workout_name: workout3.name }]);
-    });
+    const res = await server.inject({ method: 'get', url: `/activities/${activity1.id}/history`, auth: { credentials: user, strategy: 'jwt' } });
+
+    expect(res.statusCode).to.equal(200);
+    expect(res.result).to.part.include([{ workout_name: workout1.name, sets: [{ reps: 4 }] }]);
+    expect(res.result).to.part.include([{ workout_name: workout2.name, sets: [{ reps: 5 }] }]);
+    expect(res.result).to.not.part.include([{ workout_name: workout3.name }]);
   });
 
   it('does not find nonexistant activity', () => {

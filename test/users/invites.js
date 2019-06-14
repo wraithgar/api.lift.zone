@@ -1,17 +1,14 @@
 'use strict';
 
+const Faker = require('faker');
+
 const Fixtures = require('../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const lab = exports.lab = lab_script;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
 
 describe('GET /user/invites', () => {
 
@@ -21,52 +18,40 @@ describe('GET /user/invites', () => {
   const invite1 = Fixtures.invite({ user_id: user1.id });
   const invite2 = Fixtures.invite({ user_id: user2.id });
   const invite3 = Fixtures.invite({ user_id: user1.id, claimed_by: user1.id });
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
+    server = await Server;
+    await Promise.all([
       db.users.insert(user1),
       db.users.insert(user2)
-    ]).then((items) => {
-
-      server = items[0];
-      return Promise.all([
-        db.invites.insert(invite1),
-        db.invites.insert(invite2),
-        db.invites.insert(invite3)
-      ]);
-    });
+    ]);
+    await Promise.all([
+      db.invites.insert(invite1),
+      db.invites.insert(invite2),
+      db.invites.insert(invite3)
+    ]);
   });
 
-  after(() => {
+  after(async () => {
 
-    return Promise.all([
+    await Promise.all([
       db.users.destroy({ id: user1.id }),
       db.users.destroy({ id: user2.id })
     ]);
   });
 
-  it('lists invites', () => {
+  it('lists invites', async () => {
 
-    return server.inject({ method: 'get', url: '/user/invites', auth: { strategy: 'jwt', credentials: user1 } }).then((res) => {
-
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.part.include({ token: invite1.token });
-    });
+    const res = await server.inject({ method: 'get', url: '/user/invites', auth: { strategy: 'jwt', credentials: user1 } });
+    expect(res.statusCode).to.equal(200);
+    expect(res.result).to.part.include({ token: invite1.token });
   });
 
-  it('lists no invites if user not validated', () => {
+  it('lists no invites if user not validated', async () => {
 
-    return server.inject({ method: 'get', url: '/user/invites', auth: { strategy: 'jwt', credentials: user2 } }).then((res) => {
+    const res = await server.inject({ method: 'get', url: '/user/invites', auth: { strategy: 'jwt', credentials: user2 } });
 
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.be.empty();
-    });
+    expect(res.statusCode).to.equal(200);
+    expect(res.result).to.be.empty();
   });
 });

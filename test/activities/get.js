@@ -4,16 +4,10 @@ const Faker = require('faker');
 
 const Fixtures = require('../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
+const lab = exports.lab = lab_script;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
-
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
 
 describe('GET /activities/{id}', () => {
 
@@ -23,55 +17,46 @@ describe('GET /activities/{id}', () => {
   const activity1 = Fixtures.activity({ user_id: user1.id }, true);
   const activity2 = Fixtures.activity({ user_id: user2.id }, true);
 
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
+    server = await Server;
+    await Promise.all([
       db.users.insert(user1),
       db.users.insert(user2)
-    ]).then((items) => {
-
-      server = items[0];
-      return Promise.all([
-        db.activities.insert(activity1),
-        db.activities.insert(activity2)
-      ]);
-    });
+    ]);
+    await Promise.all([
+      db.activities.insert(activity1),
+      db.activities.insert(activity2)
+    ]);
   });
 
-  after(() => {
+  after(async () => {
 
-    return Promise.all([
+    await Promise.all([
       db.users.destroy({ id: user1.id }),
       db.users.destroy({ id: user2.id })
     ]);
   });
 
-  it('finds activity', () => {
+  it('finds activity', async () => {
 
-    return server.inject({ method: 'get', url: `/activities/${activity1.id}`, auth: { credentials: user1, strategy: 'jwt' } }).then((res) => {
+    const res = await server.inject({ method: 'get', url: `/activities/${activity1.id}`, auth: { credentials: user1, strategy: 'jwt' } });
 
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.include({ id: activity1.id, name: activity1.name });
-    });
+    expect(res.statusCode).to.equal(200);
+    expect(res.result).to.include({ id: activity1.id, name: activity1.name });
   });
 
-  it('does not find other user\'s activity', () => {
+  it("does not find other user's activity", async () => {
 
-    return server.inject({ method: 'get', url: `/activities/${activity2.id}`, auth: { credentials: user1, strategy: 'jwt' } }).then((res) => {
+    const res = await server.inject({ method: 'get', url: `/activities/${activity2.id}`, auth: { credentials: user1, strategy: 'jwt' } });
 
-      expect(res.statusCode).to.equal(404);
-    });
+    expect(res.statusCode).to.equal(404);
   });
 
-  it('does not find nonexistant activity', () => {
+  it('does not find nonexistant activity', async () => {
 
-    return server.inject({ method: 'get', url: `/activities/${Faker.random.uuid()}`, auth: { credentials: user1, strategy: 'jwt' } }).then((res) => {
+    const res = await server.inject({ method: 'get', url: `/activities/${Faker.random.uuid()}`, auth: { credentials: user1, strategy: 'jwt' } });
 
-      expect(res.statusCode).to.equal(404);
-    });
+    expect(res.statusCode).to.equal(404);
   });
 });

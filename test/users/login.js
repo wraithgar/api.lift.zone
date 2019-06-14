@@ -2,99 +2,76 @@
 
 const Fixtures = require('../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const lab = exports.lab = lab_script;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
 
 describe('POST /user/login', () => {
 
   let server;
   const user = Fixtures.user();
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      db.users.insert(user)
-    ]).then((items) => {
-
-      server = items[0];
-    });
+    server = await Server;
+    await db.users.insert(user)
   });
 
-  after(() => {
+  after(async () => {
 
-    return db.users.destroy({ id: user.id });
+    await db.users.destroy({ id: user.id });
   });
 
-  it('can login a user', () => {
+  it('can login a user', async () => {
 
-    return server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } }).then((res) => {
+    const res = await server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } });
 
-      expect(res.statusCode).to.equal(201);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.not.part.include(['hash']);
-      expect(result).to.be.an.object();
-      expect(result.token).to.be.a.string();
-    });
+    expect(res.statusCode).to.equal(201);
+    const result = res.result;
+    expect(result).to.not.part.include(['hash']);
+    expect(result).to.be.an.object();
+    expect(result.token).to.be.a.string();
   });
 
-  it('IgNoReS cAsE', () => {
+  it('IgNoReS cAsE', async () => {
 
-    return server.inject({ method: 'post', url: '/user/login', payload: { email: user.email.toUpperCase(), password: user.password } }).then((res) => {
-
-      expect(res.statusCode).to.equal(201);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.not.part.include(['hash']);
-      expect(result).to.be.an.object();
-      expect(result.token).to.be.a.string();
-    });
+    const res = await server.inject({ method: 'post', url: '/user/login', payload: { email: user.email.toUpperCase(), password: user.password } });
+    expect(res.statusCode).to.equal(201);
+    const result = res.result;
+    expect(result).to.not.part.include(['hash']);
+    expect(result).to.be.an.object();
+    expect(result.token).to.be.a.string();
   });
 
-  it('401 on invalid user', () => {
+  it('401 on invalid user', async () => {
 
-    return server.inject({ method: 'post', url: '/user/login', payload: { email: 'nobody@danger.computer', password: user.password } }).then((res) => {
-
-      expect(res.statusCode).to.equal(401);
-    });
+    const res = await server.inject({ method: 'post', url: '/user/login', payload: { email: 'nobody@danger.computer', password: user.password } });
+    expect(res.statusCode).to.equal(401);
   });
 
-  it('401 on invalid password', () => {
+  it('401 on invalid password', async () => {
 
-    return server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: 'invalidpassword' } }).then((res) => {
-
-      expect(res.statusCode).to.equal(401);
-    });
+    const res = await server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: 'invalidpassword' } });
+    expect(res.statusCode).to.equal(401);
   });
 
   describe('inactive user', () => {
 
-    before(() => {
+    before(async () => {
 
-      return db.users.update({ id: user.id }, { active: false });
+      await db.users.update({ id: user.id }, { active: false });
     });
 
-    after(() => {
+    after(async () => {
 
-      return db.users.update({ id: user.id }, { active: true });
+      await db.users.update({ id: user.id }, { active: true });
     });
 
-    it('can\'t log in', () => {
+    it("can't log in", async () => {
 
-      return server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } }).then((res) => {
-
-        expect(res.statusCode).to.equal(401);
-      });
+      const res = await server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } });
+      expect(res.statusCode).to.equal(401);
     });
   });
 });

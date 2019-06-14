@@ -1,116 +1,82 @@
 'use strict';
 
+const Faker = require('faker');
+
 const Fixtures = require('./fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
-const describe = lab.describe;
-const it = lab.it;
-const after = lab.afterEach;
-const before = lab.beforeEach;
+const lab = exports.lab = lab_script;
+
+const { before, after, describe, it } = lab;
 
 describe('auth', () => {
 
   let server;
   const user = Fixtures.user();
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      Fixtures.db.users.insert(user)
-    ]).then((items) => {
-
-      server = items[0];
-    });
+    server = await Server;
+    await db.users.insert(user)
   });
 
-  after(() => {
+  after(async () => {
 
-    return db.users.destroy({ id: user.id });
+    await db.users.destroy({ id: user.id });
   });
 
-  it('can make a request with a jwt (with and without Bearer in the header)', () => {
+  it('can make a request with a jwt (with and without Bearer in the header)', async () => {
 
-    let token;
-    return server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } }).then((res) => {
+    let res = await server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } });
 
-      expect(res.statusCode).to.equal(201);
-      return res.result;
-    }).then((result) => {
+    expect(res.statusCode).to.equal(201);
+    let result = res.result;
+    expect(result).to.be.an.object();
+    expect(result.token).to.be.a.string();
+    const token = result.token;
+    res = await server.inject({ method: 'get', url: '/user', headers: { authorization: token } });
+    expect(res.statusCode).to.equal(200);
+    res = await server.inject({ method: 'get', url: '/user', headers: { authorization: `Bearer ${token}` } });
+    expect(res.statusCode).to.equal(200);
+    result = res.result;
 
-      expect(result).to.be.an.object();
-      expect(result.token).to.be.a.string();
-      token = result.token;
-      return server.inject({ method: 'get', url: '/user', headers: { authorization: token } });
-    }).then((res) => {
-
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      return server.inject({ method: 'get', url: '/user', headers: { authorization: `Bearer ${token}` } });
-    }).then((res) => {
-
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.be.an.object();
-      expect(result).to.not.part.include(['hash']);
-      expect(result.email).to.equal(user.email);
-    });
+    expect(result).to.be.an.object();
+    expect(result).to.not.part.include(['hash']);
+    expect(result.email).to.equal(user.email);
   });
 
-  it('does not allow a user to auth with a stale jwt after logging out', { timeout: 3000 }, () => {
+  it('does not allow a user to auth with a stale jwt after logging out', { timeout: 3000 }, async () => {
 
-    return server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } }).then((res) => {
+    let res = await server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } });
 
-      expect(res.statusCode).to.equal(201);
-      return res.result;
-    }).then((result) => {
+    expect(res.statusCode).to.equal(201);
+    const result = res.result;
+    expect(result).to.be.an.object();
+    expect(result.token).to.be.a.string();
 
-      expect(result).to.be.an.object();
-      expect(result.token).to.be.a.string();
-      return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } }).then((res) => {
+    res = await server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
+    expect(res.statusCode).to.equal(200);
+    const usr = res.result;
+    expect(usr).to.be.an.object();
+    expect(usr.email).to.equal(user.email);
+    const later = new Date(Date.now() + 2500);
 
-        expect(res.statusCode).to.equal(200);
-        return res.result;
-      }).then((usr) => {
+    await db.users.updateOne({ id: usr.id }, { logout: later });
 
-        expect(usr).to.be.an.object();
-        expect(usr.email).to.equal(user.email);
-        const later = new Date(Date.now() + 2500);
-        return db.users.updateOne({ id: usr.id }, { logout: later });
-      }).then(() => {
-
-        return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
-      }).then((res) => {
-
-        expect(res.statusCode).to.equal(401);
-      });
-    });
+    res = await server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
+    expect(res.statusCode).to.equal(401);
   });
 
-  it('fails auth when a user is set to inactive after logging in', () => {
+  it('fails auth when a user is set to inactive after logging in', async () => {
 
-    return server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } }).then((res) => {
+    let res = await server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } });
 
-      expect(res.statusCode).to.equal(201);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.be.an.object();
-      expect(result.token).to.be.a.string();
-      return db.users.update({ id: user.id }, { active: false }).then(() => {
-
-        return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
-      }).then((res) => {
-
-        expect(res.statusCode).to.equal(401);
-      });
-    });
+    expect(res.statusCode).to.equal(201);
+    const result = res.result;
+    expect(result).to.be.an.object();
+    expect(result.token).to.be.a.string();
+    await db.users.update({ id: user.id }, { active: false });
+    res = await server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
+    expect(res.statusCode).to.equal(401);
   });
 });

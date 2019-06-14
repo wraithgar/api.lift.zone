@@ -1,31 +1,26 @@
 'use strict';
 
-const Server = require('./fixtures').server;
+const Fixtures = require('./fixtures');
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const before = lab.before;
-const describe = lab.describe;
-const it = lab.it;
+const lab = exports.lab = lab_script;
+
+const { before, describe, it } = lab;
 
 describe('GET /heartbeat', () => {
 
   let server;
-  before(() => {
+  before(async () => {
 
-    return Server.then((s) => {
-
-      server = s;
-    });
+    server = await Server;
   });
 
-  it('gets a heartbeat', () => {
+  it('gets a heartbeat', async () => {
 
-    return server.inject({ method: 'get', url: '/heartbeat' }).then((res) => {
+    const res = await server.inject({ method: 'get', url: '/heartbeat' });
 
-      expect(res.statusCode).to.equal(200);
-      expect(res.result).to.include('ok');
-    });
+    expect(res.statusCode).to.equal(200);
+    expect(res.result).to.include('ok');
   });
 });

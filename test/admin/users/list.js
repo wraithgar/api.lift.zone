@@ -1,17 +1,14 @@
 'use strict';
 
+const Faker = require('faker');
+
 const Fixtures = require('../../fixtures');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const lab = exports.lab = lab_script;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const { before, after, describe, it } = lab;
 
 describe('GET /admin/users', () => {
 
@@ -21,49 +18,42 @@ describe('GET /admin/users', () => {
   const activity = Fixtures.activity({ user_id: user.id });
   const workout = Fixtures.workout({ user_id: user.id });
 
-  before(() => {
+  before(async () => {
 
+    server = await Server;
 
-    return Promise.all([
-      Server,
+    await Promise.all([
       db.users.insert(admin),
       db.users.insert(user)
-    ]).then((items) => {
-
-      server = items[0];
-      return Promise.all([
-        db.activities.insert(activity),
-        db.workouts.insert(workout)
-      ]);
-    });
+    ]);
+    await Promise.all([
+      db.activities.insert(activity),
+      db.workouts.insert(workout)
+    ]);
   });
 
-  after(() => {
+  after(async () => {
 
-    return Promise.all([
+    await Promise.all([
       db.users.destroy({ id: admin.id }),
       db.users.destroy({ id: user.id })
     ]);
   });
 
-  it('lists users', () => {
+  it('lists users', async () => {
 
-    return server.inject({ method: 'get', url: '/admin/users', auth: { strategy: 'jwt', credentials: admin } }).then((res) => {
+    const res = await server.inject({ method: 'get', url: '/admin/users', auth: { strategy: 'jwt', credentials: admin } });
 
-      expect(res.statusCode).to.equal(200);
-      return res.result;
-    }).then((result) => {
-
-      expect(result).to.once.part.include({ id: user.id, workouts: 1, activities: 1 });
-      expect(result).to.once.part.include({ id: admin.id, workouts: 0, activities: 0 });
-    });
+    expect(res.statusCode).to.equal(200);
+    const result = res.result;
+    expect(result).to.once.part.include({ id: user.id, workouts: 1, activities: 1 });
+    expect(result).to.once.part.include({ id: admin.id, workouts: 0, activities: 0 });
   });
 
-  it('requires admin', () => {
+  it('requires admin', async () => {
 
-    return server.inject({ method: 'get', url: '/admin/users', auth: { strategy: 'jwt', credentials: user } }).then((res) => {
+    const res = await server.inject({ method: 'get', url: '/admin/users', auth: { strategy: 'jwt', credentials: user } });
 
-      expect(res.statusCode).to.equal(403);
-    });
+    expect(res.statusCode).to.equal(403);
   });
 });

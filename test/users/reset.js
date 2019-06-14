@@ -1,77 +1,55 @@
 'use strict';
 
-const Fixtures = require('../fixtures');
 const Faker = require('faker');
 
-const db = Fixtures.db;
-const Server = Fixtures.server;
+const Fixtures = require('../fixtures');
 
-const lab = exports.lab = require('lab').script();
-const expect = require('code').expect;
+const { db, Server, lab_script, expect } = Fixtures;
 
-const before = lab.before;
-const after = lab.after;
-const describe = lab.describe;
-const it = lab.it;
+const lab = exports.lab = lab_script;
+
+const { before, after, describe, it } = lab;
 
 describe('POST /user/reset', () => {
 
   let server;
   const user = Fixtures.user({ logout: Faker.date.past() });
   const recovery = Fixtures.recovery({ email: user.email });
-  before(() => {
+  before(async () => {
 
-    return Promise.all([
-      Server,
-      db.users.insert(user)
-    ]).then((items) => {
-
-      server = items[0];
-      return db.recoveries.insert(recovery);
-    });
+    server = await Server;
+    await db.users.insert(user)
+    await db.recoveries.insert(recovery);
   });
 
-  after(() => {
+  after(async () => {
 
-    return db.users.destroy({ id: user.id });
+    await db.users.destroy({ id: user.id });
   });
 
-  it('resets password', () => {
+  it('resets password', async () => {
 
     const newPassword = Faker.internet.password();
-    return server.inject({ method: 'post', url: '/user/reset', auth: { strategy: 'jwt', credentials: user }, payload: { token: recovery.token, password: newPassword, passwordConfirm: newPassword } }).then((res) => {
+    let res = await server.inject({ method: 'post', url: '/user/reset', auth: { strategy: 'jwt', credentials: user }, payload: { token: recovery.token, password: newPassword, passwordConfirm: newPassword } });
 
-      expect(res.statusCode).to.equal(201);
-      return res.result;
-    }).then((result) => {
+    expect(res.statusCode).to.equal(201);
+    expect(res.result).to.include(['token']);
+    const resetUser = await db.users.findOne({ id: user.id });
+    expect(resetUser.hash).to.not.equal(user.hash);
+    expect(resetUser.logout).to.be.above(user.logout);
+    res = await server.inject({ method: 'get', url: '/user', headers: { authorization: res.result.token } });
 
-      expect(result).to.include(['token']);
-      return db.users.findOne({ id: user.id }).then((resetUser) => {
-
-        expect(resetUser.hash).to.not.equal(user.hash);
-        expect(resetUser.logout).to.be.above(user.logout);
-        return server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } }).then((userRes) => {
-
-          expect(userRes.statusCode).to.equal(200);
-          return userRes.result;
-        }).then((userResult) => {
-
-          expect(userResult.id).to.equal(user.id);
-          return db.recoveries.findOne({ token: recovery.token }).then((deletedRecovery) => {
-
-            expect(deletedRecovery).to.not.exist();
-          });
-        });
-      });
-    });
+    expect(res.statusCode).to.equal(200);
+    expect(res.result.id).to.equal(user.id);
+    const deletedRecovery = await db.recoveries.findOne({ token: recovery.token });
+    expect(deletedRecovery).to.not.exist();
   });
 
-  it('rejects invalid token', () => {
+  it('rejects invalid token', async () => {
 
     const newPassword = Faker.internet.password();
-    return server.inject({ method: 'post', url: '/user/reset', auth: { strategy: 'jwt', credentials: user }, payload: { token: Faker.random.uuid(), password: newPassword, passwordConfirm: newPassword } }).then((res) => {
+    const res = await server.inject({ method: 'post', url: '/user/reset', auth: { strategy: 'jwt', credentials: user }, payload: { token: Faker.random.uuid(), password: newPassword, passwordConfirm: newPassword } });
 
-      expect(res.statusCode).to.equal(404);
-    });
+    expect(res.statusCode).to.equal(404);
   });
 });
