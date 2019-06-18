@@ -19,7 +19,7 @@ describe('GET /user', () => {
   before(async () => {
 
     server = await Server;
-    await db.users.insert(user)
+    await db.users.insert(user);
   });
 
   after(async () => {
@@ -52,7 +52,7 @@ describe('PATCH /user', () => {
   before(async () => {
 
     server = await Server;
-    user.hash = await Bcrypt.hash(user.password, Config.saltRounds)
+    user.hash = await Bcrypt.hash(user.password, Config.saltRounds);
     await db.users.insert(user);
   });
 

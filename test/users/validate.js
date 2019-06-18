@@ -3,8 +3,6 @@
 const StandIn = require('stand-in');
 const AWS = require('../../lib/aws');
 
-const Faker = require('faker');
-
 const Fixtures = require('../fixtures');
 
 const { db, Server, expect } = Fixtures;
@@ -27,7 +25,7 @@ describe('POST /user/validate', () => {
       db.users.insert(user1),
       db.users.insert(user2)
     ]);
-    await db.validations.insert(validation2)
+    await db.validations.insert(validation2);
   });
 
   after(async () => {
@@ -47,7 +45,7 @@ describe('POST /user/validate', () => {
       sesParams = params;
     });
 
-     const res = await server.inject({ method: 'post', url: '/user/validate', auth: { strategy: 'jwt', credentials: user1 } });
+    const res = await server.inject({ method: 'post', url: '/user/validate', auth: { strategy: 'jwt', credentials: user1 } });
 
     expect(res.statusCode).to.equal(202);
     const createdValidation = await db.validations.findOne({ user_id: user1.id });

@@ -19,7 +19,7 @@ describe('GET /invites/{token}', () => {
   before(async () => {
 
     server = await Server;
-    await db.users.insert(user)
+    await db.users.insert(user);
     await Promise.all([
       db.invites.insert(invite1),
       db.invites.insert(invite2)

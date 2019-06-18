@@ -22,7 +22,7 @@ describe('PUT /activities/{id}/promote', () => {
 
     server = await Server;
 
-    await db.users.insert(user)
+    await db.users.insert(user);
     await Promise.all([
       db.activities.insert(activity1),
       db.activities.insert(activity3)

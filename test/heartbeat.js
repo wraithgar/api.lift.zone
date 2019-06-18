@@ -2,7 +2,7 @@
 
 const Fixtures = require('./fixtures');
 
-const { db, Server, expect } = Fixtures;
+const { Server, expect } = Fixtures;
 
 const lab = exports.lab = require('@hapi/lab').script();
 

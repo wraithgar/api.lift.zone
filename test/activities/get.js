@@ -47,7 +47,7 @@ describe('GET /activities/{id}', () => {
     expect(res.result).to.include({ id: activity1.id, name: activity1.name });
   });
 
-  it("does not find other user's activity", async () => {
+  it('does not find other user\'s activity', async () => {
 
     const res = await server.inject({ method: 'get', url: `/activities/${activity2.id}`, auth: { credentials: user1, strategy: 'jwt' } });
 

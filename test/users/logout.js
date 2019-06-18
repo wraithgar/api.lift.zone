@@ -16,8 +16,8 @@ describe('POST /user/logout', () => {
   const user = Fixtures.user({ logout: Faker.date.past() });
   before(async () => {
 
-     server = await Server;
-     await db.users.insert(user)
+    server = await Server;
+    await db.users.insert(user);
   });
 
   after(async () => {

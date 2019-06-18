@@ -26,7 +26,7 @@ describe('POST /activities/{id}', () => {
       db.users.insert(user1),
       db.users.insert(user2)
     ]);
-    await db.activities.insert(activity3)
+    await db.activities.insert(activity3);
   });
 
   after(async () => {
@@ -52,7 +52,7 @@ describe('POST /activities/{id}', () => {
     expect(res.statusCode).to.equal(404);
   });
 
-  it("does not find other user's activity", async () => {
+  it('does not find other user\'s activity', async () => {
 
     const res = await server.inject({ method: 'post', url: '/activities', auth: { credentials: user2, strategy: 'jwt' }, payload: activity4 });
 

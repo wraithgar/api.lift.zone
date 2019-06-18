@@ -20,7 +20,7 @@ describe('DELETE /workouts/{id}', () => {
   before(async () => {
 
     server = await Server;
-    await db.users.insert(user)
+    await db.users.insert(user);
     await Promise.all([
       db.workouts.insert(workout1),
       db.workouts.insert(workout2)
@@ -29,7 +29,7 @@ describe('DELETE /workouts/{id}', () => {
 
   after(async () => {
 
-    await db.users.destroy({ id: user.id })
+    await db.users.destroy({ id: user.id });
   });
 
   it('deletes a workout', async () => {

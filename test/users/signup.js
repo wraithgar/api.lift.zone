@@ -1,7 +1,5 @@
 'use strict';
 
-const Faker = require('faker');
-
 const Fixtures = require('../fixtures');
 
 const { db, Server, expect } = Fixtures;
@@ -21,7 +19,7 @@ describe('POST /user/signup', () => {
   before(async () => {
 
     server = await Server;
-    await db.users.insert(user)
+    await db.users.insert(user);
     await Promise.all([
       db.invites.insert(invite1),
       db.invites.insert(invite2)
@@ -50,7 +48,7 @@ describe('POST /user/signup', () => {
     let res = await server.inject({ method: 'post', url: '/user/signup', payload: signup });
 
     expect(res.statusCode).to.equal(201);
-    let result = res.result
+    let result = res.result;
     expect(result).to.include(['token']);
     const newUser = await db.users.findOne({ email: signupUser1.email });
 

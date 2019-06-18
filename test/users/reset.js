@@ -18,7 +18,7 @@ describe('POST /user/reset', () => {
   before(async () => {
 
     server = await Server;
-    await db.users.insert(user)
+    await db.users.insert(user);
     await db.recoveries.insert(recovery);
   });
 

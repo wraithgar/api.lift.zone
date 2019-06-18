@@ -25,7 +25,7 @@ describe('GET /activities/{id}/history', () => {
   before(async () => {
 
     server = await Server;
-    await db.users.insert(user)
+    await db.users.insert(user);
     await db.activities.insert(activity1);
     await Promise.all([
       db.activities.insert(activity2),
@@ -41,7 +41,7 @@ describe('GET /activities/{id}/history', () => {
 
   after(async () => {
 
-    await db.users.destroy({ id: user.id })
+    await db.users.destroy({ id: user.id });
   });
 
   it('gets history for an activity', async () => {

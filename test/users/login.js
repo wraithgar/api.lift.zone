@@ -15,7 +15,7 @@ describe('POST /user/login', () => {
   before(async () => {
 
     server = await Server;
-    await db.users.insert(user)
+    await db.users.insert(user);
   });
 
   after(async () => {
@@ -68,7 +68,7 @@ describe('POST /user/login', () => {
       await db.users.update({ id: user.id }, { active: true });
     });
 
-    it("can't log in", async () => {
+    it('can\'t log in', async () => {
 
       const res = await server.inject({ method: 'post', url: '/user/login', payload: { email: user.email, password: user.password } });
       expect(res.statusCode).to.equal(401);

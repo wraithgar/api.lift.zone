@@ -1,7 +1,5 @@
 'use strict';
 
-const Faker = require('faker');
-
 const Fixtures = require('../fixtures');
 
 const { db, Server, expect } = Fixtures;
@@ -19,13 +17,13 @@ describe('GET /workouts', () => {
   before(async () => {
 
     server = await Server;
-    await db.users.insert(user)
-    await db.workouts.insert(workout)
+    await db.users.insert(user);
+    await db.workouts.insert(workout);
   });
 
   after(async () => {
 
-    await db.users.destroy({ id: user.id })
+    await db.users.destroy({ id: user.id });
   });
 
   it('gets workouts', async () => {

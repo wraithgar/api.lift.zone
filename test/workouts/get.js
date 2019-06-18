@@ -19,7 +19,7 @@ describe('GET /workouts/{id}', () => {
   before(async () => {
 
     server = await Server;
-    await db.users.insert(user)
+    await db.users.insert(user);
     await Promise.all([
       db.workouts.insert(workout)
     ]);
@@ -27,7 +27,7 @@ describe('GET /workouts/{id}', () => {
 
   after(async () => {
 
-    await db.users.destroy({ id: user.id })
+    await db.users.destroy({ id: user.id });
   });
 
   it('gets a workout', async () => {

@@ -1,7 +1,5 @@
 'use strict';
 
-const Faker = require('faker');
-
 const Fixtures = require('./fixtures');
 
 const { db, Server, expect } = Fixtures;
@@ -17,7 +15,7 @@ describe('auth', () => {
   before(async () => {
 
     server = await Server;
-    await db.users.insert(user)
+    await db.users.insert(user);
   });
 
   after(async () => {

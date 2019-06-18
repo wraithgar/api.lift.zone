@@ -1,7 +1,5 @@
 'use strict';
 
-const Faker = require('faker');
-
 const Fixtures = require('../../fixtures');
 
 const { db, Server, expect } = Fixtures;

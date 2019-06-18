@@ -1,7 +1,5 @@
 'use strict';
 
-const Faker = require('faker');
-
 const Fixtures = require('../fixtures');
 
 const { db, Server, expect } = Fixtures;
@@ -24,7 +22,7 @@ describe('GET /suggest/activities/{name}', () => {
   before(async () => {
 
     server = await Server;
-    await db.users.insert(user)
+    await db.users.insert(user);
     await Promise.all([
       db.activities.insert(activity1),
       db.activities.insert(activity2)
