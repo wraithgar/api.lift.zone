@@ -4,12 +4,11 @@ const Fixtures = require('../fixtures');
 
 const { db, Server, expect } = Fixtures;
 
-const lab = exports.lab = require('@hapi/lab').script();
+const lab = (exports.lab = require('@hapi/lab').script());
 
 const { before, after, describe, it } = lab;
 
 describe('POST /user/signup', () => {
-
   let server;
   const user = Fixtures.user();
   const invite1 = Fixtures.invite({ user_id: user.id });
@@ -17,17 +16,12 @@ describe('POST /user/signup', () => {
   const signupUser1 = Fixtures.user();
   const signupUser2 = Fixtures.user();
   before(async () => {
-
     server = await Server;
     await db.users.insert(user);
-    await Promise.all([
-      db.invites.insert(invite1),
-      db.invites.insert(invite2)
-    ]);
+    await Promise.all([db.invites.insert(invite1), db.invites.insert(invite2)]);
   });
 
   after(async () => {
-
     await Promise.all([
       db.users.destroy({ id: user.id }),
       db.users.destroy({ email: signupUser1.email }),
@@ -36,7 +30,6 @@ describe('POST /user/signup', () => {
   });
 
   it('creates a user', async () => {
-
     const signup = {
       invite: invite1.token,
       name: signupUser1.name,
@@ -45,7 +38,11 @@ describe('POST /user/signup', () => {
       passwordConfirm: signupUser1.password
     };
 
-    let res = await server.inject({ method: 'post', url: '/user/signup', payload: signup });
+    let res = await server.inject({
+      method: 'post',
+      url: '/user/signup',
+      payload: signup
+    });
 
     expect(res.statusCode).to.equal(201);
     let result = res.result;
@@ -54,7 +51,11 @@ describe('POST /user/signup', () => {
 
     expect(newUser).to.exist();
 
-    res = await server.inject({ method: 'get', url: '/user', headers: { authorization: result.token } });
+    res = await server.inject({
+      method: 'get',
+      url: '/user',
+      headers: { authorization: result.token }
+    });
     result = res.result;
 
     expect(res.statusCode).to.equal(200);
@@ -62,7 +63,6 @@ describe('POST /user/signup', () => {
   });
 
   it('rejects claimed invite', async () => {
-
     const signup = {
       invite: invite2.token,
       name: signupUser2.name,
@@ -71,7 +71,11 @@ describe('POST /user/signup', () => {
       passwordConfirm: signupUser2.password
     };
 
-    const res = await server.inject({ method: 'post', url: '/user/signup', payload: signup });
+    const res = await server.inject({
+      method: 'post',
+      url: '/user/signup',
+      payload: signup
+    });
 
     expect(res.statusCode).to.equal(404);
     const newUser = await db.users.findOne({ email: signupUser2.email });

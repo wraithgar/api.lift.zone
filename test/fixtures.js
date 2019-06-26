@@ -11,7 +11,6 @@ module.exports.db = require('../server').db;
 module.exports.expect = require('@hapi/code').expect;
 
 const build = (defaults, attrs, id) => {
-
   const record = Object.assign(defaults, attrs);
   if (record.created_at && !record.updated_at) {
     record.updated_at = record.created_at;
@@ -27,11 +26,9 @@ const build = (defaults, attrs, id) => {
 };
 
 module.exports.uuid = () => {
-
   return Faker.random.uuid();
 };
-module.exports.user = (attrs) => {
-
+module.exports.user = attrs => {
   const defaults = {
     id: Faker.random.uuid(),
     name: Faker.name.findName(),
@@ -43,8 +40,7 @@ module.exports.user = (attrs) => {
   return build(defaults, attrs);
 };
 
-module.exports.recovery = (attrs) => {
-
+module.exports.recovery = attrs => {
   const defaults = {
     token: Faker.random.uuid()
   };
@@ -52,8 +48,7 @@ module.exports.recovery = (attrs) => {
   return build(defaults, attrs);
 };
 
-module.exports.validation = (attrs) => {
-
+module.exports.validation = attrs => {
   const defaults = {
     token: Faker.random.uuid()
   };
@@ -61,8 +56,7 @@ module.exports.validation = (attrs) => {
   return build(defaults, attrs);
 };
 
-module.exports.invite = (attrs) => {
-
+module.exports.invite = attrs => {
   const defaults = {
     token: Faker.random.uuid()
   };
@@ -71,7 +65,6 @@ module.exports.invite = (attrs) => {
 };
 
 module.exports.activity = (attrs, id) => {
-
   const defaults = {
     name: Faker.random.words(3)
   };
@@ -80,7 +73,6 @@ module.exports.activity = (attrs, id) => {
 };
 
 module.exports.workout = (attrs, id, dates) => {
-
   const defaults = {
     name: Faker.random.words(),
     raw: Faker.lorem.paragraphs(),
@@ -89,12 +81,12 @@ module.exports.workout = (attrs, id, dates) => {
   };
 
   if (dates) {
-    while (dates.some((date) => {
-
-      return defaults.date === date;
-    })) {
-
-      defaults.date =  Moment(Faker.date.past()).format('YYYY-MM-DD');
+    while (
+      dates.some(date => {
+        return defaults.date === date;
+      })
+    ) {
+      defaults.date = Moment(Faker.date.past()).format('YYYY-MM-DD');
     }
   }
 

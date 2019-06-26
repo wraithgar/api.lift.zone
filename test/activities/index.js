@@ -4,18 +4,20 @@ const Fixtures = require('../fixtures');
 
 const { db, Server, expect } = Fixtures;
 
-const lab = exports.lab = require('@hapi/lab').script();
+const lab = (exports.lab = require('@hapi/lab').script());
 
 const { before, after, describe, it } = lab;
 
 describe('GET /activities', () => {
-
   let server;
   const user1 = Fixtures.user();
   const user2 = Fixtures.user();
   const activity1 = Fixtures.activity({ user_id: user1.id });
   const activity2 = Fixtures.activity({ user_id: user1.id }, true);
-  const activity3 = Fixtures.activity({ user_id: user1.id, activity_id: activity2.id });
+  const activity3 = Fixtures.activity({
+    user_id: user1.id,
+    activity_id: activity2.id
+  });
   const activity4 = Fixtures.activity({ user_id: user2.id });
   const activity5 = Fixtures.activity({ user_id: user1.id });
   const activity6 = Fixtures.activity({ user_id: user1.id });
@@ -28,12 +30,8 @@ describe('GET /activities', () => {
   const activity13 = Fixtures.activity({ user_id: user1.id });
 
   before(async () => {
-
     server = await Server;
-    await Promise.all([
-      db.users.insert(user1),
-      db.users.insert(user2)
-    ]);
+    await Promise.all([db.users.insert(user1), db.users.insert(user2)]);
     await Promise.all([
       db.activities.insert(activity1),
       db.activities.insert(activity2),
@@ -52,7 +50,6 @@ describe('GET /activities', () => {
   });
 
   after(async () => {
-
     await Promise.all([
       db.users.destroy({ id: user1.id }),
       db.users.destroy({ id: user2.id })
@@ -60,8 +57,11 @@ describe('GET /activities', () => {
   });
 
   it('lists activities for a user', async () => {
-
-    const res = await server.inject({ method: 'get', url: '/activities', auth: { strategy: 'jwt', credentials: user1 } });
+    const res = await server.inject({
+      method: 'get',
+      url: '/activities',
+      auth: { strategy: 'jwt', credentials: user1 }
+    });
 
     expect(res.statusCode).to.equal(206);
     expect(res.headers).to.include('link');
@@ -70,15 +70,21 @@ describe('GET /activities', () => {
   });
 
   it('lists all activities for a user', async () => {
-
-    const res = await server.inject({ method: 'get', url: '/activities?limit=20', auth: { strategy: 'jwt', credentials: user1 } });
+    const res = await server.inject({
+      method: 'get',
+      url: '/activities?limit=20',
+      auth: { strategy: 'jwt', credentials: user1 }
+    });
 
     expect(res.statusCode).to.equal(200);
     const result = res.result;
     expect(result).to.not.part.include(activity1);
     expect(result).to.not.part.include(activity2);
     expect(result).to.part.include({ name: activity1.name, aliases: [] });
-    expect(result).to.part.include({ id: activity2.id, aliases: [{ name: activity3.name }] });
+    expect(result).to.part.include({
+      id: activity2.id,
+      aliases: [{ name: activity3.name }]
+    });
     expect(result).to.not.part.include(activity3);
     expect(result).to.not.part.include(activity4);
   });

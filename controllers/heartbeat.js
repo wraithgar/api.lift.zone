@@ -4,8 +4,7 @@ const Boom = require('boom');
 
 module.exports = {
   description: 'Heartbeat',
-  handler: async function (request, h) {
-
+  handler: async function(request, h) {
     const count = await this.db.users.count();
 
     //$lab:coverage:off$

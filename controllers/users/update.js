@@ -8,10 +8,11 @@ const Joi = require('joi');
 module.exports = {
   description: 'Update user info',
   tags: ['api', 'user'],
-  handler: async function (request, h) {
-
+  handler: async function(request) {
     const credentials = request.auth.credentials;
-    const { hash } = await this.db.users.findOne({ id: credentials.id }, ['hash']);
+    const { hash } = await this.db.users.findOne({ id: credentials.id }, [
+      'hash'
+    ]);
     const valid = await Bcrypt.compare(request.payload.currentPassword, hash);
 
     if (!valid) {
@@ -29,26 +30,35 @@ module.exports = {
     delete attrs.currentPassword;
     delete attrs.newPassword;
 
-    const updatedUser = await this.db.users.updateOne({ id: request.auth.credentials.id }, attrs);
+    const updatedUser = await this.db.users.updateOne(
+      { id: request.auth.credentials.id },
+      attrs
+    );
 
     const result = await this.db.users.active(updatedUser.email);
 
     return result;
   },
   validate: {
-    payload: Joi.object().keys({
-      name: Joi.string(),
-      email: Joi.string().email(),
-      currentPassword: Joi.string().min(8, 'utf-8').required(),
-      newPassword: Joi.string().min(8, 'utf-8'),
-      confirmPassword: Joi.any().valid(Joi.ref('newPassword')).strip(),
-      preferences: Joi.object({
-        weightUnit: Joi.string().valid('lb', 'kg'),
-        dateFormat: Joi.string(),
-        smartmode: Joi.boolean(),
-        visible: Joi.boolean()
+    payload: Joi.object()
+      .keys({
+        name: Joi.string(),
+        email: Joi.string().email(),
+        currentPassword: Joi.string()
+          .min(8, 'utf-8')
+          .required(),
+        newPassword: Joi.string().min(8, 'utf-8'),
+        confirmPassword: Joi.any()
+          .valid(Joi.ref('newPassword'))
+          .strip(),
+        preferences: Joi.object({
+          weightUnit: Joi.string().valid('lb', 'kg'),
+          dateFormat: Joi.string(),
+          smartmode: Joi.boolean(),
+          visible: Joi.boolean()
+        })
       })
-    }).with('newPassword', 'currentPassword')
+      .with('newPassword', 'currentPassword')
   },
   response: {
     modify: true,

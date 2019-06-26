@@ -6,9 +6,11 @@ const Joi = require('joi');
 module.exports = {
   description: 'Delete a workout',
   tags: ['api', 'workout'],
-  handler: async function (request, h) {
-
-    const existing = await this.db.workouts.findOne({ id: request.params.id, user_id: request.auth.credentials.id });
+  handler: async function(request, h) {
+    const existing = await this.db.workouts.findOne({
+      id: request.params.id,
+      user_id: request.auth.credentials.id
+    });
 
     if (!existing) {
       throw Boom.notFound();

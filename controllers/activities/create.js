@@ -6,19 +6,24 @@ const Joi = require('joi');
 module.exports = {
   description: 'Create a new activity',
   tags: ['api', 'activity'],
-  handler: async function (request, h) {
-
+  handler: async function(request, h) {
     const user_id = request.auth.credentials.id;
 
     if (request.payload.activity_id) {
-      const alias = await this.db.activities.findOne({ user_id, id: request.payload.activity_id, activity_id: null });
+      const alias = await this.db.activities.findOne({
+        user_id,
+        id: request.payload.activity_id,
+        activity_id: null
+      });
 
       if (!alias) {
-        throw Boom.notFound(`Alias activity ${request.payload.activity_id} does not exist}`);
+        throw Boom.notFound(
+          `Alias activity ${request.payload.activity_id} does not exist}`
+        );
       }
     }
 
-    const attrs =  { ...request.payload, user_id };
+    const attrs = { ...request.payload, user_id };
     const result = await this.db.activities.insert(attrs);
 
     return h.response(result).code(201);

@@ -7,30 +7,29 @@ const Config = require('getconfig');
 module.exports = {
   description: 'Request password recovery',
   tags: ['api', 'user'],
-  handler: async function (request, h) {
-
+  handler: async function(request, h) {
     const existingRecovery = await this.db.recoveries.fresh(request.payload);
 
     if (existingRecovery) {
       return h.response(null).code(202);
     }
 
-    const user = await this.db.users.findOne({ email: request.payload.email, validated: true });
+    const user = await this.db.users.findOne({
+      email: request.payload.email,
+      validated: true
+    });
 
     if (!user) {
       return h.response(null).code(202);
     }
-    const recovery = await this.db.tx(async (tx) => {
-
+    const recovery = await this.db.tx(async tx => {
       await tx.recoveries.destroy({ email: request.payload.email });
       return tx.recoveries.insert(request.payload);
     });
 
     const email = {
       Destination: {
-        ToAddresses: [
-          recovery.email
-        ]
+        ToAddresses: [recovery.email]
       },
       Message: {
         Body: {
@@ -46,17 +45,14 @@ module.exports = {
         }
       },
       Source: Config.email.from,
-      ReplyToAddresses: [
-        Config.email.from
-      ]
+      ReplyToAddresses: [Config.email.from]
     };
 
     // $lab:coverage:off$
     if (process.env.NODE_ENV) {
       try {
         AWS.sendEmail(email);
-      }
-      catch (err) {
+      } catch (err) {
         request.log(['error', 'user', 'recovery'], err.stack || err);
       }
     }
@@ -70,7 +66,9 @@ module.exports = {
   },
   validate: {
     payload: {
-      email: Joi.string().email().required()
+      email: Joi.string()
+        .email()
+        .required()
     }
   },
   auth: false

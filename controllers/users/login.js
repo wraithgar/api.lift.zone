@@ -8,8 +8,7 @@ const JWT = require('jsonwebtoken');
 module.exports = {
   description: 'Authenticates a user and returns a JWT',
   tags: ['api', 'user'],
-  handler: async function (request, h) {
-
+  handler: async function(request, h) {
     request.server.log(['users', 'auth'], `Login: ${request.payload.email}`);
 
     const user = await this.db.users.active(request.payload.email);
@@ -26,12 +25,18 @@ module.exports = {
     }
 
     user.timestamp = new Date();
-    return h.response({ token: JWT.sign({ ...user }, Config.auth.secret, Config.auth.options) }).code(201);
+    return h
+      .response({
+        token: JWT.sign({ ...user }, Config.auth.secret, Config.auth.options)
+      })
+      .code(201);
   },
   validate: {
     payload: {
       email: Joi.string().required(),
-      password: Joi.string().min(8).required()
+      password: Joi.string()
+        .min(8)
+        .required()
     }
   },
   auth: false
