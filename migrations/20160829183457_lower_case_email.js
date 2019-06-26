@@ -1,6 +1,6 @@
 'use strict';
 
-exports.up = function(knex, Promise) {
+exports.up = function(knex) {
 
   return Promise.all([
     knex.raw('DROP INDEX IF EXISTS "users_email_index"'),
