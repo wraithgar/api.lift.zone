@@ -7,8 +7,7 @@ const Joi = require('joi');
 module.exports = {
   description: 'Check invite validity',
   tags: ['api', 'user'],
-  handler: async function (request, h) {
-
+  handler: async function(request) {
     const params = { ...request.params, claimed_by: null };
     const invite = await this.db.invites.findOne(params, ['token']);
 

@@ -6,8 +6,7 @@ const Boom = require('boom');
 module.exports = {
   description: 'Get a public workout by id',
   tags: ['api', 'workout'],
-  handler: async function (request, h) {
-
+  handler: async function(request) {
     const workout = await this.db.workouts.public(request.params);
 
     if (!workout) {
@@ -29,4 +28,3 @@ module.exports = {
     }).unknown()
   }
 };
-
