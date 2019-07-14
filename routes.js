@@ -1,7 +1,7 @@
 'use strict';
 
 const Controllers = require('keyfob').load({
-  path: './controllers',
+  root: './controllers',
   fn: require
 });
 
