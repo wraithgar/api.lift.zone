@@ -50,7 +50,7 @@
     "caber": "5.0.3",
     "catbox-memory": "4.0.1",
     "getconfig": "4.5.0",
-    "hapi-pagination": "2.1.0",
+    "hapi-pagination": "3.0.0",
     "hapi-pino": "6.0.2",
     "hapi-rate-limit": "4.0.0",
     "hapi-swagger": "10.0.2",
