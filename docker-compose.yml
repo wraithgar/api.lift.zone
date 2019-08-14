@@ -1,0 +1,9 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:9-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: pg
+    ports:
+      - "5432:5432"

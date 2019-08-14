@@ -13,8 +13,7 @@
     "client": "postgresql",
     "connection": {
       "database": "liftzonetest",
-      "user": "liftzonetest",
-      "password": "password",
+      "user": "pg",
       "poolSize": 40
     }
   },
