@@ -26,6 +26,7 @@
     "docker:fresh": "docker-compose kill; docker-compose rm -f; docker-compose up -d",
     "docker:purge": "docker-compose kill; docker-compose rm -f",
     "docker:start": "docker-compose up -d",
+    "docker:stop": "docker-compose kill",
     "docker:start:fg": "docker-compose up",
     "validate": "npm ls"
   },
