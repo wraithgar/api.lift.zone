@@ -53,21 +53,6 @@ module.exports.server = server
       plugin: require('vision')
     },
     {
-      plugin: require('hapi-swagger'),
-      options: {
-        grouping: 'tags',
-        info: {
-          title: Pkg.description,
-          version: Pkg.version,
-          contact: Pkg.author,
-          license: {
-            name: Pkg.license,
-            url: 'https://api.lift.zone/license' //This one is ok to hard code imo
-          }
-        }
-      }
-    },
-    {
       plugin: require('hapi-pino'),
       options: Config.pino
     },
