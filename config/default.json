@@ -15,7 +15,8 @@
   "saltRounds": 10,
   "tokenLength": 48,
   "pino": {
-    "prettyPrint": true
+    "prettyPrint": true,
+    "redact": ["req.headers.authorization"]
   },
   "rateLimit": {
     "userLimit": false,
