@@ -3,7 +3,6 @@
 const Config = require('getconfig');
 const Hapi = require('@hapi/hapi');
 const Muckraker = require('muckraker');
-const Pkg = require('./package.json');
 
 const Utils = require('./lib/utils');
 
