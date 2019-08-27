@@ -2,7 +2,7 @@ version: '3'
 services:
   postgres:
     image: postgres:9-alpine
-    restart: always
+    restart: on-failure
     environment:
       POSTGRES_USER: pg
     ports:
