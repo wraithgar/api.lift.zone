@@ -45,7 +45,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@hapi/hapi": "18.3.2",
+    "@hapi/hapi": "18.4.0",
     "@now-ims/hapi-now-auth": "2.0.0",
     "aws-sdk": "^2.517.0",
     "bcrypt": "3.0.6",
