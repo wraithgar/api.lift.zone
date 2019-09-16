@@ -1,8 +1,8 @@
 'use strict';
 
 const Config = require('getconfig');
-const Boom = require('boom');
-const Joi = require('joi');
+const Boom = require('@hapi/boom');
+const Joi = require('@hapi/joi');
 
 module.exports = {
   description: 'Check invite validity',
@@ -18,9 +18,9 @@ module.exports = {
     return invite;
   },
   validate: {
-    params: {
+    params: Joi.object().keys({
       token: Joi.string().guid()
-    }
+    })
   },
   auth: false,
   plugins: {

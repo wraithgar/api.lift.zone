@@ -1,7 +1,7 @@
 'use strict';
 
-const Boom = require('boom');
-const Joi = require('joi');
+const Boom = require('@hapi/boom');
+const Joi = require('@hapi/joi');
 
 module.exports = {
   description: 'Get workout history for an activity by id',
@@ -48,10 +48,10 @@ module.exports = {
     return activities;
   },
   validate: {
-    params: {
+    params: Joi.object().keys({
       id: Joi.string().guid()
-    },
-    query: {
+    }),
+    query: Joi.object().keys({
       limit: Joi.number()
         .default(10)
         .min(1)
@@ -59,6 +59,6 @@ module.exports = {
       page: Joi.number()
         .default(0)
         .min(0)
-    }
+    })
   }
 };

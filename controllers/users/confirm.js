@@ -1,7 +1,7 @@
 'use strict';
 
-const Boom = require('boom');
-const Joi = require('joi');
+const Boom = require('@hapi/boom');
+const Joi = require('@hapi/joi');
 
 module.exports = {
   description: 'Confirm email',
@@ -31,10 +31,10 @@ module.exports = {
     return user;
   },
   validate: {
-    payload: {
+    payload: Joi.object().keys({
       token: Joi.string()
         .guid()
         .required()
-    }
+    })
   }
 };

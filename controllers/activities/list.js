@@ -1,6 +1,6 @@
 'use strict';
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 module.exports = {
   description: 'Get activities for logged in user',
@@ -16,7 +16,7 @@ module.exports = {
     return activities;
   },
   validate: {
-    query: {
+    query: Joi.object().keys({
       limit: Joi.number()
         .default(10)
         .min(1)
@@ -24,7 +24,7 @@ module.exports = {
       page: Joi.number()
         .default(1)
         .positive()
-    }
+    })
   },
   response: {
     modify: true,

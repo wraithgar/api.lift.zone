@@ -1,6 +1,6 @@
 'use strict';
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 module.exports = {
   description: 'Search activities by name',
@@ -26,9 +26,9 @@ module.exports = {
     return { suggestions };
   },
   validate: {
-    params: {
+    params: Joi.object().keys({
       name: Joi.string().replace(/[^\w' ]/gi, '')
-    }
+    })
   },
   response: {
     modify: true,

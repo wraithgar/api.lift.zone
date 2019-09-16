@@ -1,7 +1,7 @@
 'use strict';
 
-const Joi = require('joi');
-const Boom = require('boom');
+const Joi = require('@hapi/joi');
+const Boom = require('@hapi/boom');
 
 module.exports = {
   description: 'Get a workout by id',
@@ -17,8 +17,8 @@ module.exports = {
     return workout;
   },
   validate: {
-    params: {
+    params: Joi.object().keys({
       id: Joi.string().guid()
-    }
+    })
   }
 };

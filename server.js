@@ -43,10 +43,10 @@ module.exports.server = server
       plugin: require('./lib/jwt_authorization')
     },
     {
-      plugin: require('inert')
+      plugin: require('@hapi/inert')
     },
     {
-      plugin: require('vision')
+      plugin: require('@hapi/vision')
     },
     {
       plugin: require('hapi-pino'),

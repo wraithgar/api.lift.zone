@@ -1,9 +1,9 @@
 'use strict';
 
 const Bcrypt = require('bcrypt');
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 const Config = require('getconfig');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 module.exports = {
   description: 'Update user info',

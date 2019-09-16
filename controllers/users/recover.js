@@ -1,6 +1,6 @@
 'use strict';
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const AWS = require('../../lib/aws');
 const Config = require('getconfig');
 
@@ -65,11 +65,11 @@ module.exports = {
     return h.response(null).code(202);
   },
   validate: {
-    payload: {
+    payload: Joi.object().keys({
       email: Joi.string()
         .email()
         .required()
-    }
+    })
   },
   auth: false
 };
