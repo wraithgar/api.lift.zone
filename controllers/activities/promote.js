@@ -1,6 +1,6 @@
 'use strict';
 
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 
 module.exports = {
   description: 'Promote an activity to main activity',

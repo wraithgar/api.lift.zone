@@ -1,7 +1,7 @@
 'use strict';
 
-const Boom = require('boom');
-const Joi = require('joi');
+const Boom = require('@hapi/boom');
+const Joi = require('@hapi/joi');
 
 const Utils = require('../../lib/utils');
 
@@ -38,9 +38,9 @@ module.exports = {
     return workout;
   },
   validate: {
-    params: {
+    params: Joi.object().keys({
       id: Joi.string().guid()
-    },
+    }),
     payload: Utils.workoutValidator
   }
 };

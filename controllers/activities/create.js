@@ -1,7 +1,7 @@
 'use strict';
 
-const Boom = require('boom');
-const Joi = require('joi');
+const Boom = require('@hapi/boom');
+const Joi = require('@hapi/joi');
 
 module.exports = {
   description: 'Create a new activity',
@@ -29,14 +29,14 @@ module.exports = {
     return h.response(result).code(201);
   },
   validate: {
-    payload: {
+    payload: Joi.object().keys({
       name: Joi.string().required(),
       activity_id: Joi.string().guid(),
       sets: Joi.any().strip(),
       comment: Joi.any().strip(),
       aliases: Joi.any().strip(),
       suggestions: Joi.any().strip()
-    }
+    })
   },
   response: {
     modify: true,

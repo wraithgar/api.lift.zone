@@ -1,10 +1,10 @@
 'use strict';
 
 const Bcrypt = require('bcrypt');
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 const Config = require('getconfig');
 const JWT = require('jsonwebtoken');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 module.exports = {
   description: 'Sign up',
@@ -47,7 +47,7 @@ module.exports = {
       .code(201);
   },
   validate: {
-    payload: {
+    payload: Joi.object().keys({
       invite: Joi.string()
         .guid()
         .required(),
@@ -61,7 +61,7 @@ module.exports = {
       passwordConfirm: Joi.any()
         .valid(Joi.ref('password'))
         .strip()
-    }
+    })
   },
   auth: false
 };

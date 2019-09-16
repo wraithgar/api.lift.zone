@@ -1,7 +1,7 @@
 'use strict';
 
-const Boom = require('boom');
-const Joi = require('joi');
+const Boom = require('@hapi/boom');
+const Joi = require('@hapi/joi');
 
 module.exports = {
   description: 'Delete a workout',
@@ -21,8 +21,8 @@ module.exports = {
     return h.response().code(204);
   },
   validate: {
-    params: {
+    params: Joi.object().keys({
       id: Joi.string().guid()
-    }
+    })
   }
 };
