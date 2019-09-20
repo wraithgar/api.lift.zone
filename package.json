@@ -45,7 +45,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@hapi/boom": "7.4.6",
+    "@hapi/boom": "7.4.8",
     "@hapi/catbox-memory": "4.1.1",
     "@hapi/hapi": "18.4.0",
     "@hapi/hoek": "8.2.4",
