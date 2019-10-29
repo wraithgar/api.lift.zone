@@ -1,3 +1,7 @@
+---
+returns: one
+---
+
 SELECT
   count(activities.id)::integer as count
 FROM

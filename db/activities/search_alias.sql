@@ -1,3 +1,7 @@
+---
+returns: one || none
+---
+
 SELECT
   activities.id,
   activities.activity_id,

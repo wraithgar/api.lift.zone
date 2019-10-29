@@ -1,4 +1,7 @@
---${id} is the current main id
+---
+returns: one
+---
+
 SELECT
   count(workouts.id)::integer as count
 FROM

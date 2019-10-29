@@ -1,3 +1,7 @@
+---
+returns: one || none
+---
+
 SELECT *
 FROM validations
 WHERE
