@@ -1,3 +1,7 @@
+---
+returns: one || none
+---
+
 SELECT
   workouts.*,
   users.name as user_name

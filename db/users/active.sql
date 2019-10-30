@@ -1,3 +1,7 @@
+---
+returns: one || none
+---
+
 SELECT
   users.id,
   users.name,

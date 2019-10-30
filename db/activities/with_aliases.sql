@@ -1,3 +1,7 @@
+---
+returns: one || none
+---
+
 SELECT
   activities.*,
   CASE WHEN count(aliases) = 0 THEN '[]'::json ELSE json_agg(aliases) END AS aliases
