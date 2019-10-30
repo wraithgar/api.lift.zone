@@ -1,4 +1,3 @@
---${id} is the current main id
 SELECT
   workouts.name as workout_name,
   to_char(workouts.date, 'YYYY-MM-DD') as workout_date,
