@@ -61,6 +61,9 @@ module.exports.server = server
       options: Config.rateLimit
     },
     {
+      plugin: require('hapi-swagger')
+    },
+    {
       plugin: require('@now-ims/hapi-now-auth')
     },
     {
