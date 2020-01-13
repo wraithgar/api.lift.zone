@@ -61,7 +61,7 @@
     "hapi-pagination": "3.0.0",
     "hapi-pino": "6.3.0",
     "hapi-rate-limit": "4.1.0",
-    "hapi-swagger": "11.1.0",
+    "hapi-swagger": "12.0.0",
     "jsonwebtoken": "8.5.1",
     "keyfob": "2.0.1",
     "knex": "0.20.6",
