@@ -59,7 +59,7 @@
     "caber": "5.0.3",
     "getconfig": "4.5.0",
     "hapi-pagination": "3.0.0",
-    "hapi-pino": "6.3.0",
+    "hapi-pino": "6.4.0",
     "hapi-rate-limit": "4.1.0",
     "hapi-swagger": "12.1.0",
     "jsonwebtoken": "8.5.1",
