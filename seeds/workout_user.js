@@ -25,59 +25,56 @@ Barbell Squat 5x5`
   }
 };
 
-const removeActivityAliases = function(knex, activity_id) {
-  return knex('activities')
+const removeActivityAliases = async function(knex, activity_id) {
+  const aliases = await knex('activities')
     .select('id')
-    .where('activity_id', activity_id)
-    .map(activity_alias =>
+    .where('activity_id', activity_id);
+
+  for (const activity_alias of aliases) {
+    await knex('activities')
+      .select()
+      .where('activity_id', activity_alias.id)
+      .del();
+  }
+};
+
+const removeActivity = async function(knex, name) {
+  const ids = await knex('activities')
+    .select('id')
+    .where('name', name);
+
+  for (const activityId of ids) {
+    await removeActivityAliases(knex, activityId.id).then(() =>
       knex('activities')
-        .select()
-        .where('activity_id', activity_alias.id)
+        .where('id', activityId.id)
         .del()
     );
+  }
 };
 
-const removeActivity = function(knex, name) {
-  return knex('activities')
-    .select('id')
-    .where('name', name)
-    .map(activityId =>
-      removeActivityAliases(knex, activityId.id).then(() =>
-        knex('activities')
-          .where('id', activityId.id)
-          .del()
-      )
-    );
-};
-
-const addActivity = function(knex, user_id, name, details) {
+const addActivity = async function(knex, user_id, name, details) {
   const data = {
     user_id,
     name,
     created_at: new Date(),
     updated_at: new Date()
   };
-  return removeActivity(knex, name).then(() =>
-    knex('activities')
-      .insert(data)
-      .returning('*')
-      .then(activity => {
-        return Promise.all(
-          details.aliases.map(alias => {
-            return knex('activities').insert({
-              user_id,
-              activity_id: activity[0].id,
-              name: alias,
-              created_at: new Date(),
-              updated_at: new Date()
-            });
-          })
-        );
-      })
-  );
+  await removeActivity(knex, name);
+  const activity = await knex('activities')
+    .insert(data)
+    .returning('id');
+  for (const alias of details.aliases) {
+    await knex('activities').insert({
+      user_id,
+      activity_id: activity[0].id,
+      name: alias,
+      created_at: new Date(),
+      updated_at: new Date()
+    });
+  }
 };
 
-const addWorkout = function(knex, user_id, name, details) {
+const addWorkout = async function(knex, user_id, name, details) {
   const workout = Caber.workout(details.raw, 'lb');
 
   return Promise.all(
@@ -101,55 +98,40 @@ const addWorkout = function(knex, user_id, name, details) {
   });
 };
 
-exports.seed = function(knex) {
+exports.seed = async function(knex) {
   if (
-    process.env.ALLOW_SEED === 'production' &&
+    process.env.NODE_ENV === 'production' &&
     process.env.ALLOW_SEED !== 'true'
   ) {
     console.log('not re-seeding admin in production');
     return;
   }
 
-  return knex('users')
+  await knex('users')
     .where('email', 'test@lift.zone')
-    .del()
-    .then(() => {
-      return knex('users')
-        .insert({
-          name: 'Trophy',
-          email: 'test@lift.zone',
-          hash: Bcrypt.hashSync(
-            Config.auth.seedPassword,
-            Bcrypt.genSaltSync(10)
-          ),
-          scope: JSON.stringify([]),
-          created_at: new Date(),
-          updated_at: new Date(),
-          validated: true
-        })
-        .returning('id')
-        .then(user => {
-          const activity_promises = Promise.all(
-            Object.entries(activities).map(([name, details]) =>
-              addActivity(knex, user[0], name, details)
-            )
-          ).then(() =>
-            Promise.all(
-              Object.entries(workouts).map(([name, details]) =>
-                addWorkout(knex, user[0], name, details)
-              )
-            )
-          );
-          return Promise.all([
-            ...[1, 2, 3, 4, 5].map(() =>
-              knex('invites').insert({
-                user_id: user[0],
-                created_at: new Date(),
-                updated_at: new Date()
-              })
-            ),
-            activity_promises
-          ]);
-        });
+    .del();
+  const user = await knex('users')
+    .insert({
+      name: 'Trophy',
+      email: 'test@lift.zone',
+      hash: Bcrypt.hashSync(Config.auth.seedPassword, Bcrypt.genSaltSync(10)),
+      scope: JSON.stringify([]),
+      created_at: new Date(),
+      updated_at: new Date(),
+      validated: true
+    })
+    .returning('id');
+  for (const name in activities) {
+    await addActivity(knex, user[0], name, activities[name]);
+  }
+  for (const name in workouts) {
+    await addWorkout(knex, user[0], name, workouts[name]);
+  }
+  for (let i = 0; i < 5; i++) {
+    await knex('invites').insert({
+      user_id: user[0],
+      created_at: new Date(),
+      updated_at: new Date()
     });
+  }
 };
