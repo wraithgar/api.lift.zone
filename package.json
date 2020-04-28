@@ -55,7 +55,7 @@
     "@hapi/vision": "6.0.0",
     "@now-ims/hapi-now-auth": "2.0.1",
     "aws-sdk": "^2.597.0",
-    "bcrypt": "4.0.0",
+    "bcrypt": "4.0.1",
     "caber": "5.0.3",
     "getconfig": "4.5.0",
     "hapi-pagination": "3.0.0",
