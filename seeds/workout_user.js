@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
-const Bcrypt = require('bcrypt');
-const Config = require('getconfig');
-const Caber = require('caber');
+const Bcrypt = require('bcrypt')
+const Config = require('getconfig')
+const Caber = require('caber')
 
 const activities = {
   Squats: {
@@ -14,7 +14,7 @@ const activities = {
   'Front Squat': {
     aliases: []
   }
-};
+}
 
 const workouts = {
   'Friday Workout': {
@@ -23,93 +23,93 @@ Front Squat
 Overhead Press 80x5x5
 Barbell Squat 5x5`
   }
-};
+}
 
-const removeActivityAliases = async function(knex, activity_id) {
+const removeActivityAliases = async function (knex, activityId) {
   const aliases = await knex('activities')
     .select('id')
-    .where('activity_id', activity_id);
+    .where('activity_id', activityId)
 
-  for (const activity_alias of aliases) {
+  for (const activityAlias of aliases) {
     await knex('activities')
       .select()
-      .where('activity_id', activity_alias.id)
-      .del();
+      .where('activity_id', activityAlias.id)
+      .del()
   }
-};
+}
 
-const removeActivity = async function(knex, name) {
+const removeActivity = async function (knex, name) {
   const ids = await knex('activities')
     .select('id')
-    .where('name', name);
+    .where('name', name)
 
   for (const activityId of ids) {
     await removeActivityAliases(knex, activityId.id).then(() =>
       knex('activities')
         .where('id', activityId.id)
         .del()
-    );
+    )
   }
-};
+}
 
-const addActivity = async function(knex, user_id, name, details) {
+const addActivity = async function (knex, userId, name, details) {
   const data = {
-    user_id,
+    user_id: userId,
     name,
     created_at: new Date(),
     updated_at: new Date()
-  };
-  await removeActivity(knex, name);
+  }
+  await removeActivity(knex, name)
   const activity = await knex('activities')
     .insert(data)
-    .returning('id');
+    .returning('id')
   for (const alias of details.aliases) {
     await knex('activities').insert({
-      user_id,
+      user_id: userId,
       activity_id: activity[0].id,
       name: alias,
       created_at: new Date(),
       updated_at: new Date()
-    });
+    })
   }
-};
+}
 
-const addWorkout = async function(knex, user_id, name, details) {
-  const workout = Caber.workout(details.raw, 'lb');
+const addWorkout = async function (knex, userId, name, details) {
+  const workout = Caber.workout(details.raw, 'lb')
 
   return Promise.all(
-    workout.activities.map(item =>
+    workout.activities.map((item) =>
       knex('activities')
         .where('name', item.name)
         .then(([activityId]) => Object.assign(activityId, { sets: item.sets }))
     )
-  ).then(activity_list => {
+  ).then((activityList) => {
     const data = {
       name,
-      user_id,
-      activities: JSON.stringify(activity_list),
+      user_id: userId,
+      activities: JSON.stringify(activityList),
       raw: details.raw,
       raw_date: workout.rawDate,
       date: new Date(),
       created_at: new Date(),
       updated_at: new Date()
-    };
-    return knex('workouts').insert(data);
-  });
-};
+    }
+    return knex('workouts').insert(data)
+  })
+}
 
-exports.seed = async function(knex) {
+exports.seed = async function (knex) {
   if (
     process.env.NODE_ENV === 'production' &&
     process.env.ALLOW_SEED !== 'true'
   ) {
-    console.log('not re-seeding admin in production');
-    return;
+    console.log('not re-seeding admin in production')
+    return
   }
 
   await knex('users')
     .where('email', 'test@lift.zone')
-    .del();
+    .del()
   const user = await knex('users')
     .insert({
       name: 'Trophy',
@@ -120,18 +120,20 @@ exports.seed = async function(knex) {
       updated_at: new Date(),
       validated: true
     })
-    .returning('id');
+    .returning('id')
   for (const name in activities) {
-    await addActivity(knex, user[0], name, activities[name]);
+    await addActivity(knex, user[0], name, activities[name])
   }
+
   for (const name in workouts) {
-    await addWorkout(knex, user[0], name, workouts[name]);
+    await addWorkout(knex, user[0], name, workouts[name])
   }
+
   for (let i = 0; i < 5; i++) {
     await knex('invites').insert({
       user_id: user[0],
       created_at: new Date(),
       updated_at: new Date()
-    });
+    })
   }
-};
+}

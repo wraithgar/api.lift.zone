@@ -1,23 +1,23 @@
-'use strict';
+'use strict'
 
-const AWS = require('../../lib/aws');
-const Config = require('getconfig');
+const AWS = require('../../lib/aws')
+const Config = require('getconfig')
 
 module.exports = {
   description: 'Request email validation',
   tags: ['api', 'user'],
-  handler: async function(request, h) {
+  handler: async function (request, h) {
     const existingValidation = await this.db.validations.fresh({
       user_id: request.auth.credentials.id
-    });
+    })
 
     if (existingValidation) {
-      return h.response(null).code(202);
+      return h.response(null).code(202)
     }
 
     const validation = await this.db.validations.insert({
       user_id: request.auth.credentials.id
-    });
+    })
 
     const email = {
       Destination: {
@@ -38,19 +38,20 @@ module.exports = {
       },
       Source: Config.email.from,
       ReplyToAddresses: [Config.email.from]
-    };
+    }
 
     // $lab:coverage:off$
     if (process.env.NODE_ENV) {
       try {
-        AWS.sendEmail(email);
+        AWS.sendEmail(email)
       } catch (err) {
-        request.log(['error', 'user', 'validate'], err.stack || err);
+        request.log(['error', 'user', 'validate'], err.stack || err)
       }
     }
-    // $lab:coverage:on$
-    request.log(['debug'], validation.token);
 
-    return h.response(null).code(202);
+    // $lab:coverage:on$
+    request.log(['debug'], validation.token)
+
+    return h.response(null).code(202)
   }
-};
+}

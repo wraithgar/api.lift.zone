@@ -1,15 +1,15 @@
-'use strict';
+'use strict'
 
-const Bcrypt = require('bcrypt');
-const Config = require('getconfig');
+const Bcrypt = require('bcrypt')
+const Config = require('getconfig')
 
-exports.seed = function(knex) {
+exports.seed = function (knex) {
   if (
     process.env.NODE_ENV === 'production' &&
     process.env.ALLOW_SEED !== 'true'
   ) {
-    console.log('not re-seeding admin in production');
-    return;
+    console.log('not re-seeding admin in production')
+    return
   }
 
   return knex('users')
@@ -29,7 +29,7 @@ exports.seed = function(knex) {
           updated_at: new Date()
         })
         .returning('id')
-        .then(user => {
+        .then((user) => {
           return Promise.all([
             knex('invites').insert({
               user_id: user[0],
@@ -64,14 +64,14 @@ exports.seed = function(knex) {
                 updated_at: new Date()
               })
               .returning('id')
-              .then(activity => {
+              .then((activity) => {
                 return knex('activities').insert({
                   user_id: user[0],
                   name: 'Barbell Squat',
                   activity_id: activity[0],
                   created_at: new Date(),
                   updated_at: new Date()
-                });
+                })
               }),
             knex('activities')
               .insert({
@@ -81,14 +81,14 @@ exports.seed = function(knex) {
                 updated_at: new Date()
               })
               .returning('id')
-              .then(activity => {
+              .then((activity) => {
                 return knex('activities').insert({
                   user_id: user[0],
                   name: 'OHP',
                   activity_id: activity[0],
                   created_at: new Date(),
                   updated_at: new Date()
-                });
+                })
               }),
             knex('activities').insert({
               user_id: user[0],
@@ -96,7 +96,7 @@ exports.seed = function(knex) {
               created_at: new Date(),
               updated_at: new Date()
             })
-          ]);
-        });
-    });
-};
+          ])
+        })
+    })
+}

@@ -1,43 +1,45 @@
-'use strict';
+'use strict'
 
-const Bcrypt = require('bcrypt');
-const Boom = require('@hapi/boom');
-const Config = require('getconfig');
-const Joi = require('@hapi/joi');
+const Bcrypt = require('bcrypt')
+const Boom = require('@hapi/boom')
+const Config = require('getconfig')
+const Joi = require('@hapi/joi')
 
 module.exports = {
   description: 'Update user info',
   tags: ['api', 'user'],
-  handler: async function(request) {
-    const credentials = request.auth.credentials;
+  handler: async function (request) {
+    const credentials = request.auth.credentials
     const { hash } = await this.db.users.findOne({ id: credentials.id }, [
       'hash'
-    ]);
-    const valid = await Bcrypt.compare(request.payload.currentPassword, hash);
+    ])
+    const valid = await Bcrypt.compare(request.payload.currentPassword, hash)
 
     if (!valid) {
-      throw Boom.badRequest('Current password does not match');
+      throw Boom.badRequest('Current password does not match')
     }
 
-    const attrs = { ...request.payload };
+    const attrs = { ...request.payload }
 
     if (attrs.email) {
-      attrs.validated = false;
+      attrs.validated = false
     }
+
     if (attrs.newPassword) {
-      attrs.hash = await Bcrypt.hash(attrs.newPassword, Config.saltRounds);
+      attrs.hash = await Bcrypt.hash(attrs.newPassword, Config.saltRounds)
     }
-    delete attrs.currentPassword;
-    delete attrs.newPassword;
+
+    delete attrs.currentPassword
+    delete attrs.newPassword
 
     const updatedUser = await this.db.users.updateOne(
       { id: request.auth.credentials.id },
       attrs
-    );
+    )
 
-    const result = await this.db.users.active(updatedUser.email);
+    const result = await this.db.users.active(updatedUser.email)
 
-    return result;
+    return result
   },
   validate: {
     payload: Joi.object()
@@ -66,4 +68,4 @@ module.exports = {
       hash: Joi.any().strip()
     }).unknown()
   }
-};
+}

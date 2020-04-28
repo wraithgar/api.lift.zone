@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 
 const Controllers = require('keyfob').load({
   root: './controllers',
   fn: require
-});
+})
 
 module.exports = [
   /* heartbeat */
@@ -111,4 +111,4 @@ module.exports = [
     handler: { file: 'LICENSE.TXT' },
     config: { auth: false }
   }
-];
+]

@@ -1,21 +1,21 @@
-'use strict';
+'use strict'
 
-exports.up = function(knex) {
-  return knex.schema.createTable('recoveries', recoveries => {
+exports.up = function (knex) {
+  return knex.schema.createTable('recoveries', (recoveries) => {
     recoveries
       .uuid('token')
       .defaultTo(knex.raw('uuid_generate_v4()'))
-      .primary();
+      .primary()
     recoveries
       .text('email')
       .index()
       .notNullable()
       .references('users.email')
-      .onDelete('CASCADE');
-    recoveries.timestamps();
-  });
-};
+      .onDelete('CASCADE')
+    recoveries.timestamps()
+  })
+}
 
-exports.down = function(knex) {
-  return knex.schema.dropTableIfExists('recoveries');
-};
+exports.down = function (knex) {
+  return knex.schema.dropTableIfExists('recoveries')
+}

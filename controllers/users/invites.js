@@ -1,21 +1,21 @@
-'use strict';
+'use strict'
 
-const Joi = require('@hapi/joi');
+const Joi = require('@hapi/joi')
 
 module.exports = {
   description: 'Invites for currently logged in user',
   tags: ['api', 'user'],
-  handler: function(request) {
+  handler: function (request) {
     if (!request.auth.credentials.validated) {
-      return [];
+      return []
     }
 
     const result = this.db.invites.find({
       user_id: request.auth.credentials.id,
       claimed_by: null
-    });
+    })
 
-    return result;
+    return result
   },
   response: {
     modify: true,
@@ -26,4 +26,4 @@ module.exports = {
       }).unknown()
     )
   }
-};
+}

@@ -1,44 +1,44 @@
-'use strict';
+'use strict'
 
-const Bcrypt = require('bcrypt');
-const Boom = require('@hapi/boom');
-const Config = require('getconfig');
-const Joi = require('@hapi/joi');
-const JWT = require('jsonwebtoken');
+const Bcrypt = require('bcrypt')
+const Boom = require('@hapi/boom')
+const Config = require('getconfig')
+const Joi = require('@hapi/joi')
+const JWT = require('jsonwebtoken')
 
 module.exports = {
   description: 'Reset password using recovery token',
   notes: 'Logs out any existing sessions',
   tags: ['user'],
-  handler: async function(request, h) {
+  handler: async function (request, h) {
     const recovery = await this.db.recoveries.findOne({
       token: request.payload.token
-    });
+    })
 
     if (!recovery) {
-      throw Boom.notFound('Invalid token');
+      throw Boom.notFound('Invalid token')
     }
 
-    const hash = await Bcrypt.hash(request.payload.password, Config.saltRounds);
+    const hash = await Bcrypt.hash(request.payload.password, Config.saltRounds)
 
-    await this.db.tx(async tx => {
+    await this.db.tx(async (tx) => {
       await Promise.all([
         tx.recoveries.destroy({ token: recovery.token }),
         tx.users.updateOne(
           { email: recovery.email },
           { hash, logout: new Date() }
         )
-      ]);
-    });
+      ])
+    })
 
-    const user = await this.db.users.active(recovery.email);
+    const user = await this.db.users.active(recovery.email)
 
-    user.timestamp = new Date();
+    user.timestamp = new Date()
     return h
       .response({
         token: JWT.sign({ ...user }, Config.auth.secret, Config.auth.options)
       })
-      .code(201);
+      .code(201)
   },
   validate: {
     payload: Joi.object().keys({
@@ -54,4 +54,4 @@ module.exports = {
     })
   },
   auth: false
-};
+}
