@@ -1,39 +1,39 @@
-'use strict';
+'use strict'
 
-const Boom = require('@hapi/boom');
-const Joi = require('@hapi/joi');
+const Boom = require('@hapi/boom')
+const Joi = require('@hapi/joi')
 
 module.exports = {
   description: 'Get workout history for an activity by id',
   tags: ['api', 'activity'],
-  handler: async function(request) {
-    const params = { ...request.params, user_id: request.auth.credentials.id };
-    const activity = await this.db.activities.findOne(params);
+  handler: async function (request) {
+    const params = { ...request.params, user_id: request.auth.credentials.id }
+    const activity = await this.db.activities.findOne(params)
 
     if (!activity) {
-      throw Boom.notFound();
+      throw Boom.notFound()
     }
 
-    let id = activity.id;
+    let id = activity.id
     if (activity.activity_id) {
-      id = activity.activity_id;
+      id = activity.activity_id
     }
 
-    const history_count = await this.db.activities.history_count({
+    const historyCount = await this.db.activities.history_count({
       id,
       user_id: request.auth.credentials.id
-    });
+    })
 
     /* eslint require-atomic-updates: 0 */
-    request.totalCount = history_count.count;
+    request.totalCount = historyCount.count
 
-    let { page } = request.query;
+    let { page } = request.query
     if (page === 0) {
-      page = this.utils.lastPage(history_count.count, request.query.limit);
+      page = this.utils.lastPage(historyCount.count, request.query.limit)
     }
 
-    if (history_count.count === 0) {
-      return [];
+    if (historyCount.count === 0) {
+      return []
     }
 
     const query = {
@@ -41,11 +41,11 @@ module.exports = {
       page,
       id,
       user_id: request.auth.credentials.id
-    };
-    query.page = (query.page - 1) * query.limit;
-    const activities = await this.db.activities.history(query);
+    }
+    query.page = (query.page - 1) * query.limit
+    const activities = await this.db.activities.history(query)
 
-    return activities;
+    return activities
   },
   validate: {
     params: Joi.object().keys({
@@ -61,4 +61,4 @@ module.exports = {
         .min(0)
     })
   }
-};
+}

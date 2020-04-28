@@ -1,16 +1,16 @@
-'use strict';
+'use strict'
 
-const Joi = require('@hapi/joi');
+const Joi = require('@hapi/joi')
 
 module.exports = {
   description: 'Delete user',
   notes:
     'The query parameter "confirm" is meant to aid clients in confirming with the end user that they really want to do this',
   tags: ['user'],
-  handler: async function(request, h) {
-    await this.db.users.destroy({ id: request.auth.credentials.id });
+  handler: async function (request, h) {
+    await this.db.users.destroy({ id: request.auth.credentials.id })
 
-    return h.response().code(204);
+    return h.response().code(204)
   },
   validate: {
     query: Joi.object().keys({
@@ -19,4 +19,4 @@ module.exports = {
         .required()
     })
   }
-};
+}

@@ -1,19 +1,19 @@
-'use strict';
+'use strict'
 
-const Joi = require('@hapi/joi');
-const Boom = require('@hapi/boom');
+const Joi = require('@hapi/joi')
+const Boom = require('@hapi/boom')
 
 module.exports = {
   description: 'Get a public workout by id',
   tags: ['api', 'workout'],
-  handler: async function(request) {
-    const workout = await this.db.workouts.public(request.params);
+  handler: async function (request) {
+    const workout = await this.db.workouts.public(request.params)
 
     if (!workout) {
-      throw Boom.notFound();
+      throw Boom.notFound()
     }
 
-    return workout;
+    return workout
   },
   validate: {
     params: Joi.object().keys({
@@ -27,4 +27,4 @@ module.exports = {
       user_id: Joi.any().strip()
     }).unknown()
   }
-};
+}
