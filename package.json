@@ -49,7 +49,7 @@
     "@hapi/catbox-memory": "^5.0.0",
     "@hapi/hapi": "^19.2.0",
     "@hapi/hoek": "^9.0.4",
-    "@hapi/inert": "^6.0.1",
+    "@hapi/inert": "^6.0.2",
     "@hapi/joi": "^17.1.1",
     "@hapi/joi-date": "^2.0.1",
     "@hapi/vision": "^6.0.0",
