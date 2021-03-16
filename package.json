@@ -68,7 +68,7 @@
     "muckraker": "^5.0.2"
   },
   "devDependencies": {
-    "@hapi/code": "^8.0.2",
+    "@hapi/code": "^8.0.3",
     "@hapi/lab": "^24.1.1",
     "eslint": "^7.22.0",
     "eslint-config-standard": "^16.0.2",
