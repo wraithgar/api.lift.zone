@@ -54,7 +54,7 @@
     "@hapi/joi-date": "^2.0.1",
     "@hapi/vision": "^6.0.1",
     "@now-ims/hapi-now-auth": "^2.0.3",
-    "aws-sdk": "^2.887.0",
+    "aws-sdk": "^2.890.0",
     "bcrypt": "^5.0.1",
     "caber": "^5.0.5",
     "getconfig": "^4.5.0",
