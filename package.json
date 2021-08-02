@@ -64,7 +64,7 @@
     "hapi-swagger": "^13.1.0",
     "jsonwebtoken": "^8.5.1",
     "keyfob": "^2.0.1",
-    "knex": "^0.95.8",
+    "knex": "^0.95.9",
     "muckraker": "^5.0.3"
   },
   "devDependencies": {
